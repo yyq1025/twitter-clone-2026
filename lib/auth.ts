@@ -6,6 +6,7 @@ import { db } from "@/lib/db/drizzle";
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
     provider: "pg",
+    usePlural: true,
   }),
   socialProviders: {
     github: {
