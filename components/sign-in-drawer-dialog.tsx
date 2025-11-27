@@ -52,7 +52,7 @@ export function SignInDrawerDialog({
   };
 
   const triggerButton = useMemo(
-    () => trigger ?? <Button className="rounded-full font-bold">登录</Button>,
+    () => trigger ?? <Button className="rounded-full font-bold">Sign in</Button>,
     [trigger]
   );
 
@@ -63,7 +63,7 @@ export function SignInDrawerDialog({
         disabled={loading !== null}
         onClick={handleGithubSignIn}
       >
-        {loading === "github" ? "正在使用 GitHub 登录..." : "使用 GitHub 登录"}
+        {loading === "github" ? "Signing in with GitHub..." : "Sign in with GitHub"}
       </Button>
       <Button
         variant="outline"
@@ -71,7 +71,7 @@ export function SignInDrawerDialog({
         disabled={loading !== null}
         onClick={handleAnonymousSignIn}
       >
-        {loading === "anonymous" ? "正在匿名登录..." : "匿名登录"}
+        {loading === "anonymous" ? "Signing in anonymously..." : "Sign in anonymously"}
       </Button>
     </div>
   );
@@ -82,9 +82,9 @@ export function SignInDrawerDialog({
         <DialogTrigger asChild>{triggerButton}</DialogTrigger>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>登录</DialogTitle>
+            <DialogTitle>Sign in</DialogTitle>
             <DialogDescription>
-              选择一种方式进入，稍后随时可以升级或切换账号。
+              Choose a way to continue; you can upgrade or switch accounts at any time.
             </DialogDescription>
           </DialogHeader>
           {actionButtons}
@@ -98,9 +98,9 @@ export function SignInDrawerDialog({
       <DrawerTrigger asChild>{triggerButton}</DrawerTrigger>
       <DrawerContent>
         <DrawerHeader>
-          <DrawerTitle>登录</DrawerTitle>
+          <DrawerTitle>Sign in</DrawerTitle>
           <DrawerDescription>
-            选择一种方式进入，稍后随时可以升级或切换账号。
+            Choose a way to continue; you can upgrade or switch accounts at any time.
           </DrawerDescription>
         </DrawerHeader>
         <DrawerFooter className="pt-0">{actionButtons}</DrawerFooter>

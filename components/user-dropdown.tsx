@@ -39,7 +39,7 @@ export function UserDropdown() {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" side="top">
         <DropdownMenuItem variant="destructive" onClick={handleLogout}>
-          登出 {username}
+          Log out {username}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

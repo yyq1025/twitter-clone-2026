@@ -30,9 +30,9 @@ const getImageDimensions = (
   height: number;
 }> => {
   return new Promise((resolve) => {
-    // 1. 安全检查：如果不是图片，直接返回 null
+    // 1. Safety check: return zero dimensions if the file is not an image
     if (!file.type.startsWith("image/")) {
-      console.warn(`文件 ${file.name} 不是图片，跳过尺寸获取`);
+      console.warn(`File ${file.name} is not an image, skipping dimension lookup.`);
       resolve({ width: 0, height: 0 });
       return;
     }
@@ -46,7 +46,7 @@ const getImageDimensions = (
     };
 
     img.onerror = () => {
-      console.error(`无法读取图片尺寸: ${file.name}`);
+      console.error(`Unable to read image dimensions: ${file.name}`);
       resolve({ width: 0, height: 0 });
       URL.revokeObjectURL(objectUrl);
     };
@@ -81,12 +81,12 @@ export function CreatePostDialog({ trigger }: CreatePostDialogProps) {
     for (const file of files) {
       const isSupportedType = file.type.startsWith("image/");
       if (!isSupportedType) {
-        setMediaError("仅支持图片。");
+        setMediaError("Only images are supported.");
         event.target.value = "";
         return;
       }
       if (file.size > maxSizeBytes) {
-        setMediaError("每个文件需小于 30MB。");
+        setMediaError("Each file must be smaller than 30MB.");
         event.target.value = "";
         return;
       }
@@ -107,7 +107,7 @@ export function CreatePostDialog({ trigger }: CreatePostDialogProps) {
       ];
     });
 
-    setMediaError(exceededLimit ? "最多上传 4 个媒体。" : null);
+    setMediaError(exceededLimit ? "You can upload up to 4 media files." : null);
     event.target.value = "";
   };
 
@@ -183,7 +183,7 @@ export function CreatePostDialog({ trigger }: CreatePostDialogProps) {
       <DialogTrigger asChild>{trigger}</DialogTrigger>
       <DialogContent className="sm:max-w-xl">
         <DialogHeader>
-          <DialogTitle>发帖</DialogTitle>
+          <DialogTitle>Create post</DialogTitle>
         </DialogHeader>
 
         <div className="flex items-start gap-3">
@@ -194,8 +194,8 @@ export function CreatePostDialog({ trigger }: CreatePostDialogProps) {
               rows={4}
               value={content}
               onChange={(event) => setContent(event.target.value)}
-              placeholder="有什么新鲜事？"
-              aria-label="新帖子内容"
+              placeholder="What's happening?"
+              aria-label="New post content"
               maxLength={280}
             />
             {mediaFiles.length ? (
@@ -210,7 +210,7 @@ export function CreatePostDialog({ trigger }: CreatePostDialogProps) {
                         <button
                           type="button"
                           className="absolute right-2 top-2 z-10 rounded-full bg-black/60 p-1 text-white transition hover:bg-black/80"
-                          aria-label="移除媒体"
+                          aria-label="Remove media"
                           onClick={() => handleRemoveMedia(item.previewUrl)}
                         >
                           <IconX className="size-4" />
@@ -238,19 +238,19 @@ export function CreatePostDialog({ trigger }: CreatePostDialogProps) {
               multiple
               className="sr-only"
               onChange={handleMediaChange}
-              aria-label="选择图片"
+              aria-label="Choose images"
             />
             <InputGroupButton
               size="icon-sm"
               variant="ghost"
-              aria-label="添加图片"
+              aria-label="Add image"
               onClick={() => fileInputRef.current?.click()}
             >
               <IconPhoto className="size-4" />
             </InputGroupButton>
             {mediaFiles.length ? (
               <span className="text-xs text-gray_text">
-                已选择 {mediaFiles.length} / 4
+                Selected {mediaFiles.length} / 4
               </span>
             ) : null}
             {mediaError ? (
@@ -259,7 +259,7 @@ export function CreatePostDialog({ trigger }: CreatePostDialogProps) {
             <InputGroupButton
               size="icon-sm"
               variant="ghost"
-              aria-label="添加话题"
+              aria-label="Add hashtag"
             >
               <IconHash className="size-4" />
             </InputGroupButton>
@@ -270,7 +270,7 @@ export function CreatePostDialog({ trigger }: CreatePostDialogProps) {
             disabled={!content.trim() || submitting}
             onClick={onSubmit}
           >
-            发帖
+            Post
           </Button>
         </DialogFooter>
       </DialogContent>
