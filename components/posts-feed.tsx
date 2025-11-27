@@ -26,7 +26,7 @@ export default function PostsFeed() {
 
   if (loading) {
     return (
-      <div className="p-4 text-sm text-gray_text">加载帖子中，请稍候...</div>
+      <div className="p-4 text-sm text-gray_text">Loading posts, please wait...</div>
     );
   }
 
@@ -49,13 +49,13 @@ function PostsList() {
   if (isError) {
     return (
       <div className="p-4 text-sm text-destructive">
-        加载帖子时出错，请稍后再试。
+        Error loading posts. Please try again later.
       </div>
     );
   }
 
   if (!data.length) {
-    return <div className="p-4 text-sm text-gray_text">暂无帖子</div>;
+    return <div className="p-4 text-sm text-gray_text">No posts yet</div>;
   }
 
   return (
