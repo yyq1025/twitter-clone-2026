@@ -79,7 +79,7 @@ function PostsList() {
           return (
             <div
               key={post.id}
-              ref={virtualRow.measureElement}
+              ref={virtualizer.measureElement}
               className="absolute left-0 top-0 w-full border-b border-border_color"
               style={{
                 transform: `translateY(${virtualRow.start}px)`,
