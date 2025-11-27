@@ -33,7 +33,7 @@ export default function Home() {
                   <IconHome className="size-7" />
 
                   <span className="hidden xl:block text-xl font-bold">
-                    主页
+                    Home
                   </span>
                 </a>
                 <a
@@ -41,14 +41,14 @@ export default function Home() {
                   className="flex items-center gap-4 p-3 hover:bg-gray-100 rounded-full w-max transition"
                 >
                   <IconSearch className="size-7" />
-                  <span className="hidden xl:block text-xl">探索</span>
+                  <span className="hidden xl:block text-xl">Explore</span>
                 </a>
                 <a
                   href="#"
                   className="flex items-center gap-4 p-3 hover:bg-gray-100 rounded-full w-max transition"
                 >
                   <IconBell className="size-7" />
-                  <span className="hidden xl:block text-xl">通知</span>
+                  <span className="hidden xl:block text-xl">Notifications</span>
                 </a>
               </nav>
 
@@ -59,7 +59,7 @@ export default function Home() {
                     className="w-min xl:w-[90%] rounded-full p-4 h-fit"
                   >
                     <span className="hidden xl:block font-bold text-lg">
-                      发帖
+                      Post
                     </span>
                     <IconFeatherFilled className="size-7 xl:hidden" />
                   </Button>
@@ -79,11 +79,11 @@ export default function Home() {
 
             <div className="flex w-full">
               <div className="flex-1 hover:bg-gray-100 cursor-pointer p-4 text-center relative">
-                <span className="font-bold">推荐</span>
+                <span className="font-bold">For you</span>
                 <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-14 h-1 bg-blue-500 rounded-full"></div>
               </div>
               <div className="flex-1 hover:bg-gray-100 cursor-pointer p-4 text-center text-gray_text">
-                <span>关注</span>
+                <span>Following</span>
               </div>
             </div>
           </div>
@@ -93,7 +93,7 @@ export default function Home() {
             <div className="flex-1">
               <input
                 type="text"
-                placeholder="有什么新鲜事？"
+                placeholder="What's happening?"
                 className="w-full bg-transparent text-xl outline-none placeholder-gray_text mb-4"
               />
               <div className="flex justify-between items-center border-t border-border_color pt-3">
@@ -101,7 +101,7 @@ export default function Home() {
                   <IconPhoto className="size-5" />
                 </div>
                 <button className="bg-blue-500 text-white px-4 py-1.5 rounded-full font-bold opacity-50 cursor-not-allowed">
-                  发帖
+                  Post
                 </button>
               </div>
             </div>
@@ -117,14 +117,14 @@ export default function Home() {
               </div>
               <input
                 type="text"
-                placeholder="搜索"
+                placeholder="Search"
                 className="w-full bg-gray-100 text-white rounded-full py-3 pl-10 pr-4 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:bg-black border border-transparent focus:border-blue-500 transition"
               />
             </div>
           </div>
 
           <div className="bg-gray-100 rounded-2xl mt-4 overflow-hidden border border-border_color">
-            <h3 className="font-bold text-xl p-4 pb-0">推荐关注</h3>
+            <h3 className="font-bold text-xl p-4 pb-0">Who to follow</h3>
 
             <div className="p-4 hover:bg-white/5 cursor-pointer transition flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-white"></div>
@@ -133,7 +133,7 @@ export default function Home() {
                 <p className="text-gray_text text-sm truncate">@Google</p>
               </div>
               <button className="bg-white text-black font-bold px-4 py-1.5 rounded-full text-sm hover:bg-gray-200">
-                关注
+                Follow
               </button>
             </div>
             <div className="p-4 hover:bg-white/5 cursor-pointer transition flex items-center gap-3">
@@ -143,20 +143,20 @@ export default function Home() {
                 <p className="text-gray_text text-sm truncate">@nvidia</p>
               </div>
               <button className="bg-white text-black font-bold px-4 py-1.5 rounded-full text-sm hover:bg-gray-200">
-                关注
+                Follow
               </button>
             </div>
           </div>
 
           <div className="p-4 text-sm text-gray_text flex flex-wrap gap-x-2 leading-5">
             <a href="#" className="hover:underline">
-              服务条款
+              Terms of Service
             </a>
             <a href="#" className="hover:underline">
-              隐私政策
+              Privacy Policy
             </a>
             <a href="#" className="hover:underline">
-              Cookie 政策
+              Cookie Policy
             </a>
             <span>© 2025 X Corp.</span>
           </div>
@@ -169,17 +169,17 @@ export default function Home() {
             <div className="max-w-7xl mx-auto flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center p-4">
               <div>
                 <p className="text-xl sm:text-2xl font-semibold">
-                  新鲜事一网打尽
+                  Stay on top of what's happening
                 </p>
                 <p className="text-sm sm:text-base text-white/90">
-                  X 上的用户能够抢先知道。
+                  People on X are the first to know.
                 </p>
               </div>
 
               <SignInDrawerDialog
                 trigger={
                   <Button className="rounded-full font-bold bg-white text-black hover:bg-gray-100">
-                    登录
+                    Log in
                   </Button>
                 }
               />
