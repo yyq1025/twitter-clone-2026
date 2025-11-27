@@ -9,7 +9,8 @@ import {
   electricPostMediaCollection,
 } from "@/lib/collections";
 import { authClient } from "@/lib/auth-client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useVirtualizer } from "@tanstack/react-virtual";
 import { PostItem } from "./post-item";
 
 export default function PostsFeed() {
@@ -35,7 +36,7 @@ export default function PostsFeed() {
 
 function PostsList() {
   const { data: session } = authClient.useSession();
-  const { data, isError } = useLiveQuery((q) =>
+  const { data = [], isError } = useLiveQuery((q) =>
     q
       .from({ post: electricPostCollection })
       .join(
@@ -45,6 +46,14 @@ function PostsList() {
       )
       .orderBy(({ post }) => post.createdAt, "desc")
   );
+  const parentRef = useRef<HTMLDivElement | null>(null);
+
+  const virtualizer = useVirtualizer({
+    count: data.length,
+    getScrollElement: () => parentRef.current,
+    estimateSize: () => 320,
+    overscan: 8,
+  });
 
   if (isError) {
     return (
@@ -59,15 +68,33 @@ function PostsList() {
   }
 
   return (
-    <div className="divide-y divide-border_color">
-      {data.map(({ post, user }) => (
-        <PostItem
-          key={post.id}
-          post={post}
-          user={user}
-          sessionUserId={session?.user?.id}
-        />
-      ))}
+    <div ref={parentRef} className="h-full overflow-y-auto">
+      <div
+        className="relative w-full"
+        style={{ height: `${virtualizer.getTotalSize()}px` }}
+      >
+        {virtualizer.getVirtualItems().map((virtualRow) => {
+          const { post, user } = data[virtualRow.index];
+
+          return (
+            <div
+              key={post.id}
+              ref={virtualizer.measureElement}
+              className="absolute left-0 top-0 w-full border-b border-border_color"
+              style={{
+                transform: `translateY(${virtualRow.start}px)`,
+                height: `${virtualRow.size}px`,
+              }}
+            >
+              <PostItem
+                post={post}
+                user={user}
+                sessionUserId={session?.user?.id}
+              />
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
