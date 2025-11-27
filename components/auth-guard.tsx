@@ -3,16 +3,22 @@
 import { authClient } from "@/lib/auth-client";
 
 export default function AuthGuard({
-  fallback,
+  fallback = null,
+  loader = null,
   children,
 }: Readonly<{
   children: React.ReactNode;
   fallback?: React.ReactNode;
+  loader?: React.ReactNode;
 }>) {
   const { data: session, isPending, error } = authClient.useSession();
 
-  if (isPending || error || !session) {
-    return <>{fallback ?? null}</>;
+  if (isPending) {
+    return <>{loader}</>;
+  }
+
+  if (error || !session?.user) {
+    return <>{fallback}</>;
   }
 
   return <>{children}</>;

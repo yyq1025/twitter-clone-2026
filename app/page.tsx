@@ -10,11 +10,9 @@ import {
   IconFeatherFilled,
   IconMail,
   IconPhoto,
-  IconMessage,
-  IconRepeat,
-  IconHeart,
-  IconShare,
 } from "@tabler/icons-react";
+import { CreatePostDialog } from "@/components/create-post-dialog";
+import PostsFeed from "@/components/posts-feed";
 
 export default function Home() {
   return (
@@ -54,10 +52,19 @@ export default function Home() {
                 </a>
               </nav>
 
-              <button className="bg-blue-500 hover:bg-blue-600 text-white rounded-full p-4 xl:px-8 xl:py-4 w-min xl:w-[90%] shadow-lg transition">
-                <span className="hidden xl:block font-bold text-lg">发帖</span>
-                <IconFeatherFilled className="size-7 xl:hidden" />
-              </button>
+              <CreatePostDialog
+                trigger={
+                  <Button
+                    size="lg"
+                    className="w-min xl:w-[90%] rounded-full p-4 h-fit"
+                  >
+                    <span className="hidden xl:block font-bold text-lg">
+                      发帖
+                    </span>
+                    <IconFeatherFilled className="size-7 xl:hidden" />
+                  </Button>
+                }
+              />
             </AuthGuard>
           </div>
 
@@ -99,49 +106,7 @@ export default function Home() {
               </div>
             </div>
           </div>
-
-          <div className="p-4 border-b border-border_color hover:bg-gray-100/50 cursor-pointer transition flex gap-4">
-            <div className="w-10 h-10 rounded-full bg-purple-500 flex-shrink-0"></div>
-            <div className="flex-1">
-              <div className="flex gap-1 text-gray_text text-sm items-center">
-                <span className="font-bold hover:underline">Tech Insider</span>
-                <span>@techinsider</span>
-                <span>·</span>
-                <span>2h</span>
-              </div>
-              <p className="mt-1 leading-normal">
-                Tailwind CSS 真是太棒了！用它来复刻界面非常快。⚡️{" "}
-                <span className="text-blue-500">#coding #webdesign</span>
-              </p>
-              <div className="mt-3 rounded-xl h-48 w-full bg-gray-800 border border-border_color"></div>
-
-              <div className="flex justify-between mt-3 max-w-md text-gray_text">
-                <div className="hover:text-blue-500 flex gap-2 items-center group">
-                  <div className="p-2 rounded-full group-hover:bg-blue-500/10">
-                    <IconMessage className="size-4" />
-                  </div>
-                  24
-                </div>
-                <div className="hover:text-green-500 flex gap-2 items-center group">
-                  <div className="p-2 rounded-full group-hover:bg-green-500/10">
-                    <IconRepeat className="size-4" />
-                  </div>
-                  5
-                </div>
-                <div className="hover:text-pink-600 flex gap-2 items-center group">
-                  <div className="p-2 rounded-full group-hover:bg-pink-600/10">
-                    <IconHeart className="size-4" />
-                  </div>
-                  120
-                </div>
-                <div className="hover:text-blue-500 flex gap-2 items-center group">
-                  <div className="p-2 rounded-full group-hover:bg-blue-500/10">
-                    <IconShare className="size-4" />
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          <PostsFeed />
         </main>
 
         <aside className="hidden lg:block w-[350px] ml-8 py-2 h-screen sticky top-0 overflow-y-auto no-scrollbar">
@@ -237,9 +202,16 @@ export default function Home() {
           </a>
         </div>
 
-        <button className="sm:hidden fixed bottom-20 right-4 bg-blue-500 p-4 rounded-full shadow-lg text-white z-50">
-          <IconFeatherFilled className="size-6" />
-        </button>
+        <CreatePostDialog
+          trigger={
+            <Button
+              size="icon-lg"
+              className="sm:hidden fixed bottom-20 right-4 rounded-full text-white z-50 p-3 size-fit"
+            >
+              <IconFeatherFilled className="size-6" />
+            </Button>
+          }
+        />
       </AuthGuard>
     </>
   );
