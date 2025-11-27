@@ -71,7 +71,7 @@ export default function Home() {
           <UserDropdown />
         </header>
 
-        <main className="flex-1 max-w-xl border-x border-border_color h-screen overflow-y-auto no-scrollbar pb-20 sm:pb-0">
+        <main className="flex-1 max-w-xl border-x border-border_color h-screen overflow-hidden no-scrollbar pb-20 sm:pb-0 flex flex-col">
           <div className="sticky top-0 z-10 bg-dark/80 backdrop-blur-md border-b border-border_color">
             <div className="sm:hidden p-3 flex justify-center">
               <IconBrandX className="size-7" />
@@ -106,7 +106,9 @@ export default function Home() {
               </div>
             </div>
           </div>
-          <PostsFeed />
+          <div className="flex-1 overflow-hidden">
+            <PostsFeed />
+          </div>
         </main>
 
         <aside className="hidden lg:block w-[350px] ml-8 py-2 h-screen sticky top-0 overflow-y-auto no-scrollbar">
