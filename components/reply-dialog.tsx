@@ -64,6 +64,7 @@ export function ReplyDialog({
   onSubmitted,
 }: ReplyDialogProps) {
   const { data: session } = authClient.useSession();
+  const isLoggedIn = Boolean(session?.user);
   const [open, setOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [content, setContent] = useState(initialContent);
@@ -124,16 +125,22 @@ export function ReplyDialog({
     }
   };
 
+  const handleOpenChange = (isOpen: boolean) => {
+    if (!isLoggedIn && isOpen) {
+      return;
+    }
+
+    setOpen(isOpen);
+    if (!isOpen) {
+      cleanupMedia();
+      setContent(initialContent);
+    }
+  };
+
   return (
     <Dialog
       open={open}
-      onOpenChange={(isOpen) => {
-        setOpen(isOpen);
-        if (!isOpen) {
-          cleanupMedia();
-          setContent(initialContent);
-        }
-      }}
+      onOpenChange={handleOpenChange}
     >
       <DialogTrigger asChild>{trigger}</DialogTrigger>
       <DialogContent className="sm:max-w-xl">
