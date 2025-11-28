@@ -32,7 +32,9 @@ const getImageDimensions = (
   return new Promise((resolve) => {
     // 1. Safety check: return zero dimensions if the file is not an image
     if (!file.type.startsWith("image/")) {
-      console.warn(`File ${file.name} is not an image, skipping dimension lookup.`);
+      console.warn(
+        `File ${file.name} is not an image, skipping dimension lookup.`
+      );
       resolve({ width: 0, height: 0 });
       return;
     }
@@ -249,9 +251,7 @@ export function CreatePostDialog({ trigger }: CreatePostDialogProps) {
               <IconPhoto className="size-4" />
             </InputGroupButton>
             {mediaFiles.length ? (
-              <span className="text-xs text-gray_text">
-                Selected {mediaFiles.length} / 4
-              </span>
+              <span className="text-xs">Selected {mediaFiles.length} / 4</span>
             ) : null}
             {mediaError ? (
               <span className="text-xs text-red-500">{mediaError}</span>

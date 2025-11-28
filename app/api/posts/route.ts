@@ -37,7 +37,7 @@ export async function GET(request: Request) {
 
   originUrl.searchParams.set("source_id", process.env.ELECTRIC_SOURCE_ID!);
   originUrl.searchParams.set("secret", process.env.ELECTRIC_SECRET!);
-  console.log("originUrl", originUrl.toString());
+
   const response = await fetch(originUrl);
   const headers = new Headers(response.headers);
   headers.delete("content-encoding");

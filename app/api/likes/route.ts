@@ -23,12 +23,6 @@ async function generateTxId(tx: PgTransaction<any, any, any>): Promise<Txid> {
 }
 
 export async function GET(request: Request) {
-  const session = await auth.api.getSession({ headers: await headers() });
-
-  if (!session?.user) {
-    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-  }
-
   const proxyUrl = new URL(request.url);
   const originUrl = new URL("/v1/shape", "https://api.electric-sql.cloud");
 

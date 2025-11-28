@@ -32,7 +32,7 @@ export function UserDropdown() {
           <div className="w-10 h-10 rounded-full bg-gray-600" />
           <div className="hidden xl:block text-left">
             <p className="font-bold text-sm">{displayName}</p>
-            <p className="text-gray_text text-sm">@{username}</p>
+            <p className="text-sm">@{username}</p>
           </div>
           <div className="hidden xl:block ml-auto">...</div>
         </button>

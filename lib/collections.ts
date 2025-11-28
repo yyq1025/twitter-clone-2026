@@ -78,7 +78,6 @@ export const electricUserCollection = createCollection(
 export const electricLikeCollection = createCollection(
   electricCollectionOptions({
     id: "likes",
-    syncMode: "on-demand",
     shapeOptions: {
       url: `${baseUrl}/api/likes`,
       columnMapper: snakeCamelMapper(),

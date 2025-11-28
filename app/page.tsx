@@ -71,8 +71,8 @@ export default function Home() {
           <UserDropdown />
         </header>
 
-        <main className="flex-1 max-w-xl border-x border-border_color h-screen overflow-hidden no-scrollbar pb-20 sm:pb-0 flex flex-col">
-          <div className="sticky top-0 z-10 bg-dark/80 backdrop-blur-md border-b border-border_color">
+        <main className="flex-1 max-w-xl border-x border-gray-100 h-screen overflow-hidden no-scrollbar pb-20 sm:pb-0 flex flex-col">
+          <div className="sticky top-0 z-10 bg-dark/80 backdrop-blur-md border-b border-gray-100">
             <div className="sm:hidden p-3 flex justify-center">
               <IconBrandX className="size-7" />
             </div>
@@ -82,30 +82,12 @@ export default function Home() {
                 <span className="font-bold">For you</span>
                 <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-14 h-1 bg-blue-500 rounded-full"></div>
               </div>
-              <div className="flex-1 hover:bg-gray-100 cursor-pointer p-4 text-center text-gray_text">
+              <div className="flex-1 hover:bg-gray-100 cursor-pointer p-4 text-center">
                 <span>Following</span>
               </div>
             </div>
           </div>
 
-          <div className="hidden sm:flex p-4 border-b border-border_color gap-4">
-            <div className="w-10 h-10 rounded-full bg-gray-600 flex-shrink-0"></div>
-            <div className="flex-1">
-              <input
-                type="text"
-                placeholder="What's happening?"
-                className="w-full bg-transparent text-xl outline-none placeholder-gray_text mb-4"
-              />
-              <div className="flex justify-between items-center border-t border-border_color pt-3">
-                <div className="flex gap-4 text-blue-500">
-                  <IconPhoto className="size-5" />
-                </div>
-                <button className="bg-blue-500 text-white px-4 py-1.5 rounded-full font-bold opacity-50 cursor-not-allowed">
-                  Post
-                </button>
-              </div>
-            </div>
-          </div>
           <div className="flex-1 overflow-hidden">
             <PostsFeed />
           </div>
@@ -114,7 +96,7 @@ export default function Home() {
         <aside className="hidden lg:block w-[350px] ml-8 py-2 h-screen sticky top-0 overflow-y-auto no-scrollbar">
           <div className="sticky top-0 bg-dark z-10 pb-2 pt-1">
             <div className="relative group">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray_text group-focus-within:text-blue-500">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none group-focus-within:text-blue-500">
                 <IconSearch className="size-5" />
               </div>
               <input
@@ -125,14 +107,14 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="bg-gray-100 rounded-2xl mt-4 overflow-hidden border border-border_color">
+          <div className="bg-gray-100 rounded-2xl mt-4 overflow-hidden border border-gray-100">
             <h3 className="font-bold text-xl p-4 pb-0">Who to follow</h3>
 
             <div className="p-4 hover:bg-white/5 cursor-pointer transition flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-white"></div>
               <div className="flex-1 overflow-hidden">
                 <p className="font-bold truncate">Google</p>
-                <p className="text-gray_text text-sm truncate">@Google</p>
+                <p className="text-sm truncate">@Google</p>
               </div>
               <button className="bg-white text-black font-bold px-4 py-1.5 rounded-full text-sm hover:bg-gray-200">
                 Follow
@@ -142,7 +124,7 @@ export default function Home() {
               <div className="w-10 h-10 rounded-full bg-green-500"></div>
               <div className="flex-1 overflow-hidden">
                 <p className="font-bold truncate">NVIDIA</p>
-                <p className="text-gray_text text-sm truncate">@nvidia</p>
+                <p className="text-sm truncate">@nvidia</p>
               </div>
               <button className="bg-white text-black font-bold px-4 py-1.5 rounded-full text-sm hover:bg-gray-200">
                 Follow
@@ -150,7 +132,7 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="p-4 text-sm text-gray_text flex flex-wrap gap-x-2 leading-5">
+          <div className="p-4 text-sm flex flex-wrap gap-x-2 leading-5">
             <a href="#" className="hover:underline">
               Terms of Service
             </a>
@@ -189,7 +171,7 @@ export default function Home() {
           </div>
         }
       >
-        <div className="sm:hidden fixed bottom-0 w-full bg-dark border-t border-border_color flex justify-around p-3 z-50">
+        <div className="sm:hidden fixed bottom-0 w-full bg-dark border-t border-gray-100 flex justify-around p-3 z-50">
           <a href="#" className="p-2">
             <IconHome className="size-6" />
           </a>

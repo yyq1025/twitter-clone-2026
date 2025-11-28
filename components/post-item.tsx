@@ -47,21 +47,13 @@ type PostItemProps = {
   userLikes?: Array<z.infer<typeof selectLikeSchema>>;
 };
 
-export function PostItem({ post, user, sessionUserId }: PostItemProps) {
-  const { data: userLiked } = useLiveQuery(
-    (q) => {
-      if (!sessionUserId) {
-        return undefined;
-      }
-      return q
-        .from({ like: electricLikeCollection })
-        .where(({ like }) =>
-          and(eq(like.userId, sessionUserId), eq(like.postId, post.id))
-        )
-        .findOne();
-    },
-    [sessionUserId]
-  );
+export function PostItem({
+  post,
+  user,
+  sessionUserId,
+  userLikes,
+}: PostItemProps) {
+  const userLiked = !!userLikes?.some((like) => like.postId === post.id);
   const { data: postMedia } = useLiveQuery((q) =>
     q
       .from({ media: electricPostMediaCollection })
@@ -93,7 +85,7 @@ export function PostItem({ post, user, sessionUserId }: PostItemProps) {
       </div>
 
       <div className="flex-1 min-w-0">
-        <div className="flex gap-1 text-gray_text text-sm items-center">
+        <div className="flex gap-1 text-sm items-center">
           <span className="font-bold hover:underline text-foreground">
             {user.name ?? PLACEHOLDER_NAME}
           </span>
@@ -135,7 +127,7 @@ export function PostItem({ post, user, sessionUserId }: PostItemProps) {
           </div>
         )}
 
-        <div className="flex justify-between mt-3 max-w-md text-gray_text">
+        <div className="flex justify-between mt-3 max-w-md">
           <div className="hover:text-blue-500 flex gap-2 items-center group">
             <div className="p-2 rounded-full group-hover:bg-blue-500/10">
               <IconMessage className="size-4" />
