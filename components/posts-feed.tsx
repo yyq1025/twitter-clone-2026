@@ -33,23 +33,29 @@ export default function PostsFeed() {
 
 function PostsList() {
   const { data: session } = authClient.useSession();
-  const { pages, hasNextPage, fetchNextPage, isFetchingNextPage, isError } =
-    useLiveInfiniteQuery(
-      (q) =>
-        q
-          .from({ post: electricPostCollection })
-          .join(
-            { user: electricUserCollection },
-            ({ post, user }) => eq(user.id, post.userId),
-            "inner"
-          )
-          .orderBy(({ post }) => post.createdAt, "desc"),
-      {
-        pageSize: 20,
-        getNextPageParam: (lastPage, allPages) =>
-          lastPage.length === 20 ? allPages.length : undefined,
-      }
-    );
+  const {
+    pages,
+    hasNextPage,
+    fetchNextPage,
+    isFetchingNextPage,
+    isError,
+    isLoading,
+  } = useLiveInfiniteQuery(
+    (q) =>
+      q
+        .from({ post: electricPostCollection })
+        .join(
+          { user: electricUserCollection },
+          ({ post, user }) => eq(user.id, post.userId),
+          "inner"
+        )
+        .orderBy(({ post }) => post.createdAt, "desc"),
+    {
+      pageSize: 20,
+      getNextPageParam: (lastPage, allPages) =>
+        lastPage.length === 20 ? allPages.length : undefined,
+    }
+  );
 
   const posts = pages.flat();
 
@@ -124,8 +130,8 @@ function PostsList() {
             <div className="p-4 text-sm text-destructive">
               Error loading posts. Please try again later.
             </div>
-          ) : !posts.length ? (
-            <div className="p-4 text-sm">No posts yet</div>
+          ) : isLoading ? (
+            <div className="p-4 text-sm">Loading posts...</div>
           ) : (
             items.map((virtualRow) => {
               const isLoaderRow = virtualRow.index > posts.length - 1;
