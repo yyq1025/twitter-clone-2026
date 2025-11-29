@@ -8,7 +8,10 @@ import {
 } from "@/db/validation";
 import { snakeCamelMapper } from "@electric-sql/client";
 
-const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+const baseUrl =
+  typeof window !== "undefined"
+    ? window.location.origin
+    : "http://localhost:3000";
 
 export const electricPostCollection = createCollection(
   electricCollectionOptions({
