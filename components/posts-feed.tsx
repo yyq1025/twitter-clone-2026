@@ -16,7 +16,17 @@ import { authClient } from "@/lib/auth-client";
 import { useEffect, useRef, useState } from "react";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { PostItem } from "./post-item";
-import { IconPhoto } from "@tabler/icons-react";
+import { IconPhoto, IconX } from "@tabler/icons-react";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+} from "@/components/ui/carousel";
+import { uploadFiles } from "@/utils/uploadthing";
+import { createPost } from "@/lib/actions";
+import type { InsertPostMedia } from "@/db/validation";
+import { getImageDimensions, usePostMedia } from "@/hooks/use-post-media";
 
 export default function PostsFeed() {
   const [loading, setLoading] = useState(true);
@@ -39,6 +49,56 @@ export default function PostsFeed() {
 
 function PostsList() {
   const { data: session } = authClient.useSession();
+  const [content, setContent] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const {
+    mediaFiles,
+    mediaError,
+    fileInputRef,
+    handleMediaChange,
+    handleRemoveMedia,
+    cleanupMedia,
+  } = usePostMedia();
+
+  const onSubmit = async () => {
+    if (!session?.user) return;
+    if (!content.trim()) return;
+
+    try {
+      setSubmitting(true);
+      const [uploadResponse, dimensions] = await Promise.all([
+        uploadFiles("imageUploader", {
+          files: mediaFiles.map((item) => item.file),
+        }),
+        Promise.all(
+          mediaFiles.map(async (item) => await getImageDimensions(item.file))
+        ),
+      ]);
+
+      const postMedia: InsertPostMedia[] = uploadResponse.map(
+        (upload, index) => ({
+          mediaUrl: upload.ufsUrl,
+          mediaType: "image",
+          sortOrder: index,
+          width: dimensions[index].width,
+          height: dimensions[index].height,
+        })
+      );
+
+      createPost({
+        userId: session.user.id,
+        content: content.trim(),
+        postMedia,
+      });
+      cleanupMedia();
+      setContent("");
+    } catch (error) {
+      console.error("Failed to create post:", error);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   const {
     pages,
     hasNextPage,
@@ -106,17 +166,75 @@ function PostsList() {
       <div className="hidden sm:flex p-4 border-b border-gray-100 gap-4">
         <div className="w-10 h-10 rounded-full bg-gray-600 shrink-0"></div>
         <div className="flex-1">
-          <input
-            type="text"
+          <Textarea
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
             placeholder="What's happening?"
-            className="w-full bg-transparent text-xl outline-none mb-4"
+            className="w-full bg-transparent text-xl outline-none mb-4 border-0 resize-none p-0 focus-visible:ring-0 min-h-0"
+            rows={2}
+            maxLength={280}
           />
+          {mediaFiles.length ? (
+            <Carousel opts={{ loop: false, align: "start" }} className="mb-4">
+              <CarouselContent className="-ml-2">
+                {mediaFiles.map((item) => (
+                  <CarouselItem
+                    key={item.previewUrl}
+                    className="basis-2/5 pl-2"
+                  >
+                    <div className="relative overflow-hidden rounded-lg border">
+                      <button
+                        type="button"
+                        className="absolute right-2 top-2 z-10 rounded-full bg-black/60 p-1 text-white transition hover:bg-black/80"
+                        aria-label="Remove media"
+                        onClick={() => handleRemoveMedia(item.previewUrl)}
+                      >
+                        <IconX className="size-4" />
+                      </button>
+                      <img
+                        src={item.previewUrl}
+                        alt={item.file.name}
+                        className="h-48 w-full object-cover"
+                      />
+                    </div>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+            </Carousel>
+          ) : null}
           <div className="flex justify-between items-center border-t border-gray-100 pt-3">
             <div className="flex gap-4 text-blue-500">
-              <IconPhoto className="size-5" />
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                multiple
+                className="sr-only"
+                onChange={handleMediaChange}
+                aria-label="Choose images"
+              />
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                aria-label="Add image"
+              >
+                <IconPhoto className="size-5" />
+              </button>
+              {mediaFiles.length ? (
+                <span className="text-xs text-gray-600">
+                  {mediaFiles.length} / 4
+                </span>
+              ) : null}
+              {mediaError ? (
+                <span className="text-xs text-red-500">{mediaError}</span>
+              ) : null}
             </div>
-            <button className="bg-blue-500 text-white px-4 py-1.5 rounded-full font-bold opacity-50 cursor-not-allowed">
-              Post
+            <button
+              onClick={onSubmit}
+              disabled={!content.trim() || submitting}
+              className="bg-blue-500 text-white px-4 py-1.5 rounded-full font-bold disabled:opacity-50 disabled:cursor-not-allowed hover:bg-blue-600 transition"
+            >
+              {submitting ? "Posting..." : "Post"}
             </button>
           </div>
         </div>
