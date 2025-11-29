@@ -3,7 +3,7 @@ import { auth } from "@/lib/auth";
 import { db } from "@/db/drizzle";
 import { postMedia, posts } from "@/db/schema/post-shema";
 import { headers } from "next/headers";
-import { sql } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import type { PgTransaction } from "drizzle-orm/pg-core";
 import type { Txid } from "@tanstack/electric-db-collection";
 import { ELECTRIC_PROTOCOL_QUERY_PARAMS } from "@electric-sql/client";
@@ -99,6 +99,22 @@ export async function POST(request: Request) {
           postId: post.id,
         });
       });
+      if (post.replyToId) {
+        await tx
+          .update(posts)
+          .set({
+            replyCount: sql`${posts.replyCount} + 1`,
+          })
+          .where(eq(posts.id, post.replyToId));
+      }
+      if (post.repostId) {
+        await tx
+          .update(posts)
+          .set({
+            repostCount: sql`${posts.repostCount} + 1`,
+          })
+          .where(eq(posts.id, post.repostId));
+      }
       return post;
     });
 

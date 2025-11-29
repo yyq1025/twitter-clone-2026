@@ -77,13 +77,13 @@ export async function POST(request: Request) {
     let txid!: Txid;
     await db.transaction(async (tx) => {
       txid = await generateTxId(tx);
-      await tx.insert(likes).values(parsedBody.data);
+      const [like] = await tx.insert(likes).values(parsedBody.data).returning();
       await tx
         .update(posts)
         .set({
           likeCount: sql`${posts.likeCount} + 1`,
         })
-        .where(eq(posts.id, parsedBody.data.postId));
+        .where(eq(posts.id, like.postId));
     });
 
     return NextResponse.json({ txid }, { status: 201 });

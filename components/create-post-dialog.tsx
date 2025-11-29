@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, type ChangeEvent } from "react";
+import { useState, type ReactNode } from "react";
 import { IconHash, IconPhoto, IconX } from "@tabler/icons-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -22,120 +22,31 @@ import { Textarea } from "@/components/ui/textarea";
 import { uploadFiles } from "@/utils/uploadthing";
 import { createPost } from "@/lib/actions";
 import type { InsertPostMedia } from "@/db/validation";
-
-const getImageDimensions = (
-  file: File
-): Promise<{
-  width: number;
-  height: number;
-}> => {
-  return new Promise((resolve) => {
-    // 1. Safety check: return zero dimensions if the file is not an image
-    if (!file.type.startsWith("image/")) {
-      console.warn(
-        `File ${file.name} is not an image, skipping dimension lookup.`
-      );
-      resolve({ width: 0, height: 0 });
-      return;
-    }
-
-    const img = new Image();
-    const objectUrl = URL.createObjectURL(file);
-
-    img.onload = () => {
-      resolve({ width: img.width, height: img.height });
-      URL.revokeObjectURL(objectUrl);
-    };
-
-    img.onerror = () => {
-      console.error(`Unable to read image dimensions: ${file.name}`);
-      resolve({ width: 0, height: 0 });
-      URL.revokeObjectURL(objectUrl);
-    };
-
-    img.src = objectUrl;
-  });
-};
+import { getImageDimensions, usePostMedia } from "@/hooks/use-post-media";
 
 type CreatePostDialogProps = {
-  trigger: React.ReactNode;
+  trigger: ReactNode;
 };
 
 export function CreatePostDialog({ trigger }: CreatePostDialogProps) {
   const { data: session } = authClient.useSession();
   const [submitting, setSubmitting] = useState(false);
   const [content, setContent] = useState("");
-  const [mediaFiles, setMediaFiles] = useState<
-    { file: File; previewUrl: string }[]
-  >([]);
-  const [mediaError, setMediaError] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
-
-  const handleMediaChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(event.target.files ?? []);
-    if (!files.length) {
-      setMediaError(null);
-      return;
-    }
-
-    const maxSizeBytes = 5 * 1024 * 1024;
-    for (const file of files) {
-      const isSupportedType = file.type.startsWith("image/");
-      if (!isSupportedType) {
-        setMediaError("Only images are supported.");
-        event.target.value = "";
-        return;
-      }
-      if (file.size > maxSizeBytes) {
-        setMediaError("Each file must be smaller than 30MB.");
-        event.target.value = "";
-        return;
-      }
-    }
-
-    let exceededLimit = false;
-    setMediaFiles((prev) => {
-      if (prev.length + files.length > 4) {
-        exceededLimit = true;
-        return prev;
-      }
-      return [
-        ...prev,
-        ...files.map((file) => ({
-          file,
-          previewUrl: URL.createObjectURL(file),
-        })),
-      ];
-    });
-
-    setMediaError(exceededLimit ? "You can upload up to 4 media files." : null);
-    event.target.value = "";
-  };
-
-  const handleRemoveMedia = (previewUrl: string) => {
-    setMediaFiles((prev) => {
-      const toRemove = prev.find((item) => item.previewUrl === previewUrl);
-      if (toRemove) {
-        URL.revokeObjectURL(toRemove.previewUrl);
-      }
-      return prev.filter((item) => item.previewUrl !== previewUrl);
-    });
-  };
-
-  const cleanupMedia = () => {
-    mediaFiles.forEach((item) => {
-      URL.revokeObjectURL(item.previewUrl);
-    });
-    setMediaFiles([]);
-    setMediaError(null);
-  };
+  const {
+    mediaFiles,
+    mediaError,
+    fileInputRef,
+    handleMediaChange,
+    handleRemoveMedia,
+    cleanupMedia,
+  } = usePostMedia();
 
   const onSubmit = async () => {
+    if (!session?.user) return;
+    if (!content.trim()) return;
+
     try {
-      if (!session?.user) {
-        return;
-      }
       setSubmitting(true);
       const [uploadResponse, dimensions] = await Promise.all([
         uploadFiles("imageUploader", {

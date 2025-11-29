@@ -15,12 +15,10 @@ import type {
   selectUserSchema,
 } from "@/db/validation";
 import { likePost, unlikePost } from "@/lib/actions";
-import { and, eq, useLiveQuery } from "@tanstack/react-db";
-import {
-  electricLikeCollection,
-  electricPostMediaCollection,
-} from "@/lib/collections";
+import { eq, useLiveQuery } from "@tanstack/react-db";
+import { electricPostMediaCollection } from "@/lib/collections";
 import { cn } from "@/lib/utils";
+import { ReplyDialog } from "@/components/reply-dialog";
 
 const PLACEHOLDER_NAME = "Demo User";
 const PLACEHOLDER_HANDLE = "@demo_user";
@@ -128,12 +126,21 @@ export function PostItem({
         )}
 
         <div className="flex justify-between mt-3 max-w-md">
-          <div className="hover:text-blue-500 flex gap-2 items-center group">
-            <div className="p-2 rounded-full group-hover:bg-blue-500/10">
-              <IconMessage className="size-4" />
-            </div>
-            {post.replyCount}
-          </div>
+          <ReplyDialog
+            trigger={
+              <button
+                type="button"
+                className="hover:text-blue-500 flex gap-2 items-center group"
+              >
+                <div className="p-2 rounded-full group-hover:bg-blue-500/10">
+                  <IconMessage className="size-4" />
+                </div>
+                {post.replyCount}
+              </button>
+            }
+            parentPost={post}
+            parentUser={user}
+          />
           <div className="hover:text-green-500 flex gap-2 items-center group">
             <div className="p-2 rounded-full group-hover:bg-green-500/10">
               <IconRepeat className="size-4" />

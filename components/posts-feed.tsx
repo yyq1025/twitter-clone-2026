@@ -1,6 +1,11 @@
 "use client";
 
-import { eq, useLiveInfiniteQuery, useLiveQuery } from "@tanstack/react-db";
+import {
+  eq,
+  isNull,
+  useLiveInfiniteQuery,
+  useLiveQuery,
+} from "@tanstack/react-db";
 import {
   electricPostCollection,
   electricUserCollection,
@@ -18,6 +23,7 @@ export default function PostsFeed() {
 
   useEffect(() => {
     Promise.all([
+      electricPostCollection.preload(),
       electricUserCollection.preload(),
       electricLikeCollection.preload(),
       electricPostMediaCollection.preload(),
@@ -44,11 +50,10 @@ function PostsList() {
     (q) =>
       q
         .from({ post: electricPostCollection })
-        .join(
-          { user: electricUserCollection },
-          ({ post, user }) => eq(user.id, post.userId),
-          "inner"
+        .innerJoin({ user: electricUserCollection }, ({ post, user }) =>
+          eq(user.id, post.userId)
         )
+        .where(({ post }) => isNull(post.replyToId))
         .orderBy(({ post }) => post.createdAt, "desc"),
     {
       pageSize: 20,
