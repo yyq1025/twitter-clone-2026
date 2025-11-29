@@ -16,38 +16,15 @@ const baseUrl =
 export const electricPostCollection = createCollection(
   electricCollectionOptions({
     id: "posts",
-    syncMode: "progressive",
     shapeOptions: {
       url: `${baseUrl}/api/posts`,
       columnMapper: snakeCamelMapper(),
-      // transformer: (row) => ({
-      //   ...row,
-      //   user_id: row.userId,
-      // }),
       parser: {
         timestamptz: (date: string) => new Date(date),
       },
     },
     schema: selectPostSchema,
     getKey: (item) => item.id,
-    // onInsert: async ({ transaction }) => {
-    //   const {
-    //     id: _id,
-    //     createdAt: _f,
-    //     ...modefied
-    //   } = transaction.mutations[0].modified;
-    //   const response = await fetch("/api/posts", {
-    //     method: "POST",
-    //     headers: {
-    //       "Content-Type": "application/json",
-    //     },
-    //     body: JSON.stringify(modefied),
-    //   });
-    //   if (!response.ok) {
-    //     throw new Error("Failed to create post");
-    //   }
-    //   return { txid: (await response.json()).txid };
-    // },
   }),
 );
 

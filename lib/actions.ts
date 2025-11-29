@@ -34,6 +34,16 @@ export const createPost = createOptimisticAction<
         });
       });
     }
+    if (post.replyToId) {
+      electricPostCollection.update(post.replyToId, (draft) => {
+        draft.replyCount += 1;
+      });
+    }
+    if (post.repostId) {
+      electricPostCollection.update(post.repostId, (draft) => {
+        draft.repostCount += 1;
+      });
+    }
   },
   mutationFn: async (postData) => {
     const response = await fetch(`/api/posts`, {

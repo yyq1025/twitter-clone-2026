@@ -15,11 +15,8 @@ import type {
   selectUserSchema,
 } from "@/db/validation";
 import { likePost, unlikePost } from "@/lib/actions";
-import { and, eq, useLiveQuery } from "@tanstack/react-db";
-import {
-  electricLikeCollection,
-  electricPostMediaCollection,
-} from "@/lib/collections";
+import { eq, useLiveQuery } from "@tanstack/react-db";
+import { electricPostMediaCollection } from "@/lib/collections";
 import { cn } from "@/lib/utils";
 import { ReplyDialog } from "@/components/reply-dialog";
 
