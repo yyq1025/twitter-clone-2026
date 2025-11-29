@@ -18,4 +18,5 @@ export const auth = betterAuth({
     },
   },
   plugins: [anonymous(), nextCookies()],
+  trustedOrigins: ["http://localhost:3000"],
 });
