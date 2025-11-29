@@ -34,5 +34,8 @@
       "command": "npm run format",
       "runAtStart": false
     }
+  },
+  "container": {
+    "port": 3000
   }
 }
