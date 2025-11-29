@@ -17,13 +17,19 @@ import { useEffect, useRef, useState } from "react";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { IconPhoto, IconX } from "@tabler/icons-react";
 
-import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+} from "@/components/ui/carousel";
 import { InputGroupButton } from "@/components/ui/input-group";
+import { Button } from "@/components/ui/button";
 import { createPost } from "@/lib/actions";
 import type { InsertPostMedia } from "@/db/validation";
 import { getImageDimensions, usePostMedia } from "@/hooks/use-post-media";
 import { uploadFiles } from "@/utils/uploadthing";
-import { PostItem } from "./post-item";
+import { Textarea } from "@/components/ui/textarea";
+import { PostItem } from "@/components/post-item";
 
 export default function PostsFeed() {
   const [loading, setLoading] = useState(true);
@@ -134,7 +140,9 @@ function PostsList() {
 
       if (mediaFiles.length) {
         const [uploadResponse, dimensions] = await Promise.all([
-          uploadFiles("imageUploader", { files: mediaFiles.map((item) => item.file) }),
+          uploadFiles("imageUploader", {
+            files: mediaFiles.map((item) => item.file),
+          }),
           Promise.all(mediaFiles.map((item) => getImageDimensions(item.file))),
         ]);
 
@@ -168,20 +176,23 @@ function PostsList() {
         <div className="w-10 h-10 rounded-full bg-gray-600 shrink-0"></div>
         <div className="flex-1">
           <div className="space-y-4">
-            <textarea
+            <Textarea
+              rows={4}
               value={content}
               onChange={(event) => setContent(event.target.value)}
               placeholder="What's happening?"
-              className="w-full bg-transparent text-xl outline-none resize-none"
+              aria-label="New post content"
               maxLength={280}
-              rows={3}
             />
 
             {mediaFiles.length ? (
               <Carousel opts={{ loop: false, align: "start" }}>
                 <CarouselContent className="-ml-2">
                   {mediaFiles.map((item) => (
-                    <CarouselItem key={item.previewUrl} className="basis-2/5 pl-2">
+                    <CarouselItem
+                      key={item.previewUrl}
+                      className="basis-2/5 pl-2"
+                    >
                       <div className="relative overflow-hidden rounded-lg border">
                         <button
                           type="button"
@@ -221,34 +232,22 @@ function PostsList() {
                 >
                   <IconPhoto className="size-5" />
                 </InputGroupButton>
-                {mediaFiles.length ? (
+                {!!mediaFiles.length && (
                   <span className="text-xs text-foreground">
                     Selected {mediaFiles.length} / 4
                   </span>
-                ) : null}
-                {mediaError ? (
-                  <span className="text-xs text-red-500">{mediaError}</span>
-                ) : null}
-              </div>
-              <button
-                type="button"
-                onClick={handleSubmit}
-                disabled={!canSubmit || submitting}
-                className={`flex items-center gap-2 rounded-full px-4 py-1.5 font-bold text-white transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 ${
-                  canSubmit && !submitting
-                    ? "bg-blue-500 hover:bg-blue-600"
-                    : "bg-blue-400 cursor-not-allowed opacity-60"
-                } ${submitting ? "opacity-80" : ""}`}
-              >
-                {submitting ? (
-                  <span className="flex items-center gap-2">
-                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/60 border-t-white" />
-                    Posting
-                  </span>
-                ) : (
-                  "Post"
                 )}
-              </button>
+                {mediaError && (
+                  <span className="text-xs text-red-500">{mediaError}</span>
+                )}
+              </div>
+              <Button
+                className="rounded-full px-5 font-semibold"
+                disabled={!content.trim() || submitting}
+                onClick={handleSubmit}
+              >
+                Post
+              </Button>
             </div>
           </div>
         </div>
