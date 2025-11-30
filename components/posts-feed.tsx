@@ -30,6 +30,7 @@ import { getImageDimensions, usePostMedia } from "@/hooks/use-post-media";
 import { uploadFiles } from "@/utils/uploadthing";
 import { Textarea } from "@/components/ui/textarea";
 import { PostItem } from "@/components/post-item";
+import { PostComposer } from "./post-composer";
 
 export default function PostsFeed() {
   const [loading, setLoading] = useState(true);
@@ -172,85 +173,8 @@ function PostsList() {
 
   return (
     <div ref={parentRef} className="h-full overflow-y-auto contain-strict">
-      <div className="hidden sm:flex p-4 border-b border-gray-100 gap-4">
-        <div className="w-10 h-10 rounded-full bg-gray-600 shrink-0"></div>
-        <div className="flex-1">
-          <div className="space-y-4">
-            <Textarea
-              rows={4}
-              value={content}
-              onChange={(event) => setContent(event.target.value)}
-              placeholder="What's happening?"
-              aria-label="New post content"
-              maxLength={280}
-            />
-
-            {mediaFiles.length ? (
-              <Carousel opts={{ loop: false, align: "start" }}>
-                <CarouselContent className="-ml-2">
-                  {mediaFiles.map((item) => (
-                    <CarouselItem
-                      key={item.previewUrl}
-                      className="basis-2/5 pl-2"
-                    >
-                      <div className="relative overflow-hidden rounded-lg border">
-                        <button
-                          type="button"
-                          className="absolute right-2 top-2 z-10 rounded-full bg-black/60 p-1 text-white transition hover:bg-black/80"
-                          aria-label="Remove media"
-                          onClick={() => handleRemoveMedia(item.previewUrl)}
-                        >
-                          <IconX className="size-4" />
-                        </button>
-                        <img
-                          src={item.previewUrl}
-                          alt={item.file.name}
-                          className="h-48 w-full object-cover"
-                        />
-                      </div>
-                    </CarouselItem>
-                  ))}
-                </CarouselContent>
-              </Carousel>
-            ) : null}
-
-            <div className="flex justify-between items-center border-t border-gray-100 pt-3">
-              <div className="flex flex-wrap items-center gap-3 text-blue-500">
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  multiple
-                  className="sr-only"
-                  onChange={handleMediaChange}
-                />
-                <InputGroupButton
-                  size="icon-sm"
-                  variant="ghost"
-                  aria-label="Add image"
-                  onClick={() => fileInputRef.current?.click()}
-                >
-                  <IconPhoto className="size-5" />
-                </InputGroupButton>
-                {!!mediaFiles.length && (
-                  <span className="text-xs text-foreground">
-                    Selected {mediaFiles.length} / 4
-                  </span>
-                )}
-                {mediaError && (
-                  <span className="text-xs text-red-500">{mediaError}</span>
-                )}
-              </div>
-              <Button
-                className="rounded-full px-5 font-semibold"
-                disabled={!content.trim() || submitting}
-                onClick={handleSubmit}
-              >
-                Post
-              </Button>
-            </div>
-          </div>
-        </div>
+      <div className="hidden sm:flex border-b border-gray-100">
+        <PostComposer />
       </div>
       <div
         className="relative w-full"

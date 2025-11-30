@@ -1,6 +1,12 @@
 "use client";
 
-import { useRef, useState, type ChangeEvent } from "react";
+import {
+  useCallback,
+  useRef,
+  useState,
+  type ChangeEvent,
+  type RefObject,
+} from "react";
 
 export type SelectedMedia = { file: File; previewUrl: string };
 
@@ -9,21 +15,12 @@ type UsePostMediaOptions = {
   maxFileSizeBytes?: number;
 };
 
-type UsePostMediaResult = {
-  mediaFiles: SelectedMedia[];
-  mediaError: string | null;
-  fileInputRef: React.MutableRefObject<HTMLInputElement | null>;
-  handleMediaChange: (event: ChangeEvent<HTMLInputElement>) => void;
-  handleRemoveMedia: (previewUrl: string) => void;
-  cleanupMedia: () => void;
-};
-
 const DEFAULT_MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024;
 
 export function usePostMedia({
   maxFiles = 4,
   maxFileSizeBytes = DEFAULT_MAX_FILE_SIZE_BYTES,
-}: UsePostMediaOptions = {}): UsePostMediaResult {
+}: UsePostMediaOptions = {}) {
   const [mediaFiles, setMediaFiles] = useState<SelectedMedia[]>([]);
   const [mediaError, setMediaError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -65,12 +62,12 @@ export function usePostMedia({
     });
 
     setMediaError(
-      exceededLimit ? `You can upload up to ${maxFiles} media files.` : null
+      exceededLimit ? `You can upload up to ${maxFiles} media files.` : null,
     );
     event.target.value = "";
   };
 
-  const handleRemoveMedia = (previewUrl: string) => {
+  const handleRemoveMedia = useCallback((previewUrl: string) => {
     setMediaFiles((prev) => {
       const toRemove = prev.find((item) => item.previewUrl === previewUrl);
       if (toRemove) {
@@ -78,16 +75,20 @@ export function usePostMedia({
       }
       return prev.filter((item) => item.previewUrl !== previewUrl);
     });
-  };
+  }, []);
 
-  const cleanupMedia = () => {
-    mediaFiles.forEach((item) => URL.revokeObjectURL(item.previewUrl));
-    setMediaFiles([]);
+  const cleanupMedia = useCallback(() => {
+    setMediaFiles((prev) => {
+      prev.forEach((item) => {
+        URL.revokeObjectURL(item.previewUrl);
+      });
+      return [];
+    });
     setMediaError(null);
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
-  };
+  }, []);
 
   return {
     mediaFiles,
@@ -100,14 +101,16 @@ export function usePostMedia({
 }
 
 export const getImageDimensions = (
-  file: File
+  file: File,
 ): Promise<{
   width: number;
   height: number;
 }> => {
   return new Promise((resolve) => {
     if (!file.type.startsWith("image/")) {
-      console.warn(`File ${file.name} is not an image, skipping dimension lookup.`);
+      console.warn(
+        `File ${file.name} is not an image, skipping dimension lookup.`,
+      );
       resolve({ width: 0, height: 0 });
       return;
     }

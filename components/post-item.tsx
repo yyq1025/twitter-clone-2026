@@ -18,7 +18,7 @@ import { likePost, unlikePost } from "@/lib/actions";
 import { eq, useLiveQuery } from "@tanstack/react-db";
 import { electricPostMediaCollection } from "@/lib/collections";
 import { cn } from "@/lib/utils";
-import { ReplyDialog } from "@/components/reply-dialog";
+import { CreatePostDialog } from "./create-post-dialog";
 
 const PLACEHOLDER_NAME = "Demo User";
 const PLACEHOLDER_HANDLE = "@demo_user";
@@ -126,7 +126,7 @@ export function PostItem({
         )}
 
         <div className="flex justify-between mt-3 max-w-md">
-          <ReplyDialog
+          <CreatePostDialog
             trigger={
               <button
                 type="button"
