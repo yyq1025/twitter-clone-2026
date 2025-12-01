@@ -10,59 +10,18 @@ import {
   electricPostCollection,
   electricUserCollection,
   electricLikeCollection,
-  electricPostMediaCollection,
 } from "@/lib/collections";
 import { authClient } from "@/lib/auth-client";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { useVirtualizer } from "@tanstack/react-virtual";
-import { IconPhoto, IconX } from "@tabler/icons-react";
-
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-} from "@/components/ui/carousel";
-import { InputGroupButton } from "@/components/ui/input-group";
-import { Button } from "@/components/ui/button";
-import { createPost } from "@/lib/actions";
-import type { InsertPostMedia } from "@/db/validation";
-import { getImageDimensions, usePostMedia } from "@/hooks/use-post-media";
-import { uploadFiles } from "@/utils/uploadthing";
-import { Textarea } from "@/components/ui/textarea";
 import { PostItem } from "@/components/post-item";
-import { PostComposer } from "./post-composer";
+import { PostComposer } from "@/components/post-composer";
+import AuthGuard from "@/components/auth-guard";
+import { useRouter } from "next/navigation";
 
-export default function PostsFeed() {
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    Promise.all([
-      electricPostCollection.preload(),
-      electricUserCollection.preload(),
-      electricLikeCollection.preload(),
-      electricPostMediaCollection.preload(),
-    ]).then(() => setLoading(false));
-  }, []);
-
-  if (loading) {
-    return <div className="p-4 text-sm">Loading posts, please wait...</div>;
-  }
-
-  return <PostsList />;
-}
-
-function PostsList() {
+export default function PostsList() {
   const { data: session } = authClient.useSession();
-  const [content, setContent] = useState("");
-  const [submitting, setSubmitting] = useState(false);
-  const {
-    mediaFiles,
-    mediaError,
-    fileInputRef,
-    handleMediaChange,
-    handleRemoveMedia,
-    cleanupMedia,
-  } = usePostMedia();
+  const router = useRouter();
   const {
     pages,
     hasNextPage,
@@ -87,18 +46,6 @@ function PostsList() {
   );
 
   const posts = pages.flat();
-
-  const { data: userLikes } = useLiveQuery(
-    (q) => {
-      if (!session?.user?.id) {
-        return null;
-      }
-      return q
-        .from({ like: electricLikeCollection })
-        .where(({ like }) => eq(like.userId, session.user.id));
-    },
-    [session?.user?.id]
-  );
 
   const parentRef = useRef<HTMLDivElement | null>(null);
 
@@ -125,57 +72,13 @@ function PostsList() {
     }
   }, [items, hasNextPage, fetchNextPage, isFetchingNextPage, posts.length]);
 
-  const isAuthenticated = Boolean(session?.user);
-  const trimmedContent = content.trim();
-  const canSubmit =
-    isAuthenticated && (Boolean(trimmedContent) || mediaFiles.length > 0);
-
-  const handleSubmit = async () => {
-    if (!session?.user) return;
-    if (!canSubmit) return;
-
-    try {
-      setSubmitting(true);
-
-      let postMedia: InsertPostMedia[] = [];
-
-      if (mediaFiles.length) {
-        const [uploadResponse, dimensions] = await Promise.all([
-          uploadFiles("imageUploader", {
-            files: mediaFiles.map((item) => item.file),
-          }),
-          Promise.all(mediaFiles.map((item) => getImageDimensions(item.file))),
-        ]);
-
-        postMedia = uploadResponse.map((upload, index) => ({
-          mediaUrl: upload.ufsUrl,
-          mediaType: "image",
-          sortOrder: index,
-          width: dimensions[index].width,
-          height: dimensions[index].height,
-        }));
-      }
-
-      await createPost({
-        userId: session.user.id,
-        content: trimmedContent,
-        postMedia,
-      });
-
-      setContent("");
-      cleanupMedia();
-    } catch (error) {
-      console.error("Failed to submit post:", error);
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
   return (
     <div ref={parentRef} className="h-full overflow-y-auto contain-strict">
-      <div className="hidden sm:flex border-b border-gray-100">
-        <PostComposer />
-      </div>
+      <AuthGuard>
+        <div className="hidden sm:flex border-b border-gray-100">
+          <PostComposer />
+        </div>
+      </AuthGuard>
       <div
         className="relative w-full"
         style={{ height: `${virtualizer.getTotalSize()}px` }}
@@ -201,7 +104,6 @@ function PostsList() {
                   data-index={virtualRow.index}
                   key={isLoaderRow ? "loader" : post.id}
                   ref={virtualizer.measureElement}
-                  className="border-b border-gray-100"
                 >
                   {isLoaderRow ? (
                     <div className="p-4 text-sm">Loading more posts...</div>
@@ -210,7 +112,6 @@ function PostsList() {
                       post={post}
                       user={user}
                       sessionUserId={session?.user?.id}
-                      userLikes={userLikes}
                     />
                   )}
                 </div>

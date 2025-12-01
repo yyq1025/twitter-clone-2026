@@ -109,8 +109,8 @@ export function PostComposer({
   }, [cleanupMedia]);
 
   return (
-    <div className="flex flex-col flex-1 gap-4 py-3 w-full">
-      <ScrollArea className="max-h-[75vh] flex-1 px-4">
+    <div className="flex flex-col gap-4 py-3 w-full">
+      <div className="max-h-[60vh] flex-1 px-4 overflow-y-auto">
         {dialog && parentPost && parentUser && (
           <div className="rounded-xl border border-gray-100 bg-gray-50 p-3 mb-4">
             <div className="flex gap-3">
@@ -146,8 +146,8 @@ export function PostComposer({
               rows={4}
               value={content}
               onChange={(event) => setContent(event.target.value)}
-              placeholder="Post your reply"
-              aria-label="Reply content"
+              placeholder={parentPost ? "Post your reply" : "What's happening?"}
+              aria-label={parentPost ? "Post your reply" : "What's happening?"}
               maxLength={280}
             />
             {!!mediaFiles.length && (
@@ -180,7 +180,7 @@ export function PostComposer({
             )}
           </div>
         </div>
-      </ScrollArea>
+      </div>
       <div className="flex items-center justify-between px-4">
         <div className="flex flex-1 items-center gap-2">
           <input
@@ -207,7 +207,7 @@ export function PostComposer({
           disabled={!content.trim() || submitting}
           onClick={onSubmit}
         >
-          {dialog ? "Reply" : "Post"}
+          {parentPost ? "Reply" : "Post"}
         </Button>
       </div>
     </div>

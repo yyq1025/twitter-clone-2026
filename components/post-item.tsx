@@ -15,10 +15,15 @@ import type {
   selectUserSchema,
 } from "@/db/validation";
 import { likePost, unlikePost } from "@/lib/actions";
-import { eq, useLiveQuery } from "@tanstack/react-db";
-import { electricPostMediaCollection } from "@/lib/collections";
+import { and, eq, useLiveQuery } from "@tanstack/react-db";
+import {
+  electricLikeCollection,
+  electricPostMediaCollection,
+} from "@/lib/collections";
 import { cn } from "@/lib/utils";
 import { CreatePostDialog } from "./create-post-dialog";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 const PLACEHOLDER_NAME = "Demo User";
 const PLACEHOLDER_HANDLE = "@demo_user";
@@ -42,21 +47,29 @@ type PostItemProps = {
   post: z.infer<typeof selectPostSchema>;
   user: z.infer<typeof selectUserSchema>;
   sessionUserId?: string;
-  userLikes?: Array<z.infer<typeof selectLikeSchema>>;
 };
 
-export function PostItem({
-  post,
-  user,
-  sessionUserId,
-  userLikes,
-}: PostItemProps) {
-  const userLiked = !!userLikes?.some((like) => like.postId === post.id);
-  const { data: postMedia } = useLiveQuery((q) =>
-    q
-      .from({ media: electricPostMediaCollection })
-      .where(({ media }) => eq(media.postId, post.id))
-      .orderBy(({ media }) => media.sortOrder, "asc")
+export function PostItem({ post, user, sessionUserId }: PostItemProps) {
+  const router = useRouter();
+  const { data: userLiked } = useLiveQuery(
+    (q) => {
+      if (!sessionUserId) return null;
+      return q
+        .from({ like: electricLikeCollection })
+        .where(({ like }) =>
+          and(eq(like.postId, post.id), eq(like.userId, sessionUserId))
+        )
+        .findOne();
+    },
+    [sessionUserId, post.id]
+  );
+  const { data: postMedia } = useLiveQuery(
+    (q) =>
+      q
+        .from({ media: electricPostMediaCollection })
+        .where(({ media }) => eq(media.postId, post.id))
+        .orderBy(({ media }) => media.sortOrder, "asc"),
+    [post.id]
   );
 
   const handleLikeClick = (e: MouseEvent) => {
@@ -77,8 +90,16 @@ export function PostItem({
   };
 
   return (
-    <article className="p-4 hover:bg-gray-100/50 cursor-pointer transition flex gap-4">
-      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-sm font-semibold text-white flex-shrink-0">
+    <article
+      className={cn(
+        "p-4 transition flex gap-4 border-b border-gray-100",
+        post.status === "active" && "hover:bg-gray-50 cursor-pointer "
+      )}
+      onClick={() => {
+        if (post.status === "active") router.push(`/status/${post.id}`);
+      }}
+    >
+      <div className="w-10 h-10 rounded-full bg-linear-to-br from-blue-500 to-purple-500 flex items-center justify-center text-sm font-semibold text-white shrink-0">
         DU
       </div>
 
@@ -126,21 +147,24 @@ export function PostItem({
         )}
 
         <div className="flex justify-between mt-3 max-w-md">
-          <CreatePostDialog
-            trigger={
-              <button
-                type="button"
-                className="hover:text-blue-500 flex gap-2 items-center group"
-              >
-                <div className="p-2 rounded-full group-hover:bg-blue-500/10">
-                  <IconMessage className="size-4" />
-                </div>
-                {post.replyCount}
-              </button>
-            }
-            parentPost={post}
-            parentUser={user}
-          />
+          <div onClick={(e) => e.stopPropagation()}>
+            <CreatePostDialog
+              trigger={
+                <button
+                  type="button"
+                  disabled={post.status !== "active"}
+                  className="hover:text-blue-500 flex gap-2 items-center group"
+                >
+                  <div className="p-2 rounded-full group-hover:bg-blue-500/10">
+                    <IconMessage className="size-4" />
+                  </div>
+                  {post.replyCount}
+                </button>
+              }
+              parentPost={post}
+              parentUser={user}
+            />
+          </div>
           <div className="hover:text-green-500 flex gap-2 items-center group">
             <div className="p-2 rounded-full group-hover:bg-green-500/10">
               <IconRepeat className="size-4" />
@@ -150,6 +174,7 @@ export function PostItem({
           <div
             className="hover:text-pink-600 flex gap-2 items-center group"
             onClick={handleLikeClick}
+            disabled={post.status !== "active"}
           >
             <div className="p-2 rounded-full group-hover:bg-pink-600/10">
               <IconHeart className="size-4" />

@@ -30,7 +30,11 @@ export function CreatePostDialog({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{trigger}</DialogTrigger>
-      <DialogContent className="sm:max-w-xl p-0 gap-0" showCloseButton={false}>
+      <DialogContent
+        className="sm:max-w-xl p-0 gap-0"
+        showCloseButton={false}
+        onClick={(e) => e.stopPropagation()}
+      >
         <DialogHeader className="p-2">
           <Button
             variant="ghost"

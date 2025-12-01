@@ -14,6 +14,7 @@ export const createPost = createOptimisticAction<
     electricPostCollection.insert({
       ...post,
       id: postId,
+      status: "creating",
       replyToId: post.replyToId ?? null,
       repostId: post.repostId ?? null,
       quoteId: post.quoteId ?? null,

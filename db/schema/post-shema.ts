@@ -15,6 +15,7 @@ export const posts = pgTable("posts", {
     .notNull()
     .references(() => users.id, { onDelete: "set null" }),
   content: text().notNull(),
+  status: text().notNull().default("active"),
 
   repostId: integer().references((): AnyPgColumn => posts.id, {
     onDelete: "set null",
