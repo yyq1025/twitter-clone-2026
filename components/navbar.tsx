@@ -30,7 +30,7 @@ export default function Navbar() {
         <span className="hidden xl:block text-xl">Notifications</span>
       </a>
       <a
-        href="#"
+        href={`/${session?.user?.username}`}
         className="flex items-center gap-4 p-3 hover:bg-gray-100 rounded-full w-max transition"
       >
         <IconUser className="size-7" />

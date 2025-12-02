@@ -71,7 +71,7 @@ export default function RootLayout({
           </header>
           {children}
           <aside className="hidden lg:block w-[350px] ml-8 py-2 h-screen sticky top-0">
-            <div className="sticky top-0 bg-dark z-10 pb-2 pt-1">
+            <div className="sticky top-0 bg-white z-10 pb-2 pt-1">
               <div className="relative group">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none group-focus-within:text-blue-500">
                   <IconSearch className="size-5" />
@@ -147,7 +147,7 @@ export default function RootLayout({
             </div>
           }
         >
-          <div className="sm:hidden fixed bottom-0 w-full bg-dark border-t border-gray-100 flex justify-around p-3 z-50">
+          <div className="sm:hidden sticky bottom-0 w-full bg-white/85 backdrop-blur-md border-t border-gray-100 flex justify-around p-3 z-50">
             <a href="#" className="p-2">
               <IconHome className="size-6" />
             </a>

@@ -7,8 +7,8 @@ export default function StatusLayout({
   children: React.ReactNode;
 }) {
   return (
-    <main className="flex-1 max-w-xl border-x">
-      <div className="sticky top-0 z-10 bg-dark/85 backdrop-blur-md border-b border-gray-100 px-4 py-3 flex items-center gap-3">
+    <main className="flex-1 max-w-xl border-x border-gray-100">
+      <div className="sticky top-0 z-10 bg-white/85 backdrop-blur-md border-b border-gray-100 px-4 py-3 flex items-center gap-3">
         <Link
           href="/"
           replace
