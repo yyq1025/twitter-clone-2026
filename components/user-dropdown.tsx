@@ -16,7 +16,7 @@ export function UserDropdown() {
   }
 
   const displayName = session.user.name ?? "User Name";
-  const username = "username";
+  const username = session.user.username ?? "username";
 
   const handleLogout = async () => {
     await authClient.signOut();

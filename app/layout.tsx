@@ -14,6 +14,7 @@ import {
 } from "@tabler/icons-react";
 import { CreatePostDialog } from "@/components/create-post-dialog";
 import { UserDropdown } from "@/components/user-dropdown";
+import Navbar from "@/components/navbar";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -48,34 +49,7 @@ export default function RootLayout({
               </div>
 
               <AuthGuard>
-                <nav className="flex flex-col gap-2 items-center xl:items-start w-full">
-                  <a
-                    href="#"
-                    className="flex items-center gap-4 p-3 hover:bg-gray-100 rounded-full w-max transition group"
-                  >
-                    <IconHome className="size-7" />
-
-                    <span className="hidden xl:block text-xl font-bold">
-                      Home
-                    </span>
-                  </a>
-                  <a
-                    href="#"
-                    className="flex items-center gap-4 p-3 hover:bg-gray-100 rounded-full w-max transition"
-                  >
-                    <IconSearch className="size-7" />
-                    <span className="hidden xl:block text-xl">Explore</span>
-                  </a>
-                  <a
-                    href="#"
-                    className="flex items-center gap-4 p-3 hover:bg-gray-100 rounded-full w-max transition"
-                  >
-                    <IconBell className="size-7" />
-                    <span className="hidden xl:block text-xl">
-                      Notifications
-                    </span>
-                  </a>
-                </nav>
+                <Navbar />
 
                 <CreatePostDialog
                   trigger={

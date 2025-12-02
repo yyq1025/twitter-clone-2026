@@ -9,11 +9,7 @@ import {
 import type { MouseEvent } from "react";
 import type * as z from "zod";
 
-import type {
-  selectLikeSchema,
-  selectPostSchema,
-  selectUserSchema,
-} from "@/db/validation";
+import type { selectPostSchema, selectUserSchema } from "@/db/validation";
 import { likePost, unlikePost } from "@/lib/actions";
 import { and, eq, useLiveQuery } from "@tanstack/react-db";
 import {
@@ -22,11 +18,10 @@ import {
 } from "@/lib/collections";
 import { cn } from "@/lib/utils";
 import { CreatePostDialog } from "./create-post-dialog";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 const PLACEHOLDER_NAME = "Demo User";
-const PLACEHOLDER_HANDLE = "@demo_user";
+const PLACEHOLDER_HANDLE = "demo_user";
 
 function formatPostTime(value: Date | string | number | null | undefined) {
   if (!value) {
@@ -75,6 +70,7 @@ export function PostItem({ post, user, sessionUserId }: PostItemProps) {
   const handleLikeClick = (e: MouseEvent) => {
     e.stopPropagation();
     if (!sessionUserId) return;
+    if (post.status !== "active") return;
 
     if (userLiked) {
       unlikePost({
@@ -106,9 +102,9 @@ export function PostItem({ post, user, sessionUserId }: PostItemProps) {
       <div className="flex-1 min-w-0">
         <div className="flex gap-1 text-sm items-center">
           <span className="font-bold hover:underline text-foreground">
-            {user.name ?? PLACEHOLDER_NAME}
+            {user.name || PLACEHOLDER_NAME}
           </span>
-          <span>{PLACEHOLDER_HANDLE}</span>
+          <span>@{user.username || PLACEHOLDER_HANDLE}</span>
           {post.createdAt ? (
             <>
               <span>·</span>
@@ -174,7 +170,6 @@ export function PostItem({ post, user, sessionUserId }: PostItemProps) {
           <div
             className="hover:text-pink-600 flex gap-2 items-center group"
             onClick={handleLikeClick}
-            disabled={post.status !== "active"}
           >
             <div className="p-2 rounded-full group-hover:bg-pink-600/10">
               <IconHeart className="size-4" />

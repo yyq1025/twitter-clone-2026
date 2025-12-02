@@ -1,7 +1,5 @@
 "use client";
 
-import type * as z from "zod";
-import type { selectPostSchema, selectUserSchema } from "@/db/validation";
 import { authClient } from "@/lib/auth-client";
 import { PostItem } from "./post-item";
 import {

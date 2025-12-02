@@ -17,10 +17,9 @@ import { Button } from "@/components/ui/button";
 import { authClient } from "@/lib/auth-client";
 import { uploadFiles } from "@/utils/uploadthing";
 import { createPost } from "@/lib/actions";
-import { ScrollArea } from "@/components/ui/scroll-area";
 
 const PLACEHOLDER_NAME = "Demo User";
-const PLACEHOLDER_HANDLE = "@demo_user";
+const PLACEHOLDER_HANDLE = "demo_user";
 
 function formatPostTime(value: Date | string | number | null | undefined) {
   if (!value) {
@@ -120,7 +119,7 @@ export function PostComposer({
                   <span className="font-bold hover:underline text-foreground">
                     {parentUser.name || PLACEHOLDER_NAME}
                   </span>
-                  <span>{PLACEHOLDER_HANDLE}</span>
+                  <span>@{parentUser.username || PLACEHOLDER_HANDLE}</span>
                   {parentPost.createdAt ? (
                     <>
                       <span>·</span>

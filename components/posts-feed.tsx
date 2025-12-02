@@ -10,18 +10,44 @@ import {
   electricPostCollection,
   electricUserCollection,
   electricLikeCollection,
+  electricPostMediaCollection,
 } from "@/lib/collections";
 import { authClient } from "@/lib/auth-client";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { PostItem } from "@/components/post-item";
 import { PostComposer } from "@/components/post-composer";
 import AuthGuard from "@/components/auth-guard";
-import { useRouter } from "next/navigation";
 
-export default function PostsList() {
+export default function PostsFeed() {
+  const [collectionsLoaded, setCollectionsLoaded] = useState(
+    [
+      electricPostCollection,
+      electricUserCollection,
+      electricLikeCollection,
+      electricPostMediaCollection,
+    ].every((col) => col.isReady())
+  );
+
+  useEffect(() => {
+    if (collectionsLoaded) return;
+    Promise.all([
+      electricPostCollection.preload(),
+      electricUserCollection.preload(),
+      electricLikeCollection.preload(),
+      electricPostMediaCollection.preload(),
+    ]).then(() => setCollectionsLoaded(true));
+  }, [collectionsLoaded]);
+
+  if (!collectionsLoaded) {
+    return null;
+  }
+
+  return <PostsList />;
+}
+
+function PostsList() {
   const { data: session } = authClient.useSession();
-  const router = useRouter();
   const {
     pages,
     hasNextPage,

@@ -52,7 +52,8 @@ export function SignInDrawerDialog({
   };
 
   const triggerButton = useMemo(
-    () => trigger ?? <Button className="rounded-full font-bold">Sign in</Button>,
+    () =>
+      trigger ?? <Button className="rounded-full font-bold">Sign in</Button>,
     [trigger]
   );
 
@@ -63,7 +64,9 @@ export function SignInDrawerDialog({
         disabled={loading !== null}
         onClick={handleGithubSignIn}
       >
-        {loading === "github" ? "Signing in with GitHub..." : "Sign in with GitHub"}
+        {loading === "github"
+          ? "Signing in with GitHub..."
+          : "Sign in with GitHub"}
       </Button>
       <Button
         variant="outline"
@@ -71,7 +74,9 @@ export function SignInDrawerDialog({
         disabled={loading !== null}
         onClick={handleAnonymousSignIn}
       >
-        {loading === "anonymous" ? "Signing in anonymously..." : "Sign in anonymously"}
+        {loading === "anonymous"
+          ? "Signing in anonymously..."
+          : "Sign in anonymously"}
       </Button>
     </div>
   );
@@ -84,7 +89,8 @@ export function SignInDrawerDialog({
           <DialogHeader>
             <DialogTitle>Sign in</DialogTitle>
             <DialogDescription>
-              Choose a way to continue; you can upgrade or switch accounts at any time.
+              Choose a way to continue; you can upgrade or switch accounts at
+              any time.
             </DialogDescription>
           </DialogHeader>
           {actionButtons}
@@ -100,7 +106,8 @@ export function SignInDrawerDialog({
         <DrawerHeader>
           <DrawerTitle>Sign in</DrawerTitle>
           <DrawerDescription>
-            Choose a way to continue; you can upgrade or switch accounts at any time.
+            Choose a way to continue; you can upgrade or switch accounts at any
+            time.
           </DrawerDescription>
         </DrawerHeader>
         <DrawerFooter className="pt-0">{actionButtons}</DrawerFooter>

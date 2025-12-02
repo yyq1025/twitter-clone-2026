@@ -1,7 +1,13 @@
-import Link from "next/link";
-import { IconArrowLeft } from "@tabler/icons-react";
+"use client";
+
 import { StatusThread } from "@/components/status-thread";
-import { use } from "react";
+import { use, useEffect, useState } from "react";
+import {
+  electricLikeCollection,
+  electricPostCollection,
+  electricPostMediaCollection,
+  electricUserCollection,
+} from "@/lib/collections";
 
 export default function StatusPage({
   params,
@@ -9,21 +15,28 @@ export default function StatusPage({
   params: Promise<{ postId: string }>;
 }) {
   const postId = use(params).postId;
-
-  return (
-    <main className="flex-1 max-w-xl border-x">
-      <div className="sticky top-0 z-10 bg-dark/85 backdrop-blur-md border-b border-gray-100 px-4 py-3 flex items-center gap-3">
-        <Link
-          href="/"
-          replace
-          className="rounded-full p-2 hover:bg-gray-100"
-          aria-label="Back to home"
-        >
-          <IconArrowLeft className="size-5" />
-        </Link>
-        <span className="text-lg font-bold">Post</span>
-      </div>
-      <StatusThread postId={Number(postId)} />
-    </main>
+  const [collectionsLoaded, setCollectionsLoaded] = useState(
+    [
+      electricPostCollection,
+      electricUserCollection,
+      electricLikeCollection,
+      electricPostMediaCollection,
+    ].every((col) => col.isReady())
   );
+
+  useEffect(() => {
+    if (collectionsLoaded) return;
+    Promise.all([
+      electricPostCollection.preload(),
+      electricUserCollection.preload(),
+      electricLikeCollection.preload(),
+      electricPostMediaCollection.preload(),
+    ]).then(() => setCollectionsLoaded(true));
+  }, [collectionsLoaded]);
+
+  if (!collectionsLoaded) {
+    return null;
+  }
+
+  return <StatusThread postId={Number(postId)} />;
 }
