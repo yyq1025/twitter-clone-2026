@@ -78,7 +78,7 @@ export const electricFollowCollection = createCollection(
     schema: selectFollowSchema,
     getKey: (item) => `${item.followerId}-${item.followingId}`,
     onInsert: async ({ transaction }) => {
-      await Promise.all(
+      const txids = await Promise.all(
         transaction.mutations.map(async (mutation) => {
           console.log("Creating follow:", mutation.modified);
           const response = await fetch("/api/follows", {
@@ -93,11 +93,14 @@ export const electricFollowCollection = createCollection(
           if (!response.ok) {
             throw new Error("Failed to create follow");
           }
+          const { txid } = await response.json();
+          return txid;
         }),
       );
+      return { txid: txids };
     },
     onDelete: async ({ transaction }) => {
-      await Promise.all(
+      const txids = await Promise.all(
         transaction.mutations.map(async (mutation) => {
           const response = await fetch(
             `/api/follows?followingId=${mutation.original.followingId}`,
@@ -108,8 +111,11 @@ export const electricFollowCollection = createCollection(
           if (!response.ok) {
             throw new Error("Failed to delete follow");
           }
+          const { txid } = await response.json();
+          return txid;
         }),
       );
+      return { txid: txids };
     },
   }),
 );

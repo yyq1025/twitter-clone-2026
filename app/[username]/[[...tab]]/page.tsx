@@ -19,7 +19,7 @@ import {
   electricPostMediaCollection,
   electricUserCollection,
 } from "@/lib/collections";
-import { and, eq, useLiveQuery } from "@tanstack/react-db";
+import { and, count, eq, useLiveQuery } from "@tanstack/react-db";
 import dayjs from "dayjs";
 import { authClient } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
@@ -104,7 +104,7 @@ function UserProfile({ username, tab }: { username: string; tab?: string[] }) {
 
   const { data: userFollowing } = useLiveQuery(
     (q) => {
-      if (!session?.user || !user) {
+      if (!session?.user?.id || !user?.id) {
         return null;
       }
       return q
@@ -117,7 +117,35 @@ function UserProfile({ username, tab }: { username: string; tab?: string[] }) {
         )
         .findOne();
     },
-    [session?.user, user]
+    [session?.user.id, user?.id]
+  );
+
+  const { data: following } = useLiveQuery(
+    (q) => {
+      if (!user?.id) {
+        return null;
+      }
+      return q
+        .from({ follow: electricFollowCollection })
+        .where(({ follow }) => eq(follow.followerId, user.id))
+        .select(({ follow }) => ({ count: count(follow.followingId) }))
+        .findOne();
+    },
+    [user?.id]
+  );
+
+  const { data: followers } = useLiveQuery(
+    (q) => {
+      if (!user?.id) {
+        return null;
+      }
+      return q
+        .from({ follow: electricFollowCollection })
+        .where(({ follow }) => eq(follow.followingId, user.id))
+        .select(({ follow }) => ({ count: count(follow.followerId) }))
+        .findOne();
+    },
+    [user?.id]
   );
 
   const { data: posts } = useLiveQuery(
@@ -371,11 +399,11 @@ function UserProfile({ username, tab }: { username: string; tab?: string[] }) {
 
           <div className="flex gap-4 text-sm">
             <span>
-              <span className="font-semibold">1,045</span>{" "}
+              <span className="font-semibold">{following?.count || 0}</span>{" "}
               <span className="text-gray-500">Following</span>
             </span>
             <span>
-              <span className="font-semibold">86.4K</span>{" "}
+              <span className="font-semibold">{followers?.count || 0}</span>{" "}
               <span className="text-gray-500">Followers</span>
             </span>
           </div>
