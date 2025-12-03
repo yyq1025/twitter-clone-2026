@@ -13,12 +13,13 @@ import {
   IconRepeat,
 } from "@tabler/icons-react";
 import {
+  electricFollowCollection,
   electricLikeCollection,
   electricPostCollection,
   electricPostMediaCollection,
   electricUserCollection,
 } from "@/lib/collections";
-import { eq, useLiveQuery } from "@tanstack/react-db";
+import { and, eq, useLiveQuery } from "@tanstack/react-db";
 import dayjs from "dayjs";
 import { authClient } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
@@ -65,17 +66,21 @@ export default function ProfilePage({
       electricPostMediaCollection,
       electricUserCollection,
       electricLikeCollection,
+      electricFollowCollection,
     ].every((col) => col.isReady())
   );
 
   useEffect(() => {
     if (collectionsLoaded) return;
-    Promise.all([
-      electricPostCollection.preload(),
-      electricPostMediaCollection.preload(),
-      electricUserCollection.preload(),
-      electricLikeCollection.preload(),
-    ]).then(() => setCollectionsLoaded(true));
+    Promise.all(
+      [
+        electricPostCollection,
+        electricPostMediaCollection,
+        electricUserCollection,
+        electricLikeCollection,
+        electricFollowCollection,
+      ].map((col) => col.preload())
+    ).then(() => setCollectionsLoaded(true));
   }, [collectionsLoaded]);
 
   if (!collectionsLoaded) {
@@ -95,6 +100,24 @@ function UserProfile({ username, tab }: { username: string; tab?: string[] }) {
         .where(({ user }) => eq(user.username, username))
         .findOne(),
     [username]
+  );
+
+  const { data: userFollowing } = useLiveQuery(
+    (q) => {
+      if (!session?.user || !user) {
+        return null;
+      }
+      return q
+        .from({ follow: electricFollowCollection })
+        .where(({ follow }) =>
+          and(
+            eq(follow.followerId, session.user.id),
+            eq(follow.followingId, user.id)
+          )
+        )
+        .findOne();
+    },
+    [session?.user, user]
   );
 
   const { data: posts } = useLiveQuery(
@@ -262,29 +285,6 @@ function UserProfile({ username, tab }: { username: string; tab?: string[] }) {
     },
   ];
 
-  const tabs = [
-    {
-      name: "Posts",
-      href: `/${username}`,
-      current: !tab || tab.length === 0,
-    },
-    {
-      name: "Replies",
-      href: `/${username}/with_replies`,
-      current: tab?.[0] === "with_replies",
-    },
-    {
-      name: "Media",
-      href: `/${username}/media`,
-      current: tab?.[0] === "media",
-    },
-    {
-      name: "Likes",
-      href: `/${username}/likes`,
-      current: tab?.[0] === "likes",
-    },
-  ];
-
   return (
     <main className="flex-1 max-w-xl border-x border-gray-100">
       <div className="sticky top-0 z-20 border-b border-gray-100 bg-white/85 backdrop-blur-md">
@@ -315,9 +315,30 @@ function UserProfile({ username, tab }: { username: string; tab?: string[] }) {
               >
                 Edit profile
               </button>
+            ) : userFollowing ? (
+              <button
+                type="button"
+                onClick={() => {
+                  if (!user || !session?.user) return;
+                  electricFollowCollection.delete(
+                    `${session.user.id}-${user.id}`
+                  );
+                }}
+                className="rounded-full px-4 py-1.5 font-bold bg-white border border-gray-300 hover:bg-gray-100 focus-visible:bg-gray-100"
+              >
+                Following
+              </button>
             ) : (
               <button
                 type="button"
+                onClick={() => {
+                  if (!user || !session?.user) return;
+                  electricFollowCollection.insert({
+                    followerId: session.user.id,
+                    followingId: user.id,
+                    createdAt: new Date(),
+                  });
+                }}
                 className="rounded-full px-4 py-1.5 font-bold bg-primary text-white hover:bg-primary/90 focus-visible:bg-primary/90"
               >
                 Follow

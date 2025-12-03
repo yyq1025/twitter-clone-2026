@@ -1,6 +1,7 @@
 import { createCollection } from "@tanstack/react-db";
 import { electricCollectionOptions } from "@tanstack/electric-db-collection";
 import {
+  selectFollowSchema,
   selectLikeSchema,
   selectPostMediaSchema,
   selectPostSchema,
@@ -64,5 +65,51 @@ export const electricLikeCollection = createCollection(
     },
     schema: selectLikeSchema,
     getKey: (item) => `${item.userId}-${item.postId}`,
+  }),
+);
+
+export const electricFollowCollection = createCollection(
+  electricCollectionOptions({
+    id: "follows",
+    shapeOptions: {
+      url: `${baseUrl}/api/follows`,
+      columnMapper: snakeCamelMapper(),
+    },
+    schema: selectFollowSchema,
+    getKey: (item) => `${item.followerId}-${item.followingId}`,
+    onInsert: async ({ transaction }) => {
+      await Promise.all(
+        transaction.mutations.map(async (mutation) => {
+          console.log("Creating follow:", mutation.modified);
+          const response = await fetch("/api/follows", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              followingId: mutation.modified.followingId,
+            }),
+          });
+          if (!response.ok) {
+            throw new Error("Failed to create follow");
+          }
+        }),
+      );
+    },
+    onDelete: async ({ transaction }) => {
+      await Promise.all(
+        transaction.mutations.map(async (mutation) => {
+          const response = await fetch(
+            `/api/follows?followingId=${mutation.original.followingId}`,
+            {
+              method: "DELETE",
+            },
+          );
+          if (!response.ok) {
+            throw new Error("Failed to delete follow");
+          }
+        }),
+      );
+    },
   }),
 );

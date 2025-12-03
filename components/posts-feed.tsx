@@ -1,11 +1,6 @@
 "use client";
 
-import {
-  eq,
-  isNull,
-  useLiveInfiniteQuery,
-  useLiveQuery,
-} from "@tanstack/react-db";
+import { eq, isNull, useLiveInfiniteQuery } from "@tanstack/react-db";
 import {
   electricPostCollection,
   electricUserCollection,

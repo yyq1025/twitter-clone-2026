@@ -26,12 +26,14 @@ export default function StatusPage({
 
   useEffect(() => {
     if (collectionsLoaded) return;
-    Promise.all([
-      electricPostCollection.preload(),
-      electricUserCollection.preload(),
-      electricLikeCollection.preload(),
-      electricPostMediaCollection.preload(),
-    ]).then(() => setCollectionsLoaded(true));
+    Promise.all(
+      [
+        electricPostCollection,
+        electricUserCollection,
+        electricLikeCollection,
+        electricPostMediaCollection,
+      ].map((col) => col.preload())
+    ).then(() => setCollectionsLoaded(true));
   }, [collectionsLoaded]);
 
   if (!collectionsLoaded) {

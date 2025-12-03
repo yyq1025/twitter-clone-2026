@@ -47,7 +47,7 @@ export const createPost = createOptimisticAction<
     }
   },
   mutationFn: async (postData) => {
-    const response = await fetch(`/api/posts`, {
+    const response = await fetch("/api/posts", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -79,7 +79,7 @@ export const likePost = createOptimisticAction<InsertLike>({
     });
   },
   mutationFn: async ({ postId }) => {
-    const response = await fetch(`/api/likes`, {
+    const response = await fetch("/api/likes", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

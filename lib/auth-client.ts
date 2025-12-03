@@ -1,6 +1,15 @@
 import { createAuthClient } from "better-auth/react";
-import { anonymousClient, usernameClient } from "better-auth/client/plugins";
+import {
+  anonymousClient,
+  usernameClient,
+  inferAdditionalFields,
+} from "better-auth/client/plugins";
+import type { auth } from "./auth";
 
 export const authClient = createAuthClient({
-  plugins: [anonymousClient(), usernameClient()],
+  plugins: [
+    anonymousClient(),
+    usernameClient(),
+    inferAdditionalFields<typeof auth>(),
+  ],
 });
