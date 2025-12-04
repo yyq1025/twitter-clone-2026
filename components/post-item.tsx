@@ -40,7 +40,7 @@ function formatPostTime(value: Date | string | number | null | undefined) {
 
 type PostItemProps = {
   post: z.infer<typeof selectPostSchema>;
-  user: z.infer<typeof selectUserSchema>;
+  user?: z.infer<typeof selectUserSchema>;
   sessionUserId?: string;
 };
 
@@ -85,6 +85,10 @@ export function PostItem({ post, user, sessionUserId }: PostItemProps) {
     }
   };
 
+  if (!user) {
+    return null;
+  }
+
   return (
     <article
       className={cn(
@@ -119,7 +123,7 @@ export function PostItem({ post, user, sessionUserId }: PostItemProps) {
         {postMedia && postMedia.length > 0 && (
           <div
             className={cn(
-              "grid grid-cols-2 grid-rows-2 gap-0.5 overflow-hidden max-h-120 mt-2 rounded-2xl border border-gray-100",
+              "grid grid-cols-2 grid-rows-2 gap-0.5 overflow-hidden w-fit mt-2 rounded-xl border border-gray-100",
               postMedia.length > 1 && "aspect-video"
             )}
           >
@@ -135,7 +139,11 @@ export function PostItem({ post, user, sessionUserId }: PostItemProps) {
                 <img
                   src={media.mediaUrl}
                   alt="Post media"
-                  className={cn("w-full h-full object-cover")}
+                  className={cn(
+                    postMedia.length > 1
+                      ? "w-full h-full object-cover"
+                      : "max-w-full max-h-100 object-contain"
+                  )}
                 />
               </div>
             ))}

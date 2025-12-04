@@ -3,7 +3,7 @@ import PostsFeed from "@/components/posts-feed";
 
 export default function Home() {
   return (
-    <main className="flex-1 max-w-xl border-x border-gray-100 h-screen pb-20 sm:pb-0 flex flex-col">
+    <main className="flex-1 max-w-xl border-x border-gray-100 flex flex-col">
       <div className="sticky top-0 z-10 bg-white/85 backdrop-blur-md border-b border-gray-100">
         <div className="sm:hidden p-3 flex justify-center">
           <IconBrandX className="size-7" />

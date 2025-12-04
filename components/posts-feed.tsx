@@ -9,7 +9,7 @@ import {
 } from "@/lib/collections";
 import { authClient } from "@/lib/auth-client";
 import { useEffect, useRef, useState } from "react";
-import { useVirtualizer } from "@tanstack/react-virtual";
+import { useVirtualizer, useWindowVirtualizer } from "@tanstack/react-virtual";
 import { PostItem } from "@/components/post-item";
 import { PostComposer } from "@/components/post-composer";
 import AuthGuard from "@/components/auth-guard";
@@ -68,13 +68,13 @@ function PostsList() {
 
   const posts = pages.flat();
 
-  const parentRef = useRef<HTMLDivElement | null>(null);
+  const listRef = useRef<HTMLDivElement | null>(null);
 
-  const virtualizer = useVirtualizer({
+  const virtualizer = useWindowVirtualizer({
     count: hasNextPage ? posts.length + 1 : posts.length,
-    getScrollElement: () => parentRef.current,
     estimateSize: () => 120,
     overscan: 5,
+    scrollMargin: listRef.current?.offsetTop ?? 0,
   });
 
   const items = virtualizer.getVirtualItems();
@@ -94,7 +94,7 @@ function PostsList() {
   }, [items, hasNextPage, fetchNextPage, isFetchingNextPage, posts.length]);
 
   return (
-    <div ref={parentRef} className="h-full overflow-y-auto contain-strict">
+    <div ref={listRef}>
       <AuthGuard>
         <div className="hidden sm:flex border-b border-gray-100">
           <PostComposer />
@@ -107,7 +107,9 @@ function PostsList() {
         <div
           className="absolute top-0 left-0 w-full"
           style={{
-            transform: `translateY(${items[0]?.start ?? 0}px)`,
+            transform: `translateY(${
+              items[0]?.start - virtualizer.options.scrollMargin
+            }px)`,
           }}
         >
           {isError ? (

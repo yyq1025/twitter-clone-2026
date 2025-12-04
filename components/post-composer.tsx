@@ -85,7 +85,7 @@ export function PostComposer({
         })
       );
 
-      createPost({
+      await createPost({
         userId: session.user.id,
         content: content.trim(),
         replyToId: parentPost?.id,

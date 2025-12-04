@@ -78,44 +78,35 @@ export const electricFollowCollection = createCollection(
     schema: selectFollowSchema,
     getKey: (item) => `${item.followerId}-${item.followingId}`,
     onInsert: async ({ transaction }) => {
-      const txids = await Promise.all(
-        transaction.mutations.map(async (mutation) => {
-          console.log("Creating follow:", mutation.modified);
-          const response = await fetch("/api/follows", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              followingId: mutation.modified.followingId,
-            }),
-          });
-          if (!response.ok) {
-            throw new Error("Failed to create follow");
-          }
-          const { txid } = await response.json();
-          return txid;
+      const newItem = transaction.mutations[0].modified;
+      const response = await fetch("/api/follows", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          followingId: newItem.followingId,
         }),
-      );
-      return { txid: txids };
+      });
+      if (!response.ok) {
+        throw new Error("Failed to create follow");
+      }
+      const { txid } = await response.json();
+      return { txid };
     },
     onDelete: async ({ transaction }) => {
-      const txids = await Promise.all(
-        transaction.mutations.map(async (mutation) => {
-          const response = await fetch(
-            `/api/follows?followingId=${mutation.original.followingId}`,
-            {
-              method: "DELETE",
-            },
-          );
-          if (!response.ok) {
-            throw new Error("Failed to delete follow");
-          }
-          const { txid } = await response.json();
-          return txid;
-        }),
+      const { original } = transaction.mutations[0];
+      const response = await fetch(
+        `/api/follows?followingId=${original.followingId}`,
+        {
+          method: "DELETE",
+        },
       );
-      return { txid: txids };
+      if (!response.ok) {
+        throw new Error("Failed to delete follow");
+      }
+      const { txid } = await response.json();
+      return { txid };
     },
   }),
 );

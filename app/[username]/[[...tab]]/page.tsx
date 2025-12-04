@@ -19,10 +19,17 @@ import {
   electricPostMediaCollection,
   electricUserCollection,
 } from "@/lib/collections";
-import { and, count, eq, useLiveQuery } from "@tanstack/react-db";
+import {
+  and,
+  count,
+  createLiveQueryCollection,
+  eq,
+  useLiveQuery,
+} from "@tanstack/react-db";
 import dayjs from "dayjs";
 import { authClient } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
+import { PostItem } from "@/components/post-item";
 
 type ProfilePost = {
   id: number;
@@ -148,74 +155,57 @@ function UserProfile({ username, tab }: { username: string; tab?: string[] }) {
     [user?.id]
   );
 
+  const postsWithUser = createLiveQueryCollection((q) =>
+    q
+      .from({
+        post: electricPostCollection,
+      })
+      .leftJoin({ user: electricUserCollection }, ({ post, user }) =>
+        eq(user.id, post.userId)
+      )
+  );
+
   const { data: posts } = useLiveQuery(
-    (q) =>
-      q
-        .from({ post: electricPostCollection })
-        .where(({ post }) => eq(post.userId, user?.id ?? -1))
-        .orderBy(({ post }) => post.createdAt, "desc"),
+    (q) => {
+      if (!user?.id) {
+        return null;
+      }
+      return q
+        .from({ postWithUser: postsWithUser })
+        .where(({ postWithUser: { post } }) => eq(post.userId, user?.id ?? -1))
+        .orderBy(({ postWithUser: { post } }) => post.createdAt, "desc");
+    },
+    [user?.id]
+  );
+
+  const { data: userLikedPosts } = useLiveQuery(
+    (q) => {
+      if (!user?.id) {
+        return null;
+      }
+      return q
+        .from({ like: electricLikeCollection })
+        .innerJoin(
+          { postWithUser: postsWithUser },
+          ({ like, postWithUser: { post } }) => eq(like.postId, post.id)
+        )
+        .where(({ like }) => eq(like.userId, user.id))
+        .orderBy(({ like }) => like.createdAt, "desc")
+        .select(({ postWithUser: { post, user } }) => ({ post, user }));
+    },
     [user?.id]
   );
 
   if (!user && !isUserLoading) {
     return (
-      <main className="flex-1 max-w-xl border-x border-gray-100">
-        <div className="p-4 text-center text-gray-500">
-          User "{username}" not found.
-        </div>
-      </main>
+      <div className="p-4 text-center text-gray-500">
+        User "{username}" not found.
+      </div>
     );
   }
 
   const handle = `@${username}`;
   const displayName = user?.name || "Unknown User";
-
-  const mockPosts: ProfilePost[] = [
-    {
-      id: 1,
-      author: displayName,
-      handle,
-      time: "3h",
-      text: "Building a calmer, faster feed experience. Shipping a new interaction pattern for polls this weekend.",
-      media:
-        "https://images.unsplash.com/photo-1520607162513-77705c0f0d4a?auto=format&fit=crop&w=1400&q=80",
-      badge: "Pinned",
-      stats: {
-        comments: "112",
-        reposts: "274",
-        likes: "1.8K",
-        views: "120K",
-      },
-    },
-    {
-      id: 2,
-      author: displayName,
-      handle,
-      time: "6h",
-      text: "Early morning walk around the bay. Color palettes like these make their way into the UI more than I'd like to admit.",
-      media:
-        "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80",
-      stats: {
-        comments: "76",
-        reposts: "193",
-        likes: "1.1K",
-        views: "88.4K",
-      },
-    },
-    {
-      id: 3,
-      author: displayName,
-      handle,
-      time: "1d",
-      text: "Sketching out new profile layout states for teams. Curious what you'd prioritize: bio, highlights, or media?",
-      stats: {
-        comments: "58",
-        reposts: "140",
-        likes: "903",
-        views: "64.3K",
-      },
-    },
-  ];
 
   const replies: ProfilePost[] = [
     {
@@ -244,38 +234,6 @@ function UserProfile({ username, tab }: { username: string; tab?: string[] }) {
         reposts: "25",
         likes: "288",
         views: "14.1K",
-      },
-    },
-  ];
-
-  const likes: ProfilePost[] = [
-    {
-      id: 6,
-      author: "Lina Chen",
-      handle: "@linacodes",
-      time: "1d",
-      text: "Prototyped a lighter-weight composer so you can stay in flow without modal fatigue.",
-      media:
-        "https://images.unsplash.com/photo-1523475472560-d2df97ec485c?auto=format&fit=crop&w=1200&q=80",
-      badge: "Liked by you",
-      stats: {
-        comments: "61",
-        reposts: "144",
-        likes: "1.6K",
-        views: "103K",
-      },
-    },
-    {
-      id: 7,
-      author: "Marcus Boyd",
-      handle: "@marcusmakes",
-      time: "3d",
-      text: "Design tokens aren't just for colors; they're promises about rhythm and intent. Start there.",
-      stats: {
-        comments: "33",
-        reposts: "98",
-        likes: "842",
-        views: "56.9K",
       },
     },
   ];
@@ -314,7 +272,7 @@ function UserProfile({ username, tab }: { username: string; tab?: string[] }) {
   ];
 
   return (
-    <main className="flex-1 max-w-xl border-x border-gray-100">
+    <>
       <div className="sticky top-0 z-20 border-b border-gray-100 bg-white/85 backdrop-blur-md">
         <div className="flex items-center gap-3 px-4 py-3">
           <Link
@@ -430,7 +388,7 @@ function UserProfile({ username, tab }: { username: string; tab?: string[] }) {
             <Tabs.Trigger
               key={tab.value}
               value={tab.value}
-              className="relative flex justify-center py-4 text-center text-sm font-semibold outline-none transition text-gray-500 hover:bg-gray-50 data-[state=active]:text-black data-[state=active]:*:opacity-100"
+              className="relative flex justify-center py-4 text-center font-semibold outline-none transition text-gray-500 hover:bg-gray-50 data-[state=active]:text-black data-[state=active]:*:opacity-100"
             >
               <span>{tab.name}</span>
               <span className="absolute w-14 -bottom-px h-1 rounded-full bg-blue-500 transition opacity-0" />
@@ -439,9 +397,18 @@ function UserProfile({ username, tab }: { username: string; tab?: string[] }) {
         </Tabs.List>
 
         <Tabs.Content value="posts">
-          {mockPosts.map((post) => (
-            <PostCard key={post.id} post={post} />
-          ))}
+          {!posts || posts.length === 0 ? (
+            <div className="p-4 text-center text-gray-500">No posts yet.</div>
+          ) : (
+            posts.map(({ post, user }) => (
+              <PostItem
+                key={post.id}
+                post={post}
+                user={user}
+                sessionUserId={session?.user?.id}
+              />
+            ))
+          )}
         </Tabs.Content>
 
         <Tabs.Content value="with_replies">
@@ -454,12 +421,23 @@ function UserProfile({ username, tab }: { username: string; tab?: string[] }) {
           <MediaGrid items={mediaItems} />
         </Tabs.Content>
         <Tabs.Content value="likes">
-          {likes.map((post) => (
-            <PostCard key={post.id} post={post} />
-          ))}
+          {!userLikedPosts || userLikedPosts.length === 0 ? (
+            <div className="p-4 text-center text-gray-500">
+              No liked posts yet.
+            </div>
+          ) : (
+            userLikedPosts.map(({ post, user }) => (
+              <PostItem
+                key={post.id}
+                post={post}
+                user={user}
+                sessionUserId={session?.user?.id}
+              />
+            ))
+          )}
         </Tabs.Content>
       </Tabs.Root>
-    </main>
+    </>
   );
 }
 
@@ -544,16 +522,16 @@ function Interaction({ icon, label }: { icon: ReactNode; label: string }) {
 
 function MediaGrid({ items }: { items: MediaItem[] }) {
   return (
-    <div className="grid grid-cols-2 gap-3 px-4 py-4">
+    <div className="grid grid-cols-3 gap-1 p-1">
       {items.map((item) => (
         <div
           key={item.id}
-          className="group relative overflow-hidden rounded-2xl border border-gray-100 bg-gray-50"
+          className="group relative overflow-hidden border border-gray-100 bg-gray-50 aspect-square"
         >
           <img
             src={item.url}
             alt={item.alt}
-            className="h-40 w-full object-cover transition duration-500 group-hover:scale-105"
+            className="h-full w-full object-cover"
           />
           <div className="absolute inset-0 bg-linear-to-t from-black/30 via-black/0 opacity-0 transition group-hover:opacity-100"></div>
         </div>
