@@ -284,7 +284,7 @@ function UserProfile({ username, tab }: { username: string; tab?: string[] }) {
           </Link>
           <div>
             <p className="text-lg font-semibold leading-tight">{displayName}</p>
-            <p className="text-sm text-gray-500">{posts.length} posts</p>
+            <p className="text-sm text-gray-500">{posts?.length || 0} posts</p>
           </div>
         </div>
       </div>
