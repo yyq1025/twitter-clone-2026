@@ -9,6 +9,7 @@ import {
 } from "@/lib/collections";
 import { PostComposer } from "./post-composer";
 import { PostItem } from "./post-item";
+import { useRouter } from "next/navigation";
 
 type ParentThreadProps = {
   postId: string;
@@ -62,10 +63,12 @@ function ParentThread({
 }
 
 type StatusThreadProps = {
+  username: string;
   postId: string;
 };
 
-export function StatusThread({ postId }: StatusThreadProps) {
+export function StatusThread({ username, postId }: StatusThreadProps) {
+  const router = useRouter();
   const { data: session, isPending } = authClient.useSession();
   const ref = useRef<HTMLDivElement | null>(null);
   const [parentsLoaded, setParentsLoaded] = useState(false);
@@ -89,6 +92,12 @@ export function StatusThread({ postId }: StatusThreadProps) {
       .where(({ post }) => eq(post.replyToId, postId))
       .orderBy(({ post }) => post.createdAt, "desc")
   );
+
+  useEffect(() => {
+    if (mainPostData && mainPostData.user.username !== username) {
+      router.replace(`/${mainPostData.user.username}/status/${postId}`);
+    }
+  }, [mainPostData, username, postId, router]);
 
   useEffect(() => {
     if (mainPostData && !mainPostData.post.replyToId) {

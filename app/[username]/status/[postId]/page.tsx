@@ -11,9 +11,9 @@ import {
 export default function StatusPage({
   params,
 }: {
-  params: Promise<{ postId: string }>;
+  params: Promise<{ username: string; postId: string }>;
 }) {
-  const postId = use(params).postId;
+  const { username, postId } = use(params);
   const [collectionsLoaded, setCollectionsLoaded] = useState(
     [
       electricPostCollection,
@@ -37,5 +37,5 @@ export default function StatusPage({
     return null;
   }
 
-  return <StatusThread postId={postId} />;
+  return <StatusThread username={username} postId={postId} />;
 }

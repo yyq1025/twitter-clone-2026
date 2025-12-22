@@ -79,7 +79,7 @@ export function PostItem({ post, user, sessionUserId }: PostItemProps) {
     <article
       className="p-4 transition flex gap-4 border-b border-gray-100 hover:bg-gray-50 cursor-pointer"
       onClick={() => {
-        router.push(`/status/${post.id}`);
+        router.push(`/${user.username}/status/${post.id}`);
       }}
     >
       <div className="w-10 h-10 rounded-full bg-linear-to-br from-blue-500 to-purple-500 flex items-center justify-center text-sm font-semibold text-white shrink-0">
