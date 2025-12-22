@@ -24,11 +24,13 @@ export default function PostsFeed() {
 
   useEffect(() => {
     if (collectionsLoaded) return;
-    Promise.all([
-      electricPostCollection.preload(),
-      electricUserCollection.preload(),
-      electricLikeCollection.preload(),
-    ]).then(() => setCollectionsLoaded(true));
+    Promise.all(
+      [
+        electricPostCollection,
+        electricUserCollection,
+        electricLikeCollection,
+      ].map((col) => col.preload())
+    ).then(() => setCollectionsLoaded(true));
   }, [collectionsLoaded]);
 
   if (!collectionsLoaded) {

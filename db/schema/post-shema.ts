@@ -4,9 +4,9 @@ import {
   jsonb,
   pgTable,
   primaryKey,
-  smallint,
   text,
   timestamp,
+  uuid,
 } from "drizzle-orm/pg-core";
 import { users } from "./auth-schema";
 
@@ -18,20 +18,20 @@ interface PostMedia {
 }
 
 export const posts = pgTable("posts", {
-  id: integer().generatedAlwaysAsIdentity().primaryKey(),
+  id: uuid().primaryKey(),
   userId: text()
     .notNull()
     .references(() => users.id, { onDelete: "set null" }),
   content: text().notNull(),
   postMedia: jsonb().$type<PostMedia[]>().default([]).notNull(),
 
-  repostId: integer().references((): AnyPgColumn => posts.id, {
+  repostId: uuid().references((): AnyPgColumn => posts.id, {
     onDelete: "set null",
   }),
-  replyToId: integer().references((): AnyPgColumn => posts.id, {
+  replyToId: uuid().references((): AnyPgColumn => posts.id, {
     onDelete: "set null",
   }),
-  quoteId: integer().references((): AnyPgColumn => posts.id, {
+  quoteId: uuid().references((): AnyPgColumn => posts.id, {
     onDelete: "set null",
   }),
 
@@ -48,7 +48,7 @@ export const likes = pgTable(
     userId: text()
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
-    postId: integer()
+    postId: uuid()
       .notNull()
       .references((): AnyPgColumn => posts.id, { onDelete: "cascade" }),
     createdAt: timestamp({ withTimezone: true }).defaultNow().notNull(),

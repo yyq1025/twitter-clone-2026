@@ -37,5 +37,5 @@ export default function StatusPage({
     return null;
   }
 
-  return <StatusThread postId={Number(postId)} />;
+  return <StatusThread postId={postId} />;
 }

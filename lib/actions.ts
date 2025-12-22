@@ -5,21 +5,46 @@ import {
   electricPostCollection,
 } from "@/lib/collections";
 
-export const createPost = async (postData: InsertPost) => {
-  const response = await fetch("/api/posts", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(postData),
-  });
-  if (!response.ok) {
-    throw new Error("Failed to create post");
-  }
-  const { txid } = await response.json();
+export const createPost = createOptimisticAction<InsertPost>({
+  onMutate: (postData) => {
+    electricPostCollection.insert({
+      ...postData,
+      createdAt: new Date(),
+      likeCount: 0,
+      repostCount: 0,
+      replyCount: 0,
+      postMedia: postData.postMedia || [],
+      repostId: postData.repostId || null,
+      replyToId: postData.replyToId || null,
+      quoteId: postData.quoteId || null,
+    });
+    if (postData.replyToId) {
+      electricPostCollection.update(postData.replyToId, (draft) => {
+        draft.replyCount += 1;
+      });
+    }
+    if (postData.repostId) {
+      electricPostCollection.update(postData.repostId, (draft) => {
+        draft.repostCount += 1;
+      });
+    }
+  },
+  mutationFn: async (postData) => {
+    const response = await fetch("/api/posts", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(postData),
+    });
+    if (!response.ok) {
+      throw new Error("Failed to create post");
+    }
+    const { txid } = await response.json();
 
-  await electricPostCollection.utils.awaitTxId(txid);
-};
+    await electricPostCollection.utils.awaitTxId(txid);
+  },
+});
 
 export const likePost = createOptimisticAction<InsertLike>({
   onMutate: ({ userId, postId }) => {

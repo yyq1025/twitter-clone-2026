@@ -12,6 +12,7 @@ import { getImageDimensions, usePostMedia } from "@/hooks/use-post-media";
 import { createPost } from "@/lib/actions";
 import { authClient } from "@/lib/auth-client";
 import { uploadFiles } from "@/utils/uploadthing";
+import { v7 as uuidv7 } from "uuid";
 
 const PLACEHOLDER_NAME = "Demo User";
 const PLACEHOLDER_HANDLE = "demo_user";
@@ -77,7 +78,8 @@ export function PostComposer({
         height: dimensions[index].height,
       }));
 
-      await createPost({
+      createPost({
+        id: uuidv7(),
         userId: session.user.id,
         content: content.trim(),
         replyToId: parentPost?.id,

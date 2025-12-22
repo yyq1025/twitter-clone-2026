@@ -1,17 +1,17 @@
 "use client";
 
+import { eq, useLiveQuery } from "@tanstack/react-db";
+import { useEffect, useRef, useState } from "react";
 import { authClient } from "@/lib/auth-client";
-import { PostItem } from "./post-item";
 import {
   electricPostCollection,
   electricUserCollection,
 } from "@/lib/collections";
 import { PostComposer } from "./post-composer";
-import { eq, useLiveQuery } from "@tanstack/react-db";
-import { useEffect, useRef, useState } from "react";
+import { PostItem } from "./post-item";
 
 type ParentThreadProps = {
-  postId: number;
+  postId: string;
   sessionUserId?: string;
   onParentLoaded?: () => void;
 };
@@ -62,7 +62,7 @@ function ParentThread({
 }
 
 type StatusThreadProps = {
-  postId: number;
+  postId: string;
 };
 
 export function StatusThread({ postId }: StatusThreadProps) {
