@@ -1,11 +1,10 @@
 "use client";
 
-import { StatusThread } from "@/components/status-thread";
 import { use, useEffect, useState } from "react";
+import { StatusThread } from "@/components/status-thread";
 import {
   electricLikeCollection,
   electricPostCollection,
-  electricPostMediaCollection,
   electricUserCollection,
 } from "@/lib/collections";
 
@@ -20,7 +19,6 @@ export default function StatusPage({
       electricPostCollection,
       electricUserCollection,
       electricLikeCollection,
-      electricPostMediaCollection,
     ].every((col) => col.isReady())
   );
 
@@ -31,7 +29,6 @@ export default function StatusPage({
         electricPostCollection,
         electricUserCollection,
         electricLikeCollection,
-        electricPostMediaCollection,
       ].map((col) => col.preload())
     ).then(() => setCollectionsLoaded(true));
   }, [collectionsLoaded]);

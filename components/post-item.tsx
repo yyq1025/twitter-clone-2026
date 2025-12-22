@@ -6,19 +6,14 @@ import {
   IconRepeat,
   IconShare,
 } from "@tabler/icons-react";
-import type { MouseEvent } from "react";
-import type * as z from "zod";
-
-import type { selectPostSchema, selectUserSchema } from "@/db/validation";
-import { likePost, unlikePost } from "@/lib/actions";
 import { and, eq, useLiveQuery } from "@tanstack/react-db";
-import {
-  electricLikeCollection,
-  electricPostMediaCollection,
-} from "@/lib/collections";
+import { useRouter } from "next/navigation";
+import type { MouseEvent } from "react";
+import type { SelectPost, SelectUser } from "@/db/validation";
+import { likePost, unlikePost } from "@/lib/actions";
+import { electricLikeCollection } from "@/lib/collections";
 import { cn } from "@/lib/utils";
 import { CreatePostDialog } from "./create-post-dialog";
-import { useRouter } from "next/navigation";
 
 const PLACEHOLDER_NAME = "Demo User";
 const PLACEHOLDER_HANDLE = "demo_user";
@@ -39,8 +34,8 @@ function formatPostTime(value: Date | string | number | null | undefined) {
 }
 
 type PostItemProps = {
-  post: z.infer<typeof selectPostSchema>;
-  user?: z.infer<typeof selectUserSchema>;
+  post: SelectPost;
+  user?: SelectUser;
   sessionUserId?: string;
 };
 
@@ -58,19 +53,10 @@ export function PostItem({ post, user, sessionUserId }: PostItemProps) {
     },
     [sessionUserId, post.id]
   );
-  const { data: postMedia } = useLiveQuery(
-    (q) =>
-      q
-        .from({ media: electricPostMediaCollection })
-        .where(({ media }) => eq(media.postId, post.id))
-        .orderBy(({ media }) => media.sortOrder, "asc"),
-    [post.id]
-  );
 
   const handleLikeClick = (e: MouseEvent) => {
     e.stopPropagation();
     if (!sessionUserId) return;
-    if (post.status !== "active") return;
 
     if (userLiked) {
       unlikePost({
@@ -91,12 +77,9 @@ export function PostItem({ post, user, sessionUserId }: PostItemProps) {
 
   return (
     <article
-      className={cn(
-        "p-4 transition flex gap-4 border-b border-gray-100",
-        post.status === "active" && "hover:bg-gray-50 cursor-pointer "
-      )}
+      className="p-4 transition flex gap-4 border-b border-gray-100 hover:bg-gray-50 cursor-pointer"
       onClick={() => {
-        if (post.status === "active") router.push(`/status/${post.id}`);
+        router.push(`/status/${post.id}`);
       }}
     >
       <div className="w-10 h-10 rounded-full bg-linear-to-br from-blue-500 to-purple-500 flex items-center justify-center text-sm font-semibold text-white shrink-0">
@@ -120,27 +103,27 @@ export function PostItem({ post, user, sessionUserId }: PostItemProps) {
         <p className="mt-1 leading-normal whitespace-pre-wrap wrap-break-word">
           {post.content}
         </p>
-        {postMedia && postMedia.length > 0 && (
+        {post.postMedia.length > 0 && (
           <div
             className={cn(
               "grid grid-cols-2 grid-rows-2 gap-0.5 overflow-hidden w-fit mt-2 rounded-xl border border-gray-100",
-              postMedia.length > 1 && "aspect-video"
+              post.postMedia.length > 1 && "aspect-video"
             )}
           >
-            {postMedia.map((media, idx) => (
+            {post.postMedia.map((media, idx) => (
               <div
-                key={media.id}
+                key={idx}
                 className={cn(
                   "w-full h-full",
-                  postMedia.length + idx <= 3 && "row-span-2",
-                  postMedia.length + idx === 1 && "col-span-2"
+                  post.postMedia.length + idx <= 3 && "row-span-2",
+                  post.postMedia.length + idx === 1 && "col-span-2"
                 )}
               >
                 <img
-                  src={media.mediaUrl}
+                  src={media.url}
                   alt="Post media"
                   className={cn(
-                    postMedia.length > 1
+                    post.postMedia.length > 1
                       ? "w-full h-full object-cover"
                       : "max-w-full max-h-100 object-contain"
                   )}
@@ -156,7 +139,6 @@ export function PostItem({ post, user, sessionUserId }: PostItemProps) {
               trigger={
                 <button
                   type="button"
-                  disabled={post.status !== "active"}
                   className="hover:text-blue-500 flex gap-2 items-center group"
                 >
                   <div className="p-2 rounded-full group-hover:bg-blue-500/10">

@@ -1,14 +1,13 @@
-import { NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
-import { db } from "@/db/drizzle";
-import { postMedia, posts } from "@/db/schema/post-shema";
-import { headers } from "next/headers";
+import { ELECTRIC_PROTOCOL_QUERY_PARAMS } from "@electric-sql/client";
+import type { Txid } from "@tanstack/electric-db-collection";
 import { eq, sql } from "drizzle-orm";
 import type { PgTransaction } from "drizzle-orm/pg-core";
-import type { Txid } from "@tanstack/electric-db-collection";
-import { ELECTRIC_PROTOCOL_QUERY_PARAMS } from "@electric-sql/client";
-import { insertPostSchema, insertPostMediaSchema } from "@/db/validation";
-import * as z from "zod";
+import { headers } from "next/headers";
+import { NextResponse } from "next/server";
+import { db } from "@/db/drizzle";
+import { posts } from "@/db/schema/post-shema";
+import { insertPostSchema } from "@/db/validation";
+import { auth } from "@/lib/auth";
 
 async function generateTxId(tx: PgTransaction<any, any, any>): Promise<Txid> {
   const result = await tx.execute(
@@ -75,30 +74,10 @@ export async function POST(request: Request) {
       );
     }
 
-    const parsedPostMedia = z
-      .array(insertPostMediaSchema)
-      .safeParse(body.postMedia || []);
-
-    if (!parsedPostMedia.success) {
-      return NextResponse.json(
-        {
-          message: "Invalid post media",
-          errors: parsedPostMedia.error.message,
-        },
-        { status: 400 },
-      );
-    }
-
     let txid!: Txid;
     const newPost = await db.transaction(async (tx) => {
       txid = await generateTxId(tx);
       const [post] = await tx.insert(posts).values(parsedPost.data).returning();
-      parsedPostMedia.data.forEach(async (media) => {
-        await tx.insert(postMedia).values({
-          ...media,
-          postId: post.id,
-        });
-      });
       if (post.replyToId) {
         await tx
           .update(posts)

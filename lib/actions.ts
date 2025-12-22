@@ -1,13 +1,11 @@
 import { createOptimisticAction } from "@tanstack/react-db";
+import type { InsertLike, InsertPost } from "@/db/validation";
 import {
   electricLikeCollection,
   electricPostCollection,
 } from "@/lib/collections";
-import type { InsertLike, InsertPost, InsertPostMedia } from "@/db/validation";
 
-export const createPost = async (
-  postData: InsertPost & { postMedia?: InsertPostMedia[] },
-) => {
+export const createPost = async (postData: InsertPost) => {
   const response = await fetch("/api/posts", {
     method: "POST",
     headers: {

@@ -1,13 +1,12 @@
-import { createCollection } from "@tanstack/react-db";
+import { snakeCamelMapper } from "@electric-sql/client";
 import { electricCollectionOptions } from "@tanstack/electric-db-collection";
+import { createCollection } from "@tanstack/react-db";
 import {
   selectFollowSchema,
   selectLikeSchema,
-  selectPostMediaSchema,
   selectPostSchema,
   selectUserSchema,
 } from "@/db/validation";
-import { snakeCamelMapper } from "@electric-sql/client";
 
 const baseUrl =
   typeof window !== "undefined"
@@ -25,21 +24,6 @@ export const electricPostCollection = createCollection(
       },
     },
     schema: selectPostSchema,
-    getKey: (item) => item.id,
-  }),
-);
-
-export const electricPostMediaCollection = createCollection(
-  electricCollectionOptions({
-    id: "post-media",
-    shapeOptions: {
-      url: `${baseUrl}/api/post-media`,
-      columnMapper: snakeCamelMapper(),
-      parser: {
-        timestamptz: (date: string) => new Date(date),
-      },
-    },
-    schema: selectPostMediaSchema,
     getKey: (item) => item.id,
   }),
 );

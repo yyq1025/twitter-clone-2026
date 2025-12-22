@@ -1,18 +1,17 @@
 "use client";
 
 import { eq, isNull, useLiveInfiniteQuery } from "@tanstack/react-db";
+import { useWindowVirtualizer } from "@tanstack/react-virtual";
+import { useEffect, useRef, useState } from "react";
+import AuthGuard from "@/components/auth-guard";
+import { PostComposer } from "@/components/post-composer";
+import { PostItem } from "@/components/post-item";
+import { authClient } from "@/lib/auth-client";
 import {
+  electricLikeCollection,
   electricPostCollection,
   electricUserCollection,
-  electricLikeCollection,
-  electricPostMediaCollection,
 } from "@/lib/collections";
-import { authClient } from "@/lib/auth-client";
-import { useEffect, useRef, useState } from "react";
-import { useVirtualizer, useWindowVirtualizer } from "@tanstack/react-virtual";
-import { PostItem } from "@/components/post-item";
-import { PostComposer } from "@/components/post-composer";
-import AuthGuard from "@/components/auth-guard";
 
 export default function PostsFeed() {
   const [collectionsLoaded, setCollectionsLoaded] = useState(
@@ -20,7 +19,6 @@ export default function PostsFeed() {
       electricPostCollection,
       electricUserCollection,
       electricLikeCollection,
-      electricPostMediaCollection,
     ].every((col) => col.isReady())
   );
 
@@ -30,7 +28,6 @@ export default function PostsFeed() {
       electricPostCollection.preload(),
       electricUserCollection.preload(),
       electricLikeCollection.preload(),
-      electricPostMediaCollection.preload(),
     ]).then(() => setCollectionsLoaded(true));
   }, [collectionsLoaded]);
 
@@ -121,21 +118,21 @@ function PostsList() {
           ) : (
             items.map((virtualRow) => {
               const isLoaderRow = virtualRow.index > posts.length - 1;
-              const { post, user } = posts[virtualRow.index] || {};
+              const { post, user } = isLoaderRow ? {} : posts[virtualRow.index];
               return (
                 <div
                   data-index={virtualRow.index}
-                  key={isLoaderRow ? "loader" : post.id}
+                  key={virtualRow.index}
                   ref={virtualizer.measureElement}
                 >
-                  {isLoaderRow ? (
-                    <div className="p-4 text-sm">Loading more posts...</div>
-                  ) : (
+                  {post ? (
                     <PostItem
                       post={post}
                       user={user}
                       sessionUserId={session?.user?.id}
                     />
+                  ) : (
+                    <div className="p-4 text-sm">Loading more posts...</div>
                   )}
                 </div>
               );

@@ -1,13 +1,13 @@
-import { NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
-import { db } from "@/db/drizzle";
-import { headers } from "next/headers";
+import { ELECTRIC_PROTOCOL_QUERY_PARAMS } from "@electric-sql/client";
+import type { Txid } from "@tanstack/electric-db-collection";
 import { and, eq, sql } from "drizzle-orm";
 import type { PgTransaction } from "drizzle-orm/pg-core";
-import type { Txid } from "@tanstack/electric-db-collection";
-import { ELECTRIC_PROTOCOL_QUERY_PARAMS } from "@electric-sql/client";
-import { insertFollowSchema } from "@/db/validation";
+import { headers } from "next/headers";
+import { NextResponse } from "next/server";
+import { db } from "@/db/drizzle";
 import { follows } from "@/db/schema/follow-schema";
+import { insertFollowSchema } from "@/db/validation";
+import { auth } from "@/lib/auth";
 
 async function generateTxId(tx: PgTransaction<any, any, any>): Promise<Txid> {
   const result = await tx.execute(

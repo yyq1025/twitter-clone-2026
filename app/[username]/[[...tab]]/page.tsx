@@ -1,7 +1,5 @@
 "use client";
 
-import { use, useEffect, useState, type ReactNode } from "react";
-import Link from "next/link";
 import * as Tabs from "@radix-ui/react-tabs";
 import {
   IconArrowLeft,
@@ -13,13 +11,6 @@ import {
   IconRepeat,
 } from "@tabler/icons-react";
 import {
-  electricFollowCollection,
-  electricLikeCollection,
-  electricPostCollection,
-  electricPostMediaCollection,
-  electricUserCollection,
-} from "@/lib/collections";
-import {
   and,
   count,
   createLiveQueryCollection,
@@ -27,9 +18,17 @@ import {
   useLiveQuery,
 } from "@tanstack/react-db";
 import dayjs from "dayjs";
-import { authClient } from "@/lib/auth-client";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { type ReactNode, use, useEffect, useState } from "react";
 import { PostItem } from "@/components/post-item";
+import { authClient } from "@/lib/auth-client";
+import {
+  electricFollowCollection,
+  electricLikeCollection,
+  electricPostCollection,
+  electricUserCollection,
+} from "@/lib/collections";
 
 type ProfilePost = {
   id: number;
@@ -70,7 +69,6 @@ export default function ProfilePage({
   const [collectionsLoaded, setCollectionsLoaded] = useState(
     [
       electricPostCollection,
-      electricPostMediaCollection,
       electricUserCollection,
       electricLikeCollection,
       electricFollowCollection,
@@ -82,7 +80,6 @@ export default function ProfilePage({
     Promise.all(
       [
         electricPostCollection,
-        electricPostMediaCollection,
         electricUserCollection,
         electricLikeCollection,
         electricFollowCollection,

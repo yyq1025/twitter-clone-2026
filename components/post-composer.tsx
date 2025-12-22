@@ -1,22 +1,17 @@
-import type {
-  InsertPostMedia,
-  selectPostSchema,
-  selectUserSchema,
-} from "@/db/validation";
-import type * as z from "zod";
-import { Textarea } from "@/components/ui/textarea";
-import { getImageDimensions, usePostMedia } from "@/hooks/use-post-media";
+import { IconPhoto, IconX } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
 import {
   Carousel,
   CarouselContent,
   CarouselItem,
 } from "@/components/ui/carousel";
-import { IconPhoto, IconX } from "@tabler/icons-react";
-import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import type { SelectPost, SelectUser } from "@/db/validation";
+import { getImageDimensions, usePostMedia } from "@/hooks/use-post-media";
+import { createPost } from "@/lib/actions";
 import { authClient } from "@/lib/auth-client";
 import { uploadFiles } from "@/utils/uploadthing";
-import { createPost } from "@/lib/actions";
 
 const PLACEHOLDER_NAME = "Demo User";
 const PLACEHOLDER_HANDLE = "demo_user";
@@ -37,8 +32,8 @@ function formatPostTime(value: Date | string | number | null | undefined) {
 }
 
 interface PostComposerProps {
-  parentPost?: z.infer<typeof selectPostSchema>;
-  parentUser?: z.infer<typeof selectUserSchema>;
+  parentPost?: SelectPost;
+  parentUser?: SelectUser;
   dialog?: boolean;
   onPosted?: () => void;
 }
@@ -75,15 +70,12 @@ export function PostComposer({
         ),
       ]);
 
-      const postMedia: InsertPostMedia[] = uploadResponse.map(
-        (upload, index) => ({
-          mediaUrl: upload.ufsUrl,
-          mediaType: "image",
-          sortOrder: index,
-          width: dimensions[index].width,
-          height: dimensions[index].height,
-        })
-      );
+      const postMedia = uploadResponse.map((upload, index) => ({
+        url: upload.ufsUrl,
+        type: "image",
+        width: dimensions[index].width,
+        height: dimensions[index].height,
+      }));
 
       await createPost({
         userId: session.user.id,

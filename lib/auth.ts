@@ -1,10 +1,10 @@
+import { fakerEN_US as faker } from "@faker-js/faker";
 import { betterAuth } from "better-auth";
-import { anonymous, username } from "better-auth/plugins";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import { nextCookies } from "better-auth/next-js";
+import { anonymous, username } from "better-auth/plugins";
 import { db } from "@/db/drizzle";
 import * as authSchema from "@/db/schema/auth-schema";
-import { nextCookies } from "better-auth/next-js";
-import { fakerEN_US as faker } from "@faker-js/faker";
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, {

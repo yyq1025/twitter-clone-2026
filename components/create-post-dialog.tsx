@@ -1,7 +1,9 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
-import type * as z from "zod";
+import { IconX } from "@tabler/icons-react";
+import { type ReactNode, useState } from "react";
+import { PostComposer } from "@/components/post-composer";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -9,15 +11,12 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import type { selectPostSchema, selectUserSchema } from "@/db/validation";
-import { PostComposer } from "@/components/post-composer";
-import { Button } from "@/components/ui/button";
-import { IconX } from "@tabler/icons-react";
+import type { SelectPost, SelectUser } from "@/db/validation";
 
 type CreatePostDialogProps = {
   trigger: ReactNode;
-  parentPost?: z.infer<typeof selectPostSchema>;
-  parentUser?: z.infer<typeof selectUserSchema>;
+  parentPost?: SelectPost;
+  parentUser?: SelectUser;
 };
 
 export function CreatePostDialog({
