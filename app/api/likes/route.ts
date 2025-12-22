@@ -119,12 +119,7 @@ export async function DELETE(request: Request) {
       txid = await generateTxId(tx);
       const deletedLikes = await tx
         .delete(likes)
-        .where(
-          and(
-            eq(likes.postId, parseInt(postId, 10)),
-            eq(likes.userId, session.user.id),
-          ),
-        )
+        .where(and(eq(likes.postId, postId), eq(likes.userId, session.user.id)))
         .returning();
       if (!deletedLikes.length) {
         throw new Error("Like not found");
@@ -134,7 +129,7 @@ export async function DELETE(request: Request) {
         .set({
           likeCount: sql`${posts.likeCount} - 1`,
         })
-        .where(eq(posts.id, parseInt(postId, 10)));
+        .where(eq(posts.id, postId));
     });
 
     return NextResponse.json({ txid, success: true }, { status: 200 });

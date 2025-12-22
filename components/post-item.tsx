@@ -27,7 +27,7 @@ function formatPostTime(value: Date | string | number | null | undefined) {
     return "";
   }
 
-  return new Intl.DateTimeFormat("zh-CN", {
+  return new Intl.DateTimeFormat("en-US", {
     month: "short",
     day: "numeric",
   }).format(date);
