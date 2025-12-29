@@ -16,9 +16,9 @@ const baseUrl =
 export const electricPostCollection = createCollection(
   electricCollectionOptions({
     id: "posts",
+    syncMode: "progressive",
     shapeOptions: {
       url: `${baseUrl}/api/posts`,
-      columnMapper: snakeCamelMapper(),
       parser: {
         timestamptz: (date: string) => new Date(date),
       },
@@ -48,7 +48,7 @@ export const electricLikeCollection = createCollection(
       columnMapper: snakeCamelMapper(),
     },
     schema: selectLikeSchema,
-    getKey: (item) => `${item.userId}-${item.postId}`,
+    getKey: (item) => `${item.user_id}-${item.post_id}`,
   }),
 );
 
@@ -60,7 +60,7 @@ export const electricFollowCollection = createCollection(
       columnMapper: snakeCamelMapper(),
     },
     schema: selectFollowSchema,
-    getKey: (item) => `${item.followerId}-${item.followingId}`,
+    getKey: (item) => `${item.follower_id}-${item.following_id}`,
     onInsert: async ({ transaction }) => {
       const newItem = transaction.mutations[0].modified;
       const response = await fetch("/api/follows", {
@@ -69,7 +69,7 @@ export const electricFollowCollection = createCollection(
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          followingId: newItem.followingId,
+          followingId: newItem.following_id,
         }),
       });
       if (!response.ok) {
@@ -81,7 +81,7 @@ export const electricFollowCollection = createCollection(
     onDelete: async ({ transaction }) => {
       const { original } = transaction.mutations[0];
       const response = await fetch(
-        `/api/follows?followingId=${original.followingId}`,
+        `/api/follows?followingId=${original.following_id}`,
         {
           method: "DELETE",
         },

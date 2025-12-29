@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useEffect, useState } from "react";
+import { Activity, use, useEffect, useState } from "react";
 import { StatusThread } from "@/components/status-thread";
 import {
   electricLikeCollection,
@@ -19,7 +19,7 @@ export default function StatusPage({
       electricPostCollection,
       electricUserCollection,
       electricLikeCollection,
-    ].every((col) => col.isReady())
+    ].every((col) => col.isReady()),
   );
 
   useEffect(() => {
@@ -29,13 +29,13 @@ export default function StatusPage({
         electricPostCollection,
         electricUserCollection,
         electricLikeCollection,
-      ].map((col) => col.preload())
+      ].map((col) => col.preload()),
     ).then(() => setCollectionsLoaded(true));
   }, [collectionsLoaded]);
 
-  if (!collectionsLoaded) {
-    return null;
-  }
-
-  return <StatusThread username={username} postId={postId} />;
+  return (
+    <Activity mode={collectionsLoaded ? "visible" : "hidden"}>
+      <StatusThread username={username} postId={postId} />
+    </Activity>
+  );
 }

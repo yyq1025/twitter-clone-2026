@@ -1,8 +1,13 @@
 "use client";
 
-import { eq, isNull, useLiveInfiniteQuery } from "@tanstack/react-db";
+import {
+  eq,
+  type InitialQueryBuilder,
+  isNull,
+  useLiveInfiniteQuery,
+} from "@tanstack/react-db";
 import { useWindowVirtualizer } from "@tanstack/react-virtual";
-import { useEffect, useRef, useState } from "react";
+import { Activity, useEffect, useRef, useState } from "react";
 import AuthGuard from "@/components/auth-guard";
 import { PostComposer } from "@/components/post-composer";
 import { PostItem } from "@/components/post-item";
@@ -13,37 +18,31 @@ import {
   electricUserCollection,
 } from "@/lib/collections";
 
+const pageSize = 20;
+
 export default function PostsFeed() {
   const [collectionsLoaded, setCollectionsLoaded] = useState(
-    [
-      electricPostCollection,
-      electricUserCollection,
-      electricLikeCollection,
-    ].every((col) => col.isReady())
+    [electricLikeCollection].every((col) => col.isReady()),
   );
 
   useEffect(() => {
     if (collectionsLoaded) return;
-    Promise.all(
-      [
-        electricPostCollection,
-        electricUserCollection,
-        electricLikeCollection,
-      ].map((col) => col.preload())
-    ).then(() => setCollectionsLoaded(true));
+    Promise.all([electricLikeCollection].map((col) => col.preload())).then(() =>
+      setCollectionsLoaded(true),
+    );
   }, [collectionsLoaded]);
 
-  if (!collectionsLoaded) {
-    return null;
-  }
-
-  return <PostsList />;
+  return (
+    <Activity mode={collectionsLoaded ? "visible" : "hidden"}>
+      <PostsList />
+    </Activity>
+  );
 }
 
 function PostsList() {
   const { data: session } = authClient.useSession();
   const {
-    pages,
+    data: posts,
     hasNextPage,
     fetchNextPage,
     isFetchingNextPage,
@@ -52,20 +51,20 @@ function PostsList() {
   } = useLiveInfiniteQuery(
     (q) =>
       q
-        .from({ post: electricPostCollection })
+        .from({
+          post: electricPostCollection,
+        })
         .innerJoin({ user: electricUserCollection }, ({ post, user }) =>
-          eq(user.id, post.userId)
+          eq(user.id, post.user_id),
         )
-        .where(({ post }) => isNull(post.replyToId))
-        .orderBy(({ post }) => post.createdAt, "desc"),
+        .where(({ post }) => isNull(post.reply_to_id))
+        .orderBy(({ post }) => post.created_at, "desc"),
     {
-      pageSize: 20,
+      pageSize: pageSize,
       getNextPageParam: (lastPage, allPages) =>
-        lastPage.length === 20 ? allPages.length : undefined,
-    }
+        lastPage.length === pageSize ? allPages.length : undefined,
+    },
   );
-
-  const posts = pages.flat();
 
   const listRef = useRef<HTMLDivElement | null>(null);
 

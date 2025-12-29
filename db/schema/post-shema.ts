@@ -19,39 +19,36 @@ interface PostMedia {
 
 export const posts = pgTable("posts", {
   id: uuid().primaryKey(),
-  userId: text()
+  user_id: text()
     .notNull()
     .references(() => users.id, { onDelete: "set null" }),
   content: text().notNull(),
-  postMedia: jsonb().$type<PostMedia[]>().default([]).notNull(),
+  post_media: jsonb().$type<PostMedia[]>().default([]).notNull(),
 
-  repostId: uuid().references((): AnyPgColumn => posts.id, {
+  reply_to_id: uuid().references((): AnyPgColumn => posts.id, {
     onDelete: "set null",
   }),
-  replyToId: uuid().references((): AnyPgColumn => posts.id, {
-    onDelete: "set null",
-  }),
-  quoteId: uuid().references((): AnyPgColumn => posts.id, {
+  quote_id: uuid().references((): AnyPgColumn => posts.id, {
     onDelete: "set null",
   }),
 
-  repostCount: integer().default(0).notNull(),
-  replyCount: integer().default(0).notNull(),
-  likeCount: integer().default(0).notNull(),
+  repost_count: integer().default(0).notNull(),
+  reply_count: integer().default(0).notNull(),
+  like_count: integer().default(0).notNull(),
 
-  createdAt: timestamp({ withTimezone: true }).defaultNow().notNull(),
+  created_at: timestamp({ withTimezone: true }).defaultNow().notNull(),
 });
 
 export const likes = pgTable(
   "likes",
   {
-    userId: text()
+    user_id: text()
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
-    postId: uuid()
+    post_id: uuid()
       .notNull()
       .references((): AnyPgColumn => posts.id, { onDelete: "cascade" }),
-    createdAt: timestamp({ withTimezone: true }).defaultNow().notNull(),
+    created_at: timestamp({ withTimezone: true }).defaultNow().notNull(),
   },
-  (table) => [primaryKey({ columns: [table.userId, table.postId] })],
+  (table) => [primaryKey({ columns: [table.user_id, table.post_id] })],
 );

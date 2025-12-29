@@ -27,15 +27,15 @@ function ParentThread({
       q
         .from({ post: electricPostCollection })
         .innerJoin({ user: electricUserCollection }, ({ post, user }) =>
-          eq(user.id, post.userId)
+          eq(user.id, post.user_id),
         )
         .where(({ post }) => eq(post.id, postId))
         .findOne(),
-    [postId]
+    [postId],
   );
 
   useEffect(() => {
-    if (postData && !postData.post.replyToId) {
+    if (postData && !postData.post.reply_to_id) {
       onParentLoaded?.();
     }
   }, [postData, onParentLoaded]);
@@ -46,9 +46,9 @@ function ParentThread({
 
   return (
     <>
-      {postData.post.replyToId ? (
+      {postData.post.reply_to_id ? (
         <ParentThread
-          postId={postData.post.replyToId}
+          postId={postData.post.reply_to_id}
           sessionUserId={sessionUserId}
           onParentLoaded={onParentLoaded}
         />
@@ -77,20 +77,20 @@ export function StatusThread({ username, postId }: StatusThreadProps) {
     q
       .from({ post: electricPostCollection })
       .innerJoin({ user: electricUserCollection }, ({ post, user }) =>
-        eq(user.id, post.userId)
+        eq(user.id, post.user_id),
       )
       .where(({ post }) => eq(post.id, postId))
-      .findOne()
+      .findOne(),
   );
 
   const { data: replies, isLoading: isRepliesLoading } = useLiveQuery((q) =>
     q
       .from({ post: electricPostCollection })
       .innerJoin({ user: electricUserCollection }, ({ post, user }) =>
-        eq(user.id, post.userId)
+        eq(user.id, post.user_id),
       )
-      .where(({ post }) => eq(post.replyToId, postId))
-      .orderBy(({ post }) => post.createdAt, "desc")
+      .where(({ post }) => eq(post.reply_to_id, postId))
+      .orderBy(({ post }) => post.created_at, "desc"),
   );
 
   useEffect(() => {
@@ -100,7 +100,7 @@ export function StatusThread({ username, postId }: StatusThreadProps) {
   }, [mainPostData, username, postId, router]);
 
   useEffect(() => {
-    if (mainPostData && !mainPostData.post.replyToId) {
+    if (mainPostData && !mainPostData.post.reply_to_id) {
       setParentsLoaded(true);
     }
   }, [mainPostData]);
@@ -125,9 +125,9 @@ export function StatusThread({ username, postId }: StatusThreadProps) {
 
   return (
     <>
-      {mainPostData.post.replyToId ? (
+      {mainPostData.post.reply_to_id ? (
         <ParentThread
-          postId={mainPostData.post.replyToId}
+          postId={mainPostData.post.reply_to_id}
           sessionUserId={session?.user?.id}
           onParentLoaded={() => setParentsLoaded(true)}
         />

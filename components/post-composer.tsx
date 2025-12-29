@@ -67,7 +67,7 @@ export function PostComposer({
           files: mediaFiles.map((item) => item.file),
         }),
         Promise.all(
-          mediaFiles.map(async (item) => await getImageDimensions(item.file))
+          mediaFiles.map(async (item) => await getImageDimensions(item.file)),
         ),
       ]);
 
@@ -80,10 +80,10 @@ export function PostComposer({
 
       createPost({
         id: uuidv7(),
-        userId: session.user.id,
+        user_id: session.user.id,
         content: content.trim(),
-        replyToId: parentPost?.id,
-        postMedia,
+        reply_to_id: parentPost?.id,
+        post_media: postMedia,
       });
       setContent("");
       cleanupMedia();
@@ -114,10 +114,10 @@ export function PostComposer({
                     {parentUser.name || PLACEHOLDER_NAME}
                   </span>
                   <span>@{parentUser.username || PLACEHOLDER_HANDLE}</span>
-                  {parentPost.createdAt ? (
+                  {parentPost.created_at ? (
                     <>
                       <span>·</span>
-                      <span>{formatPostTime(parentPost.createdAt)}</span>
+                      <span>{formatPostTime(parentPost.created_at)}</span>
                     </>
                   ) : null}
                 </div>

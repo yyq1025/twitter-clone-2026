@@ -31,12 +31,12 @@ export function SignInDrawerDialog({
   trigger,
 }: Readonly<SignInDrawerDialogProps>) {
   const isDesktop = useMediaQuery("(min-width: 768px)");
-  const [loading, setLoading] = useState<"github" | "anonymous" | null>(null);
+  const [loading, setLoading] = useState<"google" | "anonymous" | null>(null);
 
-  const handleGithubSignIn = async () => {
-    setLoading("github");
+  const handleGoogleSignIn = async () => {
+    setLoading("google");
     try {
-      await authClient.signIn.social({ provider: "github" });
+      await authClient.signIn.social({ provider: "google" });
     } finally {
       setLoading(null);
     }
@@ -54,7 +54,7 @@ export function SignInDrawerDialog({
   const triggerButton = useMemo(
     () =>
       trigger ?? <Button className="rounded-full font-bold">Sign in</Button>,
-    [trigger]
+    [trigger],
   );
 
   const actionButtons = (
@@ -62,11 +62,11 @@ export function SignInDrawerDialog({
       <Button
         className="w-full"
         disabled={loading !== null}
-        onClick={handleGithubSignIn}
+        onClick={handleGoogleSignIn}
       >
-        {loading === "github"
-          ? "Signing in with GitHub..."
-          : "Sign in with GitHub"}
+        {loading === "google"
+          ? "Signing in with Google..."
+          : "Sign in with Google"}
       </Button>
       <Button
         variant="outline"

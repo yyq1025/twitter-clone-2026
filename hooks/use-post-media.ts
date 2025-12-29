@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useRef, useState, type ChangeEvent } from "react";
+import { type ChangeEvent, useCallback, useRef, useState } from "react";
 
 export type SelectedMedia = { file: File; previewUrl: string };
 

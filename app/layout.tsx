@@ -1,9 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { SignInDrawerDialog } from "@/components/sign-in-drawer-dialog";
-import AuthGuard from "@/components/auth-guard";
-import { Button } from "@/components/ui/button";
 import {
   IconBell,
   IconBrandX,
@@ -12,9 +9,12 @@ import {
   IconMail,
   IconSearch,
 } from "@tabler/icons-react";
+import AuthGuard from "@/components/auth-guard";
 import { CreatePostDialog } from "@/components/create-post-dialog";
-import { UserDropdown } from "@/components/user-dropdown";
 import Navbar from "@/components/navbar";
+import { SignInDrawerDialog } from "@/components/sign-in-drawer-dialog";
+import { Button } from "@/components/ui/button";
+import { UserDropdown } from "@/components/user-dropdown";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -39,7 +39,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased font-sans`}
       >
         <div className="flex justify-center max-w-7xl mx-auto">
           <header className="hidden sm:flex flex-col justify-between w-20 xl:w-2xs h-screen sticky top-0 px-2 py-4">
@@ -70,7 +70,7 @@ export default function RootLayout({
             <UserDropdown />
           </header>
           {children}
-          <aside className="hidden lg:block w-[350px] ml-8 py-2 h-screen sticky top-0">
+          <aside className="hidden lg:block w-87.5 ml-8 py-2 h-screen sticky top-0">
             <div className="sticky top-0 bg-white z-10 pb-2 pt-1">
               <div className="relative group">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none group-focus-within:text-blue-500">
@@ -108,19 +108,6 @@ export default function RootLayout({
                 </button>
               </div>
             </div>
-
-            <div className="p-4 text-sm flex flex-wrap gap-x-2 leading-5">
-              <a href="#" className="hover:underline">
-                Terms of Service
-              </a>
-              <a href="#" className="hover:underline">
-                Privacy Policy
-              </a>
-              <a href="#" className="hover:underline">
-                Cookie Policy
-              </a>
-              <span>© 2025 X Corp.</span>
-            </div>
           </aside>
         </div>
         <AuthGuard
@@ -129,7 +116,7 @@ export default function RootLayout({
               <div className="max-w-7xl mx-auto flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center p-4">
                 <div>
                   <p className="text-xl sm:text-2xl font-semibold">
-                    Stay on top of what's happening
+                    Don't miss what's happening
                   </p>
                   <p className="text-sm sm:text-base text-white/90">
                     People on X are the first to know.

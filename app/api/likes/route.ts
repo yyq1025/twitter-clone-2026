@@ -1,13 +1,13 @@
-import { NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
-import { db } from "@/db/drizzle";
-import { likes, posts } from "@/db/schema/post-shema";
-import { headers } from "next/headers";
+import { ELECTRIC_PROTOCOL_QUERY_PARAMS } from "@electric-sql/client";
+import type { Txid } from "@tanstack/electric-db-collection";
 import { and, eq, sql } from "drizzle-orm";
 import type { PgTransaction } from "drizzle-orm/pg-core";
-import type { Txid } from "@tanstack/electric-db-collection";
-import { ELECTRIC_PROTOCOL_QUERY_PARAMS } from "@electric-sql/client";
+import { headers } from "next/headers";
+import { NextResponse } from "next/server";
+import { db } from "@/db/drizzle";
+import { likes, posts } from "@/db/schema/post-shema";
 import { insertLikeSchema } from "@/db/validation";
+import { auth } from "@/lib/auth";
 
 async function generateTxId(tx: PgTransaction<any, any, any>): Promise<Txid> {
   const result = await tx.execute(
@@ -61,7 +61,7 @@ export async function POST(request: Request) {
 
     const parsedBody = insertLikeSchema.safeParse({
       ...body,
-      userId: session.user.id,
+      user_id: session.user.id,
     });
 
     if (!parsedBody.success) {
@@ -81,9 +81,9 @@ export async function POST(request: Request) {
       await tx
         .update(posts)
         .set({
-          likeCount: sql`${posts.likeCount} + 1`,
+          like_count: sql`${posts.like_count} + 1`,
         })
-        .where(eq(posts.id, like.postId));
+        .where(eq(posts.id, like.post_id));
     });
 
     return NextResponse.json({ txid }, { status: 201 });
@@ -105,11 +105,11 @@ export async function DELETE(request: Request) {
     }
 
     const { searchParams } = new URL(request.url);
-    const postId = searchParams.get("postId");
+    const post_id = searchParams.get("post_id");
 
-    if (!postId) {
+    if (!post_id) {
       return NextResponse.json(
-        { message: "postId is required" },
+        { message: "post_id is required" },
         { status: 400 },
       );
     }
@@ -119,7 +119,9 @@ export async function DELETE(request: Request) {
       txid = await generateTxId(tx);
       const deletedLikes = await tx
         .delete(likes)
-        .where(and(eq(likes.postId, postId), eq(likes.userId, session.user.id)))
+        .where(
+          and(eq(likes.post_id, post_id), eq(likes.user_id, session.user.id)),
+        )
         .returning();
       if (!deletedLikes.length) {
         throw new Error("Like not found");
@@ -127,9 +129,9 @@ export async function DELETE(request: Request) {
       await tx
         .update(posts)
         .set({
-          likeCount: sql`${posts.likeCount} - 1`,
+          like_count: sql`${posts.like_count} - 1`,
         })
-        .where(eq(posts.id, postId));
+        .where(eq(posts.id, post_id));
     });
 
     return NextResponse.json({ txid, success: true }, { status: 200 });

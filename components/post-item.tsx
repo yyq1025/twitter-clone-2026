@@ -47,11 +47,11 @@ export function PostItem({ post, user, sessionUserId }: PostItemProps) {
       return q
         .from({ like: electricLikeCollection })
         .where(({ like }) =>
-          and(eq(like.postId, post.id), eq(like.userId, sessionUserId))
+          and(eq(like.post_id, post.id), eq(like.user_id, sessionUserId)),
         )
         .findOne();
     },
-    [sessionUserId, post.id]
+    [sessionUserId, post.id],
   );
 
   const handleLikeClick = (e: MouseEvent) => {
@@ -60,13 +60,13 @@ export function PostItem({ post, user, sessionUserId }: PostItemProps) {
 
     if (userLiked) {
       unlikePost({
-        userId: sessionUserId,
-        postId: post.id,
+        user_id: sessionUserId,
+        post_id: post.id,
       });
     } else {
       likePost({
-        userId: sessionUserId,
-        postId: post.id,
+        user_id: sessionUserId,
+        post_id: post.id,
       });
     }
   };
@@ -92,10 +92,10 @@ export function PostItem({ post, user, sessionUserId }: PostItemProps) {
             {user.name || PLACEHOLDER_NAME}
           </span>
           <span>@{user.username || PLACEHOLDER_HANDLE}</span>
-          {post.createdAt ? (
+          {post.created_at ? (
             <>
               <span>·</span>
-              <span>{formatPostTime(post.createdAt)}</span>
+              <span>{formatPostTime(post.created_at)}</span>
             </>
           ) : null}
         </div>
@@ -103,29 +103,29 @@ export function PostItem({ post, user, sessionUserId }: PostItemProps) {
         <p className="mt-1 leading-normal whitespace-pre-wrap wrap-break-word">
           {post.content}
         </p>
-        {post.postMedia.length > 0 && (
+        {post.post_media.length > 0 && (
           <div
             className={cn(
               "grid grid-cols-2 grid-rows-2 gap-0.5 overflow-hidden w-fit mt-2 rounded-xl border border-gray-100",
-              post.postMedia.length > 1 && "aspect-video"
+              post.post_media.length > 1 && "aspect-video",
             )}
           >
-            {post.postMedia.map((media, idx) => (
+            {post.post_media.map((media, idx) => (
               <div
                 key={idx}
                 className={cn(
                   "w-full h-full",
-                  post.postMedia.length + idx <= 3 && "row-span-2",
-                  post.postMedia.length + idx === 1 && "col-span-2"
+                  post.post_media.length + idx <= 3 && "row-span-2",
+                  post.post_media.length + idx === 1 && "col-span-2",
                 )}
               >
                 <img
                   src={media.url}
                   alt="Post media"
                   className={cn(
-                    post.postMedia.length > 1
+                    post.post_media.length > 1
                       ? "w-full h-full object-cover"
-                      : "max-w-full max-h-100 object-contain"
+                      : "max-w-full max-h-100 object-contain",
                   )}
                 />
               </div>
@@ -144,7 +144,7 @@ export function PostItem({ post, user, sessionUserId }: PostItemProps) {
                   <div className="p-2 rounded-full group-hover:bg-blue-500/10">
                     <IconMessage className="size-4" />
                   </div>
-                  {post.replyCount}
+                  {post.reply_count}
                 </button>
               }
               parentPost={post}
@@ -155,7 +155,7 @@ export function PostItem({ post, user, sessionUserId }: PostItemProps) {
             <div className="p-2 rounded-full group-hover:bg-green-500/10">
               <IconRepeat className="size-4" />
             </div>
-            {post.repostCount}
+            {post.repost_count}
           </div>
           <div
             className="hover:text-pink-600 flex gap-2 items-center group"
@@ -164,7 +164,7 @@ export function PostItem({ post, user, sessionUserId }: PostItemProps) {
             <div className="p-2 rounded-full group-hover:bg-pink-600/10">
               <IconHeart className="size-4" />
             </div>
-            {post.likeCount} {userLiked ? <span>❤️</span> : null}
+            {post.like_count} {userLiked ? <span>❤️</span> : null}
           </div>
           <div className="hover:text-blue-500 flex gap-2 items-center group">
             <div className="p-2 rounded-full group-hover:bg-blue-500/10">

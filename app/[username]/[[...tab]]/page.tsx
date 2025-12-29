@@ -72,7 +72,7 @@ export default function ProfilePage({
       electricUserCollection,
       electricLikeCollection,
       electricFollowCollection,
-    ].every((col) => col.isReady())
+    ].every((col) => col.isReady()),
   );
 
   useEffect(() => {
@@ -83,7 +83,7 @@ export default function ProfilePage({
         electricUserCollection,
         electricLikeCollection,
         electricFollowCollection,
-      ].map((col) => col.preload())
+      ].map((col) => col.preload()),
     ).then(() => setCollectionsLoaded(true));
   }, [collectionsLoaded]);
 
@@ -103,7 +103,7 @@ function UserProfile({ username, tab }: { username: string; tab?: string[] }) {
         .from({ user: electricUserCollection })
         .where(({ user }) => eq(user.username, username))
         .findOne(),
-    [username]
+    [username],
   );
 
   const { data: userFollowing } = useLiveQuery(
@@ -115,13 +115,13 @@ function UserProfile({ username, tab }: { username: string; tab?: string[] }) {
         .from({ follow: electricFollowCollection })
         .where(({ follow }) =>
           and(
-            eq(follow.followerId, session.user.id),
-            eq(follow.followingId, user.id)
-          )
+            eq(follow.follower_id, session.user.id),
+            eq(follow.following_id, user.id),
+          ),
         )
         .findOne();
     },
-    [session?.user.id, user?.id]
+    [session?.user.id, user?.id],
   );
 
   const { data: following } = useLiveQuery(
@@ -131,11 +131,11 @@ function UserProfile({ username, tab }: { username: string; tab?: string[] }) {
       }
       return q
         .from({ follow: electricFollowCollection })
-        .where(({ follow }) => eq(follow.followerId, user.id))
-        .select(({ follow }) => ({ count: count(follow.followingId) }))
+        .where(({ follow }) => eq(follow.follower_id, user.id))
+        .select(({ follow }) => ({ count: count(follow.following_id) }))
         .findOne();
     },
-    [user?.id]
+    [user?.id],
   );
 
   const { data: followers } = useLiveQuery(
@@ -145,11 +145,11 @@ function UserProfile({ username, tab }: { username: string; tab?: string[] }) {
       }
       return q
         .from({ follow: electricFollowCollection })
-        .where(({ follow }) => eq(follow.followingId, user.id))
-        .select(({ follow }) => ({ count: count(follow.followerId) }))
+        .where(({ follow }) => eq(follow.following_id, user.id))
+        .select(({ follow }) => ({ count: count(follow.follower_id) }))
         .findOne();
     },
-    [user?.id]
+    [user?.id],
   );
 
   const postsWithUser = createLiveQueryCollection((q) =>
@@ -158,8 +158,8 @@ function UserProfile({ username, tab }: { username: string; tab?: string[] }) {
         post: electricPostCollection,
       })
       .leftJoin({ user: electricUserCollection }, ({ post, user }) =>
-        eq(user.id, post.userId)
-      )
+        eq(user.id, post.user_id),
+      ),
   );
 
   const { data: posts } = useLiveQuery(
@@ -169,10 +169,10 @@ function UserProfile({ username, tab }: { username: string; tab?: string[] }) {
       }
       return q
         .from({ postWithUser: postsWithUser })
-        .where(({ postWithUser: { post } }) => eq(post.userId, user?.id ?? -1))
-        .orderBy(({ postWithUser: { post } }) => post.createdAt, "desc");
+        .where(({ postWithUser: { post } }) => eq(post.user_id, user?.id ?? -1))
+        .orderBy(({ postWithUser: { post } }) => post.created_at, "desc");
     },
-    [user?.id]
+    [user?.id],
   );
 
   const { data: userLikedPosts } = useLiveQuery(
@@ -184,13 +184,13 @@ function UserProfile({ username, tab }: { username: string; tab?: string[] }) {
         .from({ like: electricLikeCollection })
         .innerJoin(
           { postWithUser: postsWithUser },
-          ({ like, postWithUser: { post } }) => eq(like.postId, post.id)
+          ({ like, postWithUser: { post } }) => eq(like.post_id, post.id),
         )
-        .where(({ like }) => eq(like.userId, user.id))
-        .orderBy(({ like }) => like.createdAt, "desc")
+        .where(({ like }) => eq(like.user_id, user.id))
+        .orderBy(({ like }) => like.created_at, "desc")
         .select(({ postWithUser: { post, user } }) => ({ post, user }));
     },
-    [user?.id]
+    [user?.id],
   );
 
   if (!user && !isUserLoading) {
@@ -304,7 +304,7 @@ function UserProfile({ username, tab }: { username: string; tab?: string[] }) {
                 onClick={() => {
                   if (!user || !session?.user) return;
                   electricFollowCollection.delete(
-                    `${session.user.id}-${user.id}`
+                    `${session.user.id}-${user.id}`,
                   );
                 }}
                 className="rounded-full px-4 py-1.5 font-bold bg-white border border-gray-300 hover:bg-gray-100 focus-visible:bg-gray-100"
@@ -317,9 +317,9 @@ function UserProfile({ username, tab }: { username: string; tab?: string[] }) {
                 onClick={() => {
                   if (!user || !session?.user) return;
                   electricFollowCollection.insert({
-                    followerId: session.user.id,
-                    followingId: user.id,
-                    createdAt: new Date(),
+                    follower_id: session.user.id,
+                    following_id: user.id,
+                    created_at: new Date(),
                   });
                 }}
                 className="rounded-full px-4 py-1.5 font-bold bg-primary text-white hover:bg-primary/90 focus-visible:bg-primary/90"

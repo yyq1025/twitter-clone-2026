@@ -61,7 +61,7 @@ export async function POST(request: Request) {
 
     const parsedPost = insertPostSchema.safeParse({
       ...body,
-      userId: session.user.id,
+      user_id: session.user.id,
     });
 
     if (!parsedPost.success) {
@@ -78,21 +78,13 @@ export async function POST(request: Request) {
     const newPost = await db.transaction(async (tx) => {
       txid = await generateTxId(tx);
       const [post] = await tx.insert(posts).values(parsedPost.data).returning();
-      if (post.replyToId) {
+      if (post.reply_to_id) {
         await tx
           .update(posts)
           .set({
-            replyCount: sql`${posts.replyCount} + 1`,
+            reply_count: sql`${posts.reply_count} + 1`,
           })
-          .where(eq(posts.id, post.replyToId));
-      }
-      if (post.repostId) {
-        await tx
-          .update(posts)
-          .set({
-            repostCount: sql`${posts.repostCount} + 1`,
-          })
-          .where(eq(posts.id, post.repostId));
+          .where(eq(posts.id, post.reply_to_id));
       }
       return post;
     });
