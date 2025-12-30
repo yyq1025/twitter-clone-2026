@@ -31,9 +31,9 @@ export const electricPostCollection = createCollection(
 export const electricUserCollection = createCollection(
   electricCollectionOptions({
     id: "users",
+    syncMode: "progressive",
     shapeOptions: {
       url: `${baseUrl}/api/users`,
-      columnMapper: snakeCamelMapper(),
     },
     schema: selectUserSchema,
     getKey: (item) => item.id,
@@ -43,9 +43,9 @@ export const electricUserCollection = createCollection(
 export const electricLikeCollection = createCollection(
   electricCollectionOptions({
     id: "likes",
+    syncMode: "progressive",
     shapeOptions: {
       url: `${baseUrl}/api/likes`,
-      columnMapper: snakeCamelMapper(),
     },
     schema: selectLikeSchema,
     getKey: (item) => `${item.user_id}-${item.post_id}`,
@@ -55,9 +55,9 @@ export const electricLikeCollection = createCollection(
 export const electricFollowCollection = createCollection(
   electricCollectionOptions({
     id: "follows",
+    syncMode: "progressive",
     shapeOptions: {
       url: `${baseUrl}/api/follows`,
-      columnMapper: snakeCamelMapper(),
     },
     schema: selectFollowSchema,
     getKey: (item) => `${item.follower_id}-${item.following_id}`,

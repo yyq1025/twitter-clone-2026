@@ -4,6 +4,6 @@ export default function ProfileLayout({
   children: React.ReactNode;
 }) {
   return (
-    <main className="flex-1 max-w-xl border-x border-gray-100">{children}</main>
+    <main className="max-w-xl flex-1 border-gray-100 border-x">{children}</main>
   );
 }

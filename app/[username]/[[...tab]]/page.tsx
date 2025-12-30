@@ -15,13 +15,14 @@ import {
   count,
   createLiveQueryCollection,
   eq,
+  useLiveInfiniteQuery,
   useLiveQuery,
 } from "@tanstack/react-db";
 import dayjs from "dayjs";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { type ReactNode, use, useEffect, useState } from "react";
-import { PostItem } from "@/components/post-item";
+import { type ReactNode, use } from "react";
+import PostsList from "@/components/posts-list";
 import { authClient } from "@/lib/auth-client";
 import {
   electricFollowCollection,
@@ -60,36 +61,14 @@ const DEFAULT_STATS = {
   views: "62.4K",
 };
 
+const pageSize = 20;
+
 export default function ProfilePage({
   params,
 }: {
   params: Promise<{ tab?: string[]; username: string }>;
 }) {
   const { tab, username } = use(params);
-  const [collectionsLoaded, setCollectionsLoaded] = useState(
-    [
-      electricPostCollection,
-      electricUserCollection,
-      electricLikeCollection,
-      electricFollowCollection,
-    ].every((col) => col.isReady()),
-  );
-
-  useEffect(() => {
-    if (collectionsLoaded) return;
-    Promise.all(
-      [
-        electricPostCollection,
-        electricUserCollection,
-        electricLikeCollection,
-        electricFollowCollection,
-      ].map((col) => col.preload()),
-    ).then(() => setCollectionsLoaded(true));
-  }, [collectionsLoaded]);
-
-  if (!collectionsLoaded) {
-    return null;
-  }
 
   return <UserProfile username={username} tab={tab} />;
 }
@@ -162,33 +141,49 @@ function UserProfile({ username, tab }: { username: string; tab?: string[] }) {
       ),
   );
 
-  const { data: posts } = useLiveQuery(
-    (q) => {
-      if (!user?.id) {
-        return null;
-      }
-      return q
+  const {
+    data,
+    hasNextPage,
+    fetchNextPage,
+    isFetchingNextPage,
+    isLoading,
+    isError,
+  } = useLiveInfiniteQuery(
+    (q) =>
+      q
         .from({ postWithUser: postsWithUser })
         .where(({ postWithUser: { post } }) => eq(post.user_id, user?.id ?? -1))
-        .orderBy(({ postWithUser: { post } }) => post.created_at, "desc");
+        .orderBy(({ postWithUser: { post } }) => post.created_at, "desc"),
+    {
+      pageSize: pageSize,
+      getNextPageParam: (lastPage, allPages) =>
+        lastPage.length === pageSize ? allPages.length : undefined,
     },
     [user?.id],
   );
 
-  const { data: userLikedPosts } = useLiveQuery(
-    (q) => {
-      if (!user?.id) {
-        return null;
-      }
-      return q
+  const {
+    data: userLikedPosts,
+    isError: isUserLikedPostsError,
+    isLoading: isUserLikedPostsLoading,
+    hasNextPage: hasNextPageUserLikedPosts,
+    fetchNextPage: fetchNextPageUserLikedPosts,
+    isFetchingNextPage: isFetchingNextPageUserLikedPosts,
+  } = useLiveInfiniteQuery(
+    (q) =>
+      q
         .from({ like: electricLikeCollection })
         .innerJoin(
           { postWithUser: postsWithUser },
           ({ like, postWithUser: { post } }) => eq(like.post_id, post.id),
         )
-        .where(({ like }) => eq(like.user_id, user.id))
+        .where(({ like }) => eq(like.user_id, user?.id ?? -1))
         .orderBy(({ like }) => like.created_at, "desc")
-        .select(({ postWithUser: { post, user } }) => ({ post, user }));
+        .select(({ postWithUser: { post, user } }) => ({ post, user })),
+    {
+      pageSize: pageSize,
+      getNextPageParam: (lastPage, allPages) =>
+        lastPage.length === pageSize ? allPages.length : undefined,
     },
     [user?.id],
   );
@@ -270,7 +265,7 @@ function UserProfile({ username, tab }: { username: string; tab?: string[] }) {
 
   return (
     <>
-      <div className="sticky top-0 z-20 border-b border-gray-100 bg-white/85 backdrop-blur-md">
+      <div className="sticky top-0 z-20 border-gray-100 border-b bg-white/85 backdrop-blur-md">
         <div className="flex items-center gap-3 px-4 py-3">
           <Link
             href="/"
@@ -280,21 +275,21 @@ function UserProfile({ username, tab }: { username: string; tab?: string[] }) {
             <IconArrowLeft className="size-5" />
           </Link>
           <div>
-            <p className="text-lg font-semibold leading-tight">{displayName}</p>
-            <p className="text-sm text-gray-500">{posts?.length || 0} posts</p>
+            <p className="font-semibold text-lg leading-tight">{displayName}</p>
+            <p className="text-gray-500 text-sm">{0} posts</p>
           </div>
         </div>
       </div>
       <div className="aspect-3/1 w-full bg-linear-to-r from-indigo-500 via-blue-500 to-sky-400" />
 
-      <div className="px-4 pt-3 mb-4">
+      <div className="mb-4 px-4 pt-3">
         <div className="flex flex-wrap items-start justify-between">
-          <div className="aspect-square w-1/4 min-w-12 -mt-[15%] mb-3 rounded-full border-4 border-white bg-linear-to-br from-white via-blue-100 to-blue-500" />
+          <div className="-mt-[15%] mb-3 aspect-square w-1/4 min-w-12 rounded-full border-4 border-white bg-linear-to-br from-white via-blue-100 to-blue-500" />
           <div className="flex">
             {session?.user?.username === username ? (
               <button
                 type="button"
-                className="rounded-full px-4 py-1.5 font-bold bg-white border border-gray-300 hover:bg-gray-100 focus-visible:bg-gray-100"
+                className="rounded-full border border-gray-300 bg-white px-4 py-1.5 font-bold hover:bg-gray-100 focus-visible:bg-gray-100"
               >
                 Edit profile
               </button>
@@ -307,7 +302,7 @@ function UserProfile({ username, tab }: { username: string; tab?: string[] }) {
                     `${session.user.id}-${user.id}`,
                   );
                 }}
-                className="rounded-full px-4 py-1.5 font-bold bg-white border border-gray-300 hover:bg-gray-100 focus-visible:bg-gray-100"
+                className="rounded-full border border-gray-300 bg-white px-4 py-1.5 font-bold hover:bg-gray-100 focus-visible:bg-gray-100"
               >
                 Following
               </button>
@@ -322,7 +317,7 @@ function UserProfile({ username, tab }: { username: string; tab?: string[] }) {
                     created_at: new Date(),
                   });
                 }}
-                className="rounded-full px-4 py-1.5 font-bold bg-primary text-white hover:bg-primary/90 focus-visible:bg-primary/90"
+                className="rounded-full bg-primary px-4 py-1.5 font-bold text-white hover:bg-primary/90 focus-visible:bg-primary/90"
               >
                 Follow
               </button>
@@ -333,19 +328,19 @@ function UserProfile({ username, tab }: { username: string; tab?: string[] }) {
         <div className="mt-1 space-y-3">
           <div className="flex flex-col">
             <div className="flex items-center gap-2">
-              <h1 className="text-xl font-bold">{displayName}</h1>
-              <span className="rounded-full bg-blue-50 px-2 py-0.5 text-xs font-semibold text-blue-700">
+              <h1 className="font-bold text-xl">{displayName}</h1>
+              <span className="rounded-full bg-blue-50 px-2 py-0.5 font-semibold text-blue-700 text-xs">
                 New
               </span>
             </div>
-            <p className="text-sm text-gray-500">{handle}</p>
+            <p className="text-gray-500 text-sm">{handle}</p>
           </div>
-          <p className="text-sm text-gray-800">
+          <p className="text-gray-800 text-sm">
             Design lead at Polaris Labs. Sharing product sketches, build notes,
             and photos from the coast.
           </p>
 
-          <div className="flex flex-wrap gap-x-4 gap-y-2 text-sm text-gray-500">
+          <div className="flex flex-wrap gap-x-4 gap-y-2 text-gray-500 text-sm">
             <span className="flex items-center gap-1">
               <IconCalendar className="size-4" />
               Joined {dayjs(user?.createdAt).format("MMMM YYYY")}
@@ -375,7 +370,7 @@ function UserProfile({ username, tab }: { username: string; tab?: string[] }) {
           }
         }}
       >
-        <Tabs.List className="grid grid-cols-4 border-b border-gray-100">
+        <Tabs.List className="grid grid-cols-4 border-gray-100 border-b">
           {[
             { name: "Posts", value: "posts" },
             { name: "Replies", value: "with_replies" },
@@ -385,26 +380,28 @@ function UserProfile({ username, tab }: { username: string; tab?: string[] }) {
             <Tabs.Trigger
               key={tab.value}
               value={tab.value}
-              className="relative flex justify-center py-4 text-center font-semibold outline-none transition text-gray-500 hover:bg-gray-50 data-[state=active]:text-black data-[state=active]:*:opacity-100"
+              className="relative flex justify-center py-4 text-center font-semibold text-gray-500 outline-none transition hover:bg-gray-50 data-[state=active]:text-black data-[state=active]:*:opacity-100"
             >
               <span>{tab.name}</span>
-              <span className="absolute w-14 -bottom-px h-1 rounded-full bg-blue-500 transition opacity-0" />
+              <span className="absolute -bottom-px h-1 w-14 rounded-full bg-blue-500 opacity-0 transition" />
             </Tabs.Trigger>
           ))}
         </Tabs.List>
 
         <Tabs.Content value="posts">
-          {!posts || posts.length === 0 ? (
-            <div className="p-4 text-center text-gray-500">No posts yet.</div>
+          {isLoading ? (
+            <div className="p-4 text-center text-gray-500">
+              Loading posts...
+            </div>
           ) : (
-            posts.map(({ post, user }) => (
-              <PostItem
-                key={post.id}
-                post={post}
-                user={user}
-                sessionUserId={session?.user?.id}
-              />
-            ))
+            <PostsList
+              data={data}
+              hasNextPage={hasNextPage}
+              fetchNextPage={fetchNextPage}
+              isFetchingNextPage={isFetchingNextPage}
+              isError={isError}
+              isLoading={isLoading}
+            />
           )}
         </Tabs.Content>
 
@@ -423,14 +420,14 @@ function UserProfile({ username, tab }: { username: string; tab?: string[] }) {
               No liked posts yet.
             </div>
           ) : (
-            userLikedPosts.map(({ post, user }) => (
-              <PostItem
-                key={post.id}
-                post={post}
-                user={user}
-                sessionUserId={session?.user?.id}
-              />
-            ))
+            <PostsList
+              data={userLikedPosts}
+              hasNextPage={hasNextPageUserLikedPosts}
+              fetchNextPage={fetchNextPageUserLikedPosts}
+              isFetchingNextPage={isFetchingNextPageUserLikedPosts}
+              isError={isUserLikedPostsError}
+              isLoading={isUserLikedPostsLoading}
+            />
           )}
         </Tabs.Content>
       </Tabs.Root>
@@ -443,7 +440,7 @@ function PostCard({ post }: { post: ProfilePost }) {
 
   return (
     <article className="flex gap-3 px-4 py-5 transition hover:bg-gray-50/70">
-      <div className="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-linear-to-br from-sky-500 to-indigo-600 text-sm font-semibold text-white">
+      <div className="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-linear-to-br from-sky-500 to-indigo-600 font-semibold text-sm text-white">
         {post.author.slice(0, 1)}
         <span
           className="pointer-events-none absolute inset-0 rounded-full ring-1 ring-white/70"
@@ -461,12 +458,12 @@ function PostCard({ post }: { post: ProfilePost }) {
               </span>
             </div>
             {post.badge ? (
-              <span className="inline-flex w-fit items-center gap-1 rounded-full bg-blue-50 px-2 py-0.5 text-[11px] font-semibold text-blue-700">
+              <span className="inline-flex w-fit items-center gap-1 rounded-full bg-blue-50 px-2 py-0.5 font-semibold text-[11px] text-blue-700">
                 {post.badge}
               </span>
             ) : null}
             {post.replyTo ? (
-              <p className="text-sm text-gray-500">
+              <p className="text-gray-500 text-sm">
                 Replying to{" "}
                 <span className="text-blue-600">{post.replyTo}</span>
               </p>
@@ -477,7 +474,7 @@ function PostCard({ post }: { post: ProfilePost }) {
           </button>
         </div>
 
-        <p className="text-sm leading-6 text-gray-900">{post.text}</p>
+        <p className="text-gray-900 text-sm leading-6">{post.text}</p>
 
         {post.media ? (
           <div className="overflow-hidden rounded-2xl border border-gray-100">
@@ -485,7 +482,7 @@ function PostCard({ post }: { post: ProfilePost }) {
           </div>
         ) : null}
 
-        <div className="flex items-center justify-between text-xs text-gray-500">
+        <div className="flex items-center justify-between text-gray-500 text-xs">
           <Interaction
             icon={<IconMessageCircle2 className="size-4" />}
             label={stats.comments}
@@ -523,7 +520,7 @@ function MediaGrid({ items }: { items: MediaItem[] }) {
       {items.map((item) => (
         <div
           key={item.id}
-          className="group relative overflow-hidden border border-gray-100 bg-gray-50 aspect-square"
+          className="group relative aspect-square overflow-hidden border border-gray-100 bg-gray-50"
         >
           <img
             src={item.url}

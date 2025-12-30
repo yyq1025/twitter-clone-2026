@@ -1,14 +1,18 @@
 "use client";
 
+import { Avatar } from "@base-ui/react/avatar";
+import { Button } from "@base-ui/react/button";
+import { Toggle } from "@base-ui/react/toggle";
 import {
+  IconBookmark,
   IconHeart,
   IconMessage,
   IconRepeat,
-  IconShare,
+  IconShare2,
 } from "@tabler/icons-react";
 import { and, eq, useLiveQuery } from "@tanstack/react-db";
 import { useRouter } from "next/navigation";
-import type { MouseEvent } from "react";
+import { useState } from "react";
 import type { SelectPost, SelectUser } from "@/db/validation";
 import { likePost, unlikePost } from "@/lib/actions";
 import { electricLikeCollection } from "@/lib/collections";
@@ -41,6 +45,7 @@ type PostItemProps = {
 
 export function PostItem({ post, user, sessionUserId }: PostItemProps) {
   const router = useRouter();
+  const [dialogOpen, setDialogOpen] = useState(false);
   const { data: userLiked } = useLiveQuery(
     (q) => {
       if (!sessionUserId) return null;
@@ -54,8 +59,7 @@ export function PostItem({ post, user, sessionUserId }: PostItemProps) {
     [sessionUserId, post.id],
   );
 
-  const handleLikeClick = (e: MouseEvent) => {
-    e.stopPropagation();
+  const handleLikeClick = () => {
     if (!sessionUserId) return;
 
     if (userLiked) {
@@ -76,103 +80,127 @@ export function PostItem({ post, user, sessionUserId }: PostItemProps) {
   }
 
   return (
-    <article
-      className="p-4 transition flex gap-4 border-b border-gray-100 hover:bg-gray-50 cursor-pointer"
-      onClick={() => {
-        router.push(`/${user.username}/status/${post.id}`);
-      }}
-    >
-      <div className="w-10 h-10 rounded-full bg-linear-to-br from-blue-500 to-purple-500 flex items-center justify-center text-sm font-semibold text-white shrink-0">
-        DU
-      </div>
+    <>
+      <article
+        className="flex cursor-pointer gap-2 border-gray-100 border-b px-3 py-4 transition hover:bg-gray-50"
+        onClick={() => {
+          router.push(`/${user.username}/status/${post.id}`);
+        }}
+      >
+        <Avatar.Root className="size-10 select-none rounded-full bg-gray-100 font-medium text-base text-black">
+          <Avatar.Fallback className="flex size-full items-center justify-center">
+            {user.name ? user.name.charAt(0).toUpperCase() : "U"}
+          </Avatar.Fallback>
+        </Avatar.Root>
 
-      <div className="flex-1 min-w-0">
-        <div className="flex gap-1 text-sm items-center">
-          <span className="font-bold hover:underline text-foreground">
-            {user.name || PLACEHOLDER_NAME}
-          </span>
-          <span>@{user.username || PLACEHOLDER_HANDLE}</span>
-          {post.created_at ? (
-            <>
-              <span>·</span>
-              <span>{formatPostTime(post.created_at)}</span>
-            </>
-          ) : null}
-        </div>
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-1">
+            <span className="font-bold text-foreground hover:underline">
+              {user.name || PLACEHOLDER_NAME}
+            </span>
+            <span>@{user.username || PLACEHOLDER_HANDLE}</span>
+            {post.created_at ? (
+              <>
+                <span>·</span>
+                <span>{formatPostTime(post.created_at)}</span>
+              </>
+            ) : null}
+          </div>
 
-        <p className="mt-1 leading-normal whitespace-pre-wrap wrap-break-word">
-          {post.content}
-        </p>
-        {post.post_media.length > 0 && (
-          <div
-            className={cn(
-              "grid grid-cols-2 grid-rows-2 gap-0.5 overflow-hidden w-fit mt-2 rounded-xl border border-gray-100",
-              post.post_media.length > 1 && "aspect-video",
-            )}
-          >
-            {post.post_media.map((media, idx) => (
-              <div
-                key={idx}
-                className={cn(
-                  "w-full h-full",
-                  post.post_media.length + idx <= 3 && "row-span-2",
-                  post.post_media.length + idx === 1 && "col-span-2",
-                )}
+          <p className="wrap-break-word whitespace-pre-wrap leading-normal">
+            {post.content}
+          </p>
+          {post.post_media && post.post_media.length > 0 && (
+            <div
+              className={cn(
+                "mt-2 grid w-fit grid-cols-2 grid-rows-2 gap-0.5 overflow-hidden rounded-xl border border-gray-100",
+                post.post_media.length > 1 && "aspect-video",
+              )}
+            >
+              {post.post_media.map(
+                (media, idx) =>
+                  post.post_media && (
+                    <div
+                      key={idx}
+                      className={cn(
+                        "h-full w-full",
+                        post.post_media.length + idx <= 3 && "row-span-2",
+                        post.post_media.length + idx === 1 && "col-span-2",
+                      )}
+                    >
+                      <img
+                        src={media.url}
+                        alt="Post media"
+                        className={cn(
+                          post.post_media.length > 1
+                            ? "h-full w-full object-cover"
+                            : "max-h-100 max-w-full object-contain",
+                        )}
+                      />
+                    </div>
+                  ),
+              )}
+            </div>
+          )}
+
+          <div className="mt-3 flex items-center gap-1">
+            <div className="grow">
+              <Button
+                className="group flex cursor-pointer items-center gap-1 text-muted-foreground hover:text-blue-500"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setDialogOpen(true);
+                }}
               >
-                <img
-                  src={media.url}
-                  alt="Post media"
-                  className={cn(
-                    post.post_media.length > 1
-                      ? "w-full h-full object-cover"
-                      : "max-w-full max-h-100 object-contain",
-                  )}
-                />
-              </div>
-            ))}
-          </div>
-        )}
-
-        <div className="flex justify-between mt-3 max-w-md">
-          <div onClick={(e) => e.stopPropagation()}>
-            <CreatePostDialog
-              trigger={
-                <button
-                  type="button"
-                  className="hover:text-blue-500 flex gap-2 items-center group"
-                >
-                  <div className="p-2 rounded-full group-hover:bg-blue-500/10">
-                    <IconMessage className="size-4" />
-                  </div>
-                  {post.reply_count}
-                </button>
-              }
-              parentPost={post}
-              parentUser={user}
-            />
-          </div>
-          <div className="hover:text-green-500 flex gap-2 items-center group">
-            <div className="p-2 rounded-full group-hover:bg-green-500/10">
-              <IconRepeat className="size-4" />
+                <span className="-m-2 rounded-full p-2 group-hover:bg-blue-500/10">
+                  <IconMessage className="size-5" />
+                </span>
+                <span className="text-sm">{post.reply_count}</span>
+              </Button>
             </div>
-            {post.repost_count}
-          </div>
-          <div
-            className="hover:text-pink-600 flex gap-2 items-center group"
-            onClick={handleLikeClick}
-          >
-            <div className="p-2 rounded-full group-hover:bg-pink-600/10">
-              <IconHeart className="size-4" />
+            <div className="grow">
+              <Toggle
+                className="group flex cursor-pointer items-center gap-1 text-muted-foreground hover:text-green-500"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <span className="-m-2 rounded-full p-2 group-hover:bg-green-500/10">
+                  <IconRepeat className="size-5" />
+                </span>
+                <span className="text-sm">{post.repost_count}</span>
+              </Toggle>
             </div>
-            {post.like_count} {userLiked ? <span>❤️</span> : null}
-          </div>
-          <div className="hover:text-blue-500 flex gap-2 items-center group">
-            <div className="p-2 rounded-full group-hover:bg-blue-500/10">
-              <IconShare className="size-4" />
+            <div className="grow">
+              <Toggle
+                className="group flex cursor-pointer items-center gap-1 text-muted-foreground hover:text-pink-600 data-pressed:text-pink-600"
+                onPressedChange={handleLikeClick}
+                onClick={(e) => e.stopPropagation()}
+                pressed={!!userLiked}
+              >
+                <span className="-m-2 rounded-full p-2 group-hover:bg-pink-600/10">
+                  <IconHeart className="size-5 group-data-pressed:fill-pink-600 group-data-pressed:stroke-pink-600" />
+                </span>
+                <span className="text-sm">{post.like_count}</span>
+              </Toggle>
             </div>
+            <Toggle className="group mr-2 flex cursor-pointer items-center gap-2 text-muted-foreground hover:text-blue-500">
+              <span className="-m-2 rounded-full p-2 group-hover:bg-blue-500/10">
+                <IconBookmark className="size-5" />
+              </span>
+            </Toggle>
+            <Button className="group flex cursor-pointer items-center gap-2 text-muted-foreground hover:text-blue-500">
+              <span className="-m-2 rounded-full p-2 group-hover:bg-blue-500/10">
+                <IconShare2 className="size-5" />
+              </span>
+            </Button>
           </div>
         </div>
-      </div>
-    </article>
+      </article>
+      <CreatePostDialog
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        parentPost={post}
+        parentUser={user}
+      />
+    </>
   );
 }

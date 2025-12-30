@@ -1,7 +1,6 @@
 "use client";
 
 import { IconX } from "@tabler/icons-react";
-import { type ReactNode, useState } from "react";
 import { PostComposer } from "@/components/post-composer";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,25 +11,34 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import type { SelectPost, SelectUser } from "@/db/validation";
+import { useControllableState } from "@/hooks/use-controllable-state";
 
 type CreatePostDialogProps = {
-  trigger: ReactNode;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  trigger?: React.ReactNode;
   parentPost?: SelectPost;
   parentUser?: SelectUser;
 };
 
 export function CreatePostDialog({
+  open,
+  onOpenChange,
   trigger,
   parentPost,
   parentUser,
 }: CreatePostDialogProps) {
-  const [open, setOpen] = useState(false);
+  const [dialogOpen, setDialogOpen] = useControllableState({
+    value: open,
+    defaultValue: false,
+    onChange: onOpenChange,
+  });
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
       <DialogTrigger asChild>{trigger}</DialogTrigger>
       <DialogContent
-        className="sm:max-w-xl p-0 gap-0"
+        className="gap-0 p-0 sm:max-w-xl"
         showCloseButton={false}
         onClick={(e) => e.stopPropagation()}
       >
@@ -39,7 +47,7 @@ export function CreatePostDialog({
             variant="ghost"
             size="icon"
             className="rounded-full"
-            onClick={() => setOpen(false)}
+            onClick={() => setDialogOpen(false)}
           >
             <IconX className="size-5" />
           </Button>
@@ -53,7 +61,7 @@ export function CreatePostDialog({
           parentUser={parentUser}
           dialog
           onPosted={() => {
-            setOpen(false);
+            setDialogOpen(false);
           }}
         />
       </DialogContent>

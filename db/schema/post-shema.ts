@@ -23,7 +23,7 @@ export const posts = pgTable("posts", {
     .notNull()
     .references(() => users.id, { onDelete: "set null" }),
   content: text().notNull(),
-  post_media: jsonb().$type<PostMedia[]>().default([]).notNull(),
+  post_media: jsonb().$type<PostMedia[]>(),
 
   reply_to_id: uuid().references((): AnyPgColumn => posts.id, {
     onDelete: "set null",

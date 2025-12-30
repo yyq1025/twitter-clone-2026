@@ -7,8 +7,8 @@ export default function StatusLayout({
   children: React.ReactNode;
 }) {
   return (
-    <main className="flex-1 max-w-xl border-x border-gray-100">
-      <div className="sticky top-0 z-10 bg-white/85 backdrop-blur-md border-b border-gray-100 px-4 py-3 flex items-center gap-3">
+    <main className="max-w-xl flex-1 border-gray-100 border-x">
+      <div className="sticky top-0 z-10 flex items-center gap-3 border-gray-100 border-b bg-white/85 px-4 py-3 backdrop-blur-md">
         <Link
           href="/"
           replace
@@ -17,7 +17,7 @@ export default function StatusLayout({
         >
           <IconArrowLeft className="size-5" />
         </Link>
-        <span className="text-lg font-bold">Post</span>
+        <span className="font-bold text-lg">Post</span>
       </div>
       {children}
     </main>

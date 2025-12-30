@@ -1,5 +1,11 @@
+"use client";
+
 import { IconBrandX } from "@tabler/icons-react";
-import PostsFeed from "@/components/posts-feed";
+import dynamic from "next/dynamic";
+
+const PostsFeed = dynamic(() => import("@/components/posts-feed"), {
+  ssr: false,
+});
 
 export default function Home() {
   return (

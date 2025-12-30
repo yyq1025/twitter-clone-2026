@@ -2,10 +2,9 @@
 
 import { Activity, use, useEffect, useState } from "react";
 import { StatusThread } from "@/components/status-thread";
-import {
-  electricLikeCollection,
-  electricUserCollection,
-} from "@/lib/collections";
+import { electricUserCollection } from "@/lib/collections";
+
+export const dynamic = "force-dynamic";
 
 export default function StatusPage({
   params,
@@ -14,18 +13,14 @@ export default function StatusPage({
 }) {
   const { username, postId } = use(params);
   const [collectionsLoaded, setCollectionsLoaded] = useState(
-    [electricUserCollection, electricLikeCollection].every((col) =>
-      col.isReady(),
-    ),
+    [electricUserCollection].every((col) => col.isReady()),
   );
 
   useEffect(() => {
     if (collectionsLoaded) return;
-    Promise.all(
-      [electricUserCollection, electricLikeCollection].map((col) =>
-        col.preload(),
-      ),
-    ).then(() => setCollectionsLoaded(true));
+    Promise.all([electricUserCollection].map((col) => col.preload())).then(() =>
+      setCollectionsLoaded(true),
+    );
   }, [collectionsLoaded]);
 
   return (
