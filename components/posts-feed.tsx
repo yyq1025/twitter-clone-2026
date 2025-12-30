@@ -26,7 +26,7 @@ export default function PostsFeed() {
           post: electricPostCollection,
         })
         .innerJoin({ user: electricUserCollection }, ({ post, user }) =>
-          eq(user.id, post.user_id),
+          eq(user.id, post.author_id),
         )
         .where(({ post }) => isNull(post.reply_to_id))
         .orderBy(({ post }) => post.created_at, "desc"),
@@ -40,7 +40,7 @@ export default function PostsFeed() {
   return (
     <>
       <AuthGuard>
-        <div className="hidden sm:flex border-b border-gray-100">
+        <div className="hidden border-gray-100 border-b sm:flex">
           <PostComposer />
         </div>
       </AuthGuard>

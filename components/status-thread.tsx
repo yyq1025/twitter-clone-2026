@@ -1,6 +1,7 @@
 "use client";
 
 import { eq, useLiveQuery } from "@tanstack/react-db";
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { authClient } from "@/lib/auth-client";
 import {
@@ -9,7 +10,6 @@ import {
 } from "@/lib/collections";
 import { PostComposer } from "./post-composer";
 import { PostItem } from "./post-item";
-import { useRouter } from "next/navigation";
 
 type ParentThreadProps = {
   postId: string;
@@ -27,7 +27,7 @@ function ParentThread({
       q
         .from({ post: electricPostCollection })
         .innerJoin({ user: electricUserCollection }, ({ post, user }) =>
-          eq(user.id, post.user_id),
+          eq(user.id, post.author_id),
         )
         .where(({ post }) => eq(post.id, postId))
         .findOne(),
@@ -77,7 +77,7 @@ export function StatusThread({ username, postId }: StatusThreadProps) {
     q
       .from({ post: electricPostCollection })
       .innerJoin({ user: electricUserCollection }, ({ post, user }) =>
-        eq(user.id, post.user_id),
+        eq(user.id, post.author_id),
       )
       .where(({ post }) => eq(post.id, postId))
       .findOne(),
@@ -87,7 +87,7 @@ export function StatusThread({ username, postId }: StatusThreadProps) {
     q
       .from({ post: electricPostCollection })
       .innerJoin({ user: electricUserCollection }, ({ post, user }) =>
-        eq(user.id, post.user_id),
+        eq(user.id, post.author_id),
       )
       .where(({ post }) => eq(post.reply_to_id, postId))
       .orderBy(({ post }) => post.created_at, "desc"),
@@ -117,7 +117,7 @@ export function StatusThread({ username, postId }: StatusThreadProps) {
 
   if (!mainPostData) {
     return (
-      <div className="p-4 text-sm text-destructive">
+      <div className="p-4 text-destructive text-sm">
         Post not found or has been removed.
       </div>
     );
@@ -142,7 +142,7 @@ export function StatusThread({ username, postId }: StatusThreadProps) {
           />
         </div>
 
-        <div className="border-b border-gray-100">
+        <div className="border-gray-100 border-b">
           <PostComposer
             parentPost={mainPostData.post}
             parentUser={mainPostData.user}

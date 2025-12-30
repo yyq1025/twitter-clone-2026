@@ -1,6 +1,6 @@
 "use client";
 
-import * as Tabs from "@radix-ui/react-tabs";
+import { Tabs } from "@base-ui/react/tabs";
 import {
   IconArrowLeft,
   IconCalendar,
@@ -137,7 +137,7 @@ function UserProfile({ username, tab }: { username: string; tab?: string[] }) {
         post: electricPostCollection,
       })
       .leftJoin({ user: electricUserCollection }, ({ post, user }) =>
-        eq(user.id, post.user_id),
+        eq(user.id, post.author_id),
       ),
   );
 
@@ -152,7 +152,9 @@ function UserProfile({ username, tab }: { username: string; tab?: string[] }) {
     (q) =>
       q
         .from({ postWithUser: postsWithUser })
-        .where(({ postWithUser: { post } }) => eq(post.user_id, user?.id ?? -1))
+        .where(({ postWithUser: { post } }) =>
+          eq(post.author_id, user?.id ?? -1),
+        )
         .orderBy(({ postWithUser: { post } }) => post.created_at, "desc"),
     {
       pageSize: pageSize,
@@ -190,7 +192,7 @@ function UserProfile({ username, tab }: { username: string; tab?: string[] }) {
 
   if (!user && !isUserLoading) {
     return (
-      <div className="p-4 text-center text-gray-500">
+      <div className="p-4 text-center text-muted-foreground">
         User "{username}" not found.
       </div>
     );
@@ -276,7 +278,7 @@ function UserProfile({ username, tab }: { username: string; tab?: string[] }) {
           </Link>
           <div>
             <p className="font-semibold text-lg leading-tight">{displayName}</p>
-            <p className="text-gray-500 text-sm">{0} posts</p>
+            <p className="text-muted-foreground text-sm">{0} posts</p>
           </div>
         </div>
       </div>
@@ -333,28 +335,28 @@ function UserProfile({ username, tab }: { username: string; tab?: string[] }) {
                 New
               </span>
             </div>
-            <p className="text-gray-500 text-sm">{handle}</p>
+            <p className="text-muted-foreground">{handle}</p>
           </div>
-          <p className="text-gray-800 text-sm">
+          <p>
             Design lead at Polaris Labs. Sharing product sketches, build notes,
             and photos from the coast.
           </p>
 
-          <div className="flex flex-wrap gap-x-4 gap-y-2 text-gray-500 text-sm">
+          <div className="flex flex-wrap gap-x-4 gap-y-2 text-muted-foreground">
             <span className="flex items-center gap-1">
-              <IconCalendar className="size-4" />
+              <IconCalendar className="size-5" />
               Joined {dayjs(user?.createdAt).format("MMMM YYYY")}
             </span>
           </div>
 
-          <div className="flex gap-4 text-sm">
+          <div className="flex gap-4">
             <span>
               <span className="font-semibold">{following?.count || 0}</span>{" "}
-              <span className="text-gray-500">Following</span>
+              <span className="text-muted-foreground">Following</span>
             </span>
             <span>
               <span className="font-semibold">{followers?.count || 0}</span>{" "}
-              <span className="text-gray-500">Followers</span>
+              <span className="text-muted-foreground">Followers</span>
             </span>
           </div>
         </div>
@@ -377,20 +379,20 @@ function UserProfile({ username, tab }: { username: string; tab?: string[] }) {
             { name: "Media", value: "media" },
             { name: "Likes", value: "likes" },
           ].map((tab) => (
-            <Tabs.Trigger
+            <Tabs.Tab
               key={tab.value}
               value={tab.value}
-              className="relative flex justify-center py-4 text-center font-semibold text-gray-500 outline-none transition hover:bg-gray-50 data-[state=active]:text-black data-[state=active]:*:opacity-100"
+              className="relative flex cursor-pointer justify-center py-4 text-center font-semibold text-muted-foreground outline-none transition hover:bg-gray-50 data-active:text-black data-active:*:opacity-100"
             >
               <span>{tab.name}</span>
               <span className="absolute -bottom-px h-1 w-14 rounded-full bg-blue-500 opacity-0 transition" />
-            </Tabs.Trigger>
+            </Tabs.Tab>
           ))}
         </Tabs.List>
 
-        <Tabs.Content value="posts">
+        <Tabs.Panel value="posts">
           {isLoading ? (
-            <div className="p-4 text-center text-gray-500">
+            <div className="p-4 text-center text-muted-foreground">
               Loading posts...
             </div>
           ) : (
@@ -403,20 +405,20 @@ function UserProfile({ username, tab }: { username: string; tab?: string[] }) {
               isLoading={isLoading}
             />
           )}
-        </Tabs.Content>
+        </Tabs.Panel>
 
-        <Tabs.Content value="with_replies">
+        <Tabs.Panel value="with_replies">
           {replies.map((post) => (
             <PostCard key={post.id} post={post} />
           ))}
-        </Tabs.Content>
+        </Tabs.Panel>
 
-        <Tabs.Content value="media">
+        <Tabs.Panel value="media">
           <MediaGrid items={mediaItems} />
-        </Tabs.Content>
-        <Tabs.Content value="likes">
+        </Tabs.Panel>
+        <Tabs.Panel value="likes">
           {!userLikedPosts || userLikedPosts.length === 0 ? (
-            <div className="p-4 text-center text-gray-500">
+            <div className="p-4 text-center text-muted-foreground">
               No liked posts yet.
             </div>
           ) : (
@@ -429,7 +431,7 @@ function UserProfile({ username, tab }: { username: string; tab?: string[] }) {
               isLoading={isUserLikedPostsLoading}
             />
           )}
-        </Tabs.Content>
+        </Tabs.Panel>
       </Tabs.Root>
     </>
   );
@@ -453,7 +455,7 @@ function PostCard({ post }: { post: ProfilePost }) {
           <div className="min-w-0 space-y-1">
             <div className="flex flex-wrap items-center gap-2 text-sm">
               <span className="font-semibold">{post.author}</span>
-              <span className="text-gray-500">
+              <span className="text-muted-foreground">
                 {post.handle} · {post.time}
               </span>
             </div>
@@ -463,7 +465,7 @@ function PostCard({ post }: { post: ProfilePost }) {
               </span>
             ) : null}
             {post.replyTo ? (
-              <p className="text-gray-500 text-sm">
+              <p className="text-muted-foreground text-sm">
                 Replying to{" "}
                 <span className="text-blue-600">{post.replyTo}</span>
               </p>
@@ -482,7 +484,7 @@ function PostCard({ post }: { post: ProfilePost }) {
           </div>
         ) : null}
 
-        <div className="flex items-center justify-between text-gray-500 text-xs">
+        <div className="flex items-center justify-between text-muted-foreground text-xs">
           <Interaction
             icon={<IconMessageCircle2 className="size-4" />}
             label={stats.comments}

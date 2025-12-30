@@ -110,29 +110,29 @@ export function PostItem({ post, user, sessionUserId }: PostItemProps) {
           <p className="wrap-break-word whitespace-pre-wrap leading-normal">
             {post.content}
           </p>
-          {post.post_media && post.post_media.length > 0 && (
+          {post.media && post.media.length > 0 && (
             <div
               className={cn(
                 "mt-2 grid w-fit grid-cols-2 grid-rows-2 gap-0.5 overflow-hidden rounded-xl border border-gray-100",
-                post.post_media.length > 1 && "aspect-video",
+                post.media.length > 1 && "aspect-video",
               )}
             >
-              {post.post_media.map(
+              {post.media.map(
                 (media, idx) =>
-                  post.post_media && (
+                  post.media && (
                     <div
-                      key={idx}
+                      key={media.url}
                       className={cn(
                         "h-full w-full",
-                        post.post_media.length + idx <= 3 && "row-span-2",
-                        post.post_media.length + idx === 1 && "col-span-2",
+                        post.media.length + idx <= 3 && "row-span-2",
+                        post.media.length + idx === 1 && "col-span-2",
                       )}
                     >
                       <img
                         src={media.url}
                         alt="Post media"
                         className={cn(
-                          post.post_media.length > 1
+                          post.media.length > 1
                             ? "h-full w-full object-cover"
                             : "max-h-100 max-w-full object-contain",
                         )}

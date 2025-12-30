@@ -93,36 +93,3 @@ export function usePostMedia({
     cleanupMedia,
   };
 }
-
-export const getImageDimensions = (
-  file: File,
-): Promise<{
-  width: number;
-  height: number;
-}> => {
-  return new Promise((resolve) => {
-    if (!file.type.startsWith("image/")) {
-      console.warn(
-        `File ${file.name} is not an image, skipping dimension lookup.`,
-      );
-      resolve({ width: 0, height: 0 });
-      return;
-    }
-
-    const img = new Image();
-    const objectUrl = URL.createObjectURL(file);
-
-    img.onload = () => {
-      resolve({ width: img.width, height: img.height });
-      URL.revokeObjectURL(objectUrl);
-    };
-
-    img.onerror = () => {
-      console.error(`Unable to read image dimensions: ${file.name}`);
-      resolve({ width: 0, height: 0 });
-      URL.revokeObjectURL(objectUrl);
-    };
-
-    img.src = objectUrl;
-  });
-};

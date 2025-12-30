@@ -13,17 +13,13 @@ import { users } from "./auth-schema";
 interface PostMedia {
   url: string;
   type: string;
-  width: number;
-  height: number;
 }
 
 export const posts = pgTable("posts", {
   id: uuid().primaryKey(),
-  user_id: text()
-    .notNull()
-    .references(() => users.id, { onDelete: "set null" }),
+  author_id: text().references(() => users.id, { onDelete: "set null" }),
   content: text().notNull(),
-  post_media: jsonb().$type<PostMedia[]>(),
+  media: jsonb().$type<PostMedia[]>().notNull(),
 
   reply_to_id: uuid().references((): AnyPgColumn => posts.id, {
     onDelete: "set null",

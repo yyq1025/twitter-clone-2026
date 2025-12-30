@@ -9,11 +9,11 @@ export const createPost = createOptimisticAction<InsertPost>({
   onMutate: (postData) => {
     electricPostCollection.insert({
       ...postData,
+      author_id: postData.author_id || null,
       created_at: new Date(),
       like_count: 0,
       repost_count: 0,
       reply_count: 0,
-      post_media: postData.post_media || [],
       reply_to_id: postData.reply_to_id || null,
       quote_id: postData.quote_id || null,
     });

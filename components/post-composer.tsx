@@ -1,5 +1,6 @@
 import { IconPhoto, IconX } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
+import { v7 as uuidv7 } from "uuid";
 import { Button } from "@/components/ui/button";
 import {
   Carousel,
@@ -8,11 +9,10 @@ import {
 } from "@/components/ui/carousel";
 import { Textarea } from "@/components/ui/textarea";
 import type { SelectPost, SelectUser } from "@/db/validation";
-import { getImageDimensions, usePostMedia } from "@/hooks/use-post-media";
+import { usePostMedia } from "@/hooks/use-post-media";
 import { createPost } from "@/lib/actions";
 import { authClient } from "@/lib/auth-client";
 import { uploadFiles } from "@/utils/uploadthing";
-import { v7 as uuidv7 } from "uuid";
 
 const PLACEHOLDER_NAME = "Demo User";
 const PLACEHOLDER_HANDLE = "demo_user";
@@ -62,28 +62,23 @@ export function PostComposer({
 
     try {
       setSubmitting(true);
-      const [uploadResponse, dimensions] = await Promise.all([
+      const [uploadResponse] = await Promise.all([
         uploadFiles("imageUploader", {
           files: mediaFiles.map((item) => item.file),
         }),
-        Promise.all(
-          mediaFiles.map(async (item) => await getImageDimensions(item.file)),
-        ),
       ]);
 
-      const postMedia = uploadResponse.map((upload, index) => ({
+      const postMedia = uploadResponse.map((upload) => ({
         url: upload.ufsUrl,
         type: "image",
-        width: dimensions[index].width,
-        height: dimensions[index].height,
       }));
 
       createPost({
         id: uuidv7(),
-        user_id: session.user.id,
+        author_id: session.user.id,
         content: content.trim(),
         reply_to_id: parentPost?.id,
-        post_media: postMedia,
+        media: postMedia,
       });
       setContent("");
       cleanupMedia();
@@ -102,15 +97,15 @@ export function PostComposer({
   }, [cleanupMedia]);
 
   return (
-    <div className="flex flex-col gap-4 py-3 w-full">
-      <div className="max-h-[60vh] flex-1 px-4 overflow-y-auto">
+    <div className="flex w-full flex-col gap-4 py-3">
+      <div className="max-h-[60vh] flex-1 overflow-y-auto px-4">
         {dialog && parentPost && parentUser && (
-          <div className="rounded-xl border border-gray-100 bg-gray-50 p-3 mb-4">
+          <div className="mb-4 rounded-xl border border-gray-100 bg-gray-50 p-3">
             <div className="flex gap-3">
               <div className="size-10 rounded-full bg-gray-600" aria-hidden />
               <div className="space-y-1 text-sm">
-                <div className="flex gap-1 text-sm items-center">
-                  <span className="font-bold hover:underline text-foreground">
+                <div className="flex items-center gap-1 text-sm">
+                  <span className="font-bold text-foreground hover:underline">
                     {parentUser.name || PLACEHOLDER_NAME}
                   </span>
                   <span>@{parentUser.username || PLACEHOLDER_HANDLE}</span>
@@ -121,12 +116,12 @@ export function PostComposer({
                     </>
                   ) : null}
                 </div>
-                <p className="leading-normal whitespace-pre-wrap wrap-break-word">
+                <p className="wrap-break-word whitespace-pre-wrap leading-normal">
                   {parentPost.content}
                 </p>
               </div>
             </div>
-            <p className="mt-3 text-sm text-blue-500">{`Replying to ${
+            <p className="mt-3 text-blue-500 text-sm">{`Replying to ${
               parentUser.name || PLACEHOLDER_NAME
             }`}</p>
           </div>
@@ -154,7 +149,7 @@ export function PostComposer({
                       <div className="relative overflow-hidden rounded-lg border">
                         <button
                           type="button"
-                          className="absolute right-2 top-2 z-10 rounded-full bg-black/60 p-1 text-white transition hover:bg-black/80"
+                          className="absolute top-2 right-2 z-10 rounded-full bg-black/60 p-1 text-white transition hover:bg-black/80"
                           aria-label="Remove media"
                           onClick={() => handleRemoveMedia(item.previewUrl)}
                         >
