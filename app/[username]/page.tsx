@@ -19,6 +19,7 @@ import {
   useLiveQuery,
 } from "@tanstack/react-db";
 import dayjs from "dayjs";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { type ReactNode, use } from "react";
@@ -30,6 +31,10 @@ import {
   electricPostCollection,
   electricUserCollection,
 } from "@/lib/collections";
+
+const MediaPosts = dynamic(() => import("@/components/profile/media-posts"), {
+  ssr: false,
+});
 
 type ProfilePost = {
   id: number;
@@ -70,11 +75,10 @@ export default function ProfilePage({
 }) {
   const { tab, username } = use(params);
 
-  return <UserProfile username={username} tab={tab} />;
+  return <UserProfile username={username} />;
 }
 
-function UserProfile({ username, tab }: { username: string; tab?: string[] }) {
-  const router = useRouter();
+function UserProfile({ username }: { username: string }) {
   const { data: session } = authClient.useSession();
   const { data: user, isLoading: isUserLoading } = useLiveQuery(
     (q) =>
@@ -232,39 +236,6 @@ function UserProfile({ username, tab }: { username: string; tab?: string[] }) {
     },
   ];
 
-  const mediaItems: MediaItem[] = [
-    {
-      id: 1,
-      url: "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&w=1000&q=80",
-      alt: "Abstract gradients",
-    },
-    {
-      id: 2,
-      url: "https://images.unsplash.com/photo-1481277542470-605612bd2d61?auto=format&fit=crop&w=1000&q=80",
-      alt: "Desk setup",
-    },
-    {
-      id: 3,
-      url: "https://images.unsplash.com/photo-1520607162513-77705c0f0d4a?auto=format&fit=crop&w=1000&q=80",
-      alt: "Beach sunrise",
-    },
-    {
-      id: 4,
-      url: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1000&q=80",
-      alt: "City lights",
-    },
-    {
-      id: 5,
-      url: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=1000&q=80",
-      alt: "Notebook sketching",
-    },
-    {
-      id: 6,
-      url: "https://images.unsplash.com/photo-1523475472560-d2df97ec485c?auto=format&fit=crop&w=1000&q=80",
-      alt: "Soft gradient poster",
-    },
-  ];
-
   return (
     <>
       <div className="sticky top-0 z-20 border-gray-100 border-b bg-white/85 backdrop-blur-md">
@@ -362,17 +333,8 @@ function UserProfile({ username, tab }: { username: string; tab?: string[] }) {
         </div>
       </div>
 
-      <Tabs.Root
-        value={tab?.[0] || "posts"}
-        onValueChange={(value) => {
-          if (value === "posts") {
-            router.push(`/${username}`);
-          } else {
-            router.push(`/${username}/${value}`);
-          }
-        }}
-      >
-        <Tabs.List className="grid grid-cols-4 border-gray-100 border-b">
+      <Tabs.Root defaultValue="posts">
+        <Tabs.List className="flex border-gray-100 border-b">
           {[
             { name: "Posts", value: "posts" },
             { name: "Replies", value: "with_replies" },
@@ -382,7 +344,7 @@ function UserProfile({ username, tab }: { username: string; tab?: string[] }) {
             <Tabs.Tab
               key={tab.value}
               value={tab.value}
-              className="relative flex cursor-pointer justify-center py-4 text-center font-semibold text-muted-foreground outline-none transition hover:bg-gray-50 data-active:text-black data-active:*:opacity-100"
+              className="relative flex grow cursor-pointer justify-center py-4 text-center font-semibold text-muted-foreground outline-none transition hover:bg-gray-50 data-active:text-black data-active:*:opacity-100"
             >
               <span>{tab.name}</span>
               <span className="absolute -bottom-px h-1 w-14 rounded-full bg-blue-500 opacity-0 transition" />
@@ -414,7 +376,7 @@ function UserProfile({ username, tab }: { username: string; tab?: string[] }) {
         </Tabs.Panel>
 
         <Tabs.Panel value="media">
-          <MediaGrid items={mediaItems} />
+          <MediaPosts username={username} />
         </Tabs.Panel>
         <Tabs.Panel value="likes">
           {!userLikedPosts || userLikedPosts.length === 0 ? (
@@ -513,25 +475,5 @@ function Interaction({ icon, label }: { icon: ReactNode; label: string }) {
       {icon}
       {label}
     </span>
-  );
-}
-
-function MediaGrid({ items }: { items: MediaItem[] }) {
-  return (
-    <div className="grid grid-cols-3 gap-1 p-1">
-      {items.map((item) => (
-        <div
-          key={item.id}
-          className="group relative aspect-square overflow-hidden border border-gray-100 bg-gray-50"
-        >
-          <img
-            src={item.url}
-            alt={item.alt}
-            className="h-full w-full object-cover"
-          />
-          <div className="absolute inset-0 bg-linear-to-t from-black/30 via-black/0 opacity-0 transition group-hover:opacity-100"></div>
-        </div>
-      ))}
-    </div>
   );
 }

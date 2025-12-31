@@ -8,10 +8,10 @@ import {
   CarouselItem,
 } from "@/components/ui/carousel";
 import { Textarea } from "@/components/ui/textarea";
-import type { SelectPost, SelectUser } from "@/db/validation";
 import { usePostMedia } from "@/hooks/use-post-media";
 import { createPost } from "@/lib/actions";
 import { authClient } from "@/lib/auth-client";
+import type { SelectPost, SelectUser } from "@/lib/validators";
 import { uploadFiles } from "@/utils/uploadthing";
 
 const PLACEHOLDER_NAME = "Demo User";
@@ -62,11 +62,9 @@ export function PostComposer({
 
     try {
       setSubmitting(true);
-      const [uploadResponse] = await Promise.all([
-        uploadFiles("imageUploader", {
-          files: mediaFiles.map((item) => item.file),
-        }),
-      ]);
+      const uploadResponse = await uploadFiles("imageUploader", {
+        files: mediaFiles.map((item) => item.file),
+      });
 
       const postMedia = uploadResponse.map((upload) => ({
         url: upload.ufsUrl,
@@ -79,6 +77,7 @@ export function PostComposer({
         content: content.trim(),
         reply_to_id: parentPost?.id,
         media: postMedia,
+        media_length: postMedia.length,
       });
       setContent("");
       cleanupMedia();

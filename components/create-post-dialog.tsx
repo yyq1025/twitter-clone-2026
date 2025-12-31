@@ -10,8 +10,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import type { SelectPost, SelectUser } from "@/db/validation";
 import { useControllableState } from "@/hooks/use-controllable-state";
+import type { SelectPost, SelectUser } from "@/lib/validators";
 
 type CreatePostDialogProps = {
   open?: boolean;

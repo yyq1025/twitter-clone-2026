@@ -6,8 +6,8 @@ import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import { db } from "@/db/drizzle";
 import { follows } from "@/db/schema/follow-schema";
-import { insertFollowSchema } from "@/db/validation";
 import { auth } from "@/lib/auth";
+import { insertFollowSchema } from "@/lib/validators";
 
 async function generateTxId(tx: PgTransaction<any, any, any>): Promise<Txid> {
   const result = await tx.execute(

@@ -7,7 +7,7 @@ import { NextResponse } from "next/server";
 import { db } from "@/db/drizzle";
 import { posts } from "@/db/schema/post-shema";
 import { auth } from "@/lib/auth";
-import { insertPostSchema } from "@/lib/validators";
+import { insertEventSchema, insertPostSchema } from "@/lib/validators";
 
 async function generateTxId(tx: PgTransaction<any, any, any>): Promise<Txid> {
   const result = await tx.execute(
@@ -32,7 +32,7 @@ export async function GET(request: Request) {
     }
   });
 
-  originUrl.searchParams.set("table", "posts");
+  originUrl.searchParams.set("table", "events");
 
   originUrl.searchParams.set("source_id", process.env.ELECTRIC_SOURCE_ID!);
   originUrl.searchParams.set("secret", process.env.ELECTRIC_SECRET!);
@@ -59,37 +59,39 @@ export async function POST(request: Request) {
 
     const body = await request.json();
 
-    const parsedPost = insertPostSchema.safeParse({
+    const parsedEvent = insertEventSchema.safeParse({
       ...body,
       user_id: session.user.id,
     });
 
-    if (!parsedPost.success) {
+    if (!parsedEvent.success) {
       return NextResponse.json(
         {
           message: "Invalid request body",
-          errors: parsedPost.error.message,
+          errors: parsedEvent.error.message,
         },
         { status: 400 },
       );
     }
 
-    let txid!: Txid;
-    const newPost = await db.transaction(async (tx) => {
-      txid = await generateTxId(tx);
-      const [post] = await tx.insert(posts).values(parsedPost.data).returning();
-      if (post.reply_to_id) {
-        await tx
-          .update(posts)
-          .set({
-            reply_count: sql`${posts.reply_count} + 1`,
-          })
-          .where(eq(posts.id, post.reply_to_id));
-      }
-      return post;
-    });
+    const event = parsedEvent.data;
 
-    return NextResponse.json({ post: newPost, txid }, { status: 201 });
+    let txid!: Txid;
+    // const newPost = await db.transaction(async (tx) => {
+    //   txid = await generateTxId(tx);
+    //   const [post] = await tx.insert(posts).values(parsedPost.data).returning();
+    //   if (post.reply_to_id) {
+    //     await tx
+    //       .update(posts)
+    //       .set({
+    //         reply_count: sql`${posts.reply_count} + 1`,
+    //       })
+    //       .where(eq(posts.id, post.reply_to_id));
+    //   }
+    //   return post;
+    // });
+
+    // return NextResponse.json({ post: newPost, txid }, { status: 201 });
   } catch (error) {
     console.error("[POSTS_POST]", error);
     return NextResponse.json(

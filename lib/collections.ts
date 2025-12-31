@@ -6,7 +6,7 @@ import {
   selectLikeSchema,
   selectPostSchema,
   selectUserSchema,
-} from "@/db/validation";
+} from "@/lib/validators";
 
 const baseUrl =
   typeof window !== "undefined"

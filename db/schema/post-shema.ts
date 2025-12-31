@@ -1,3 +1,4 @@
+import { sql } from "drizzle-orm";
 import {
   type AnyPgColumn,
   integer,
@@ -19,7 +20,8 @@ export const posts = pgTable("posts", {
   id: uuid().primaryKey(),
   author_id: text().references(() => users.id, { onDelete: "set null" }),
   content: text().notNull(),
-  media: jsonb().$type<PostMedia[]>().notNull(),
+  media: jsonb().$type<PostMedia[]>().default([]).notNull(),
+  media_length: integer().default(0).notNull(),
 
   reply_to_id: uuid().references((): AnyPgColumn => posts.id, {
     onDelete: "set null",

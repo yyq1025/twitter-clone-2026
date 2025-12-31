@@ -3,8 +3,8 @@
 import { useWindowVirtualizer } from "@tanstack/react-virtual";
 import { useEffect, useRef } from "react";
 import { PostItem } from "@/components/post-item";
-import type { SelectPost, SelectUser } from "@/db/validation";
 import { authClient } from "@/lib/auth-client";
+import type { SelectPost, SelectUser } from "@/lib/validators";
 
 interface PostsListProps {
   data: {
@@ -67,7 +67,7 @@ export default function PostsList({
           }}
         >
           {isError ? (
-            <div className="p-4 text-sm text-destructive">
+            <div className="p-4 text-destructive text-sm">
               Error loading posts. Please try again later.
             </div>
           ) : isLoading ? (

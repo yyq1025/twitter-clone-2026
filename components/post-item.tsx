@@ -13,14 +13,11 @@ import {
 import { and, eq, useLiveQuery } from "@tanstack/react-db";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import type { SelectPost, SelectUser } from "@/db/validation";
 import { likePost, unlikePost } from "@/lib/actions";
 import { electricLikeCollection } from "@/lib/collections";
 import { cn } from "@/lib/utils";
+import type { SelectPost, SelectUser } from "@/lib/validators";
 import { CreatePostDialog } from "./create-post-dialog";
-
-const PLACEHOLDER_NAME = "Demo User";
-const PLACEHOLDER_HANDLE = "demo_user";
 
 function formatPostTime(value: Date | string | number | null | undefined) {
   if (!value) {
@@ -94,11 +91,11 @@ export function PostItem({ post, user, sessionUserId }: PostItemProps) {
         </Avatar.Root>
 
         <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1 text-muted-foreground">
             <span className="font-bold text-foreground hover:underline">
-              {user.name || PLACEHOLDER_NAME}
+              {user.name}
             </span>
-            <span>@{user.username || PLACEHOLDER_HANDLE}</span>
+            <span>@{user.username}</span>
             {post.created_at ? (
               <>
                 <span>·</span>

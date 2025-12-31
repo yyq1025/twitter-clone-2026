@@ -1,7 +1,7 @@
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import * as z from "zod";
 import { users } from "@/db/schema/auth-schema";
-import { events } from "@/db/schema/event-schema";
+import { feed_items } from "@/db/schema/feed-item-schema";
 import { follows } from "@/db/schema/follow-schema";
 import { likes, posts } from "@/db/schema/post-shema";
 
@@ -22,12 +22,12 @@ const eventTypeEnum = z.enum([
   "user.unfollow",
 ]);
 
-export const insertEventSchema = createInsertSchema(events, {
+export const insertEventSchema = createInsertSchema(feed_items, {
   type: eventTypeEnum,
 });
 export type InsertEvent = z.infer<typeof insertEventSchema>;
 
-export const selectEventSchema = createSelectSchema(events, {
+export const selectEventSchema = createSelectSchema(feed_items, {
   type: eventTypeEnum,
 });
 export type SelectEvent = z.infer<typeof selectEventSchema>;

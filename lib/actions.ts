@@ -1,15 +1,17 @@
 import { createOptimisticAction } from "@tanstack/react-db";
-import type { InsertLike, InsertPost } from "@/db/validation";
 import {
   electricLikeCollection,
   electricPostCollection,
 } from "@/lib/collections";
+import type { InsertLike, InsertPost } from "@/lib/validators";
 
 export const createPost = createOptimisticAction<InsertPost>({
   onMutate: (postData) => {
     electricPostCollection.insert({
       ...postData,
       author_id: postData.author_id || null,
+      media: postData.media || [],
+      media_length: postData.media?.length || 0,
       created_at: new Date(),
       like_count: 0,
       repost_count: 0,

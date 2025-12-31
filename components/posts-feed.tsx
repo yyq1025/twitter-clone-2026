@@ -1,6 +1,7 @@
 "use client";
 
-import { eq, isNull, useLiveInfiniteQuery } from "@tanstack/react-db";
+import { and, eq, isNull, useLiveInfiniteQuery } from "@tanstack/react-db";
+import { omit } from "lodash-es";
 import AuthGuard from "@/components/auth-guard";
 import { PostComposer } from "@/components/post-composer";
 import PostsList from "@/components/posts-list";
