@@ -20,7 +20,7 @@ export default function MediaPosts({ username }: { username: string }) {
       q
         .from({ post: electricPostCollection })
         .innerJoin({ user: electricUserCollection }, ({ post, user }) =>
-          eq(user.id, post.author_id),
+          eq(user.id, post.creator_id),
         )
         .where(({ post, user }) =>
           and(eq(user.username, username), gt(post.media_length, 0)),

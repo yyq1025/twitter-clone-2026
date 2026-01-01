@@ -9,18 +9,18 @@ export const createPost = createOptimisticAction<InsertPost>({
   onMutate: (postData) => {
     electricPostCollection.insert({
       ...postData,
-      author_id: postData.author_id || null,
+      creator_id: postData.creator_id || null,
       media: postData.media || [],
       media_length: postData.media?.length || 0,
       created_at: new Date(),
       like_count: 0,
       repost_count: 0,
       reply_count: 0,
-      reply_to_id: postData.reply_to_id || null,
+      reply_parent_id: postData.reply_parent_id || null,
       quote_id: postData.quote_id || null,
     });
-    if (postData.reply_to_id) {
-      electricPostCollection.update(postData.reply_to_id, (draft) => {
+    if (postData.reply_parent_id) {
+      electricPostCollection.update(postData.reply_parent_id, (draft) => {
         draft.reply_count += 1;
       });
     }

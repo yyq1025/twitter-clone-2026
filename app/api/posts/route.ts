@@ -78,13 +78,13 @@ export async function POST(request: Request) {
     const newPost = await db.transaction(async (tx) => {
       txid = await generateTxId(tx);
       const [post] = await tx.insert(posts).values(parsedPost.data).returning();
-      if (post.reply_to_id) {
+      if (post.reply_parent_id) {
         await tx
           .update(posts)
           .set({
             reply_count: sql`${posts.reply_count} + 1`,
           })
-          .where(eq(posts.id, post.reply_to_id));
+          .where(eq(posts.id, post.reply_parent_id));
       }
       return post;
     });

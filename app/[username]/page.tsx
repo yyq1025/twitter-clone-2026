@@ -141,7 +141,7 @@ function UserProfile({ username }: { username: string }) {
         post: electricPostCollection,
       })
       .leftJoin({ user: electricUserCollection }, ({ post, user }) =>
-        eq(user.id, post.author_id),
+        eq(user.id, post.creator_id),
       ),
   );
 
@@ -157,7 +157,7 @@ function UserProfile({ username }: { username: string }) {
       q
         .from({ postWithUser: postsWithUser })
         .where(({ postWithUser: { post } }) =>
-          eq(post.author_id, user?.id ?? -1),
+          eq(post.creator_id, user?.id ?? -1),
         )
         .orderBy(({ postWithUser: { post } }) => post.created_at, "desc"),
     {

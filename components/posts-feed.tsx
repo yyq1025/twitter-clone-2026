@@ -1,10 +1,11 @@
 "use client";
 
-import { and, eq, isNull, useLiveInfiniteQuery } from "@tanstack/react-db";
-import { omit } from "lodash-es";
+import { eq, isNull, useLiveInfiniteQuery } from "@tanstack/react-db";
 import AuthGuard from "@/components/auth-guard";
 import { PostComposer } from "@/components/post-composer";
-import PostsList from "@/components/posts-list";
+import { PostItem } from "@/components/post-item";
+import VirtualInfiniteList from "@/components/virtual-infinite-list";
+import { authClient } from "@/lib/auth-client";
 import {
   electricPostCollection,
   electricUserCollection,
@@ -13,8 +14,9 @@ import {
 const pageSize = 20;
 
 export default function PostsFeed() {
+  const { data: session } = authClient.useSession();
   const {
-    data: posts,
+    data,
     hasNextPage,
     fetchNextPage,
     isFetchingNextPage,
@@ -27,9 +29,9 @@ export default function PostsFeed() {
           post: electricPostCollection,
         })
         .innerJoin({ user: electricUserCollection }, ({ post, user }) =>
-          eq(user.id, post.author_id),
+          eq(user.id, post.creator_id),
         )
-        .where(({ post }) => isNull(post.reply_to_id))
+        .where(({ post }) => isNull(post.reply_parent_id))
         .orderBy(({ post }) => post.created_at, "desc"),
     {
       pageSize: pageSize,
@@ -45,13 +47,21 @@ export default function PostsFeed() {
           <PostComposer />
         </div>
       </AuthGuard>
-      <PostsList
-        data={posts}
+      <VirtualInfiniteList
+        data={data}
         hasNextPage={hasNextPage}
         fetchNextPage={fetchNextPage}
         isFetchingNextPage={isFetchingNextPage}
         isError={isError}
         isLoading={isLoading}
+        getKey={(item) => item.post.id}
+        renderItem={(item) => (
+          <PostItem
+            post={item.post}
+            user={item.user}
+            sessionUserId={session?.user?.id}
+          />
+        )}
       />
     </>
   );

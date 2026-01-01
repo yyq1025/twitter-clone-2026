@@ -62,9 +62,11 @@ export function PostComposer({
 
     try {
       setSubmitting(true);
-      const uploadResponse = await uploadFiles("imageUploader", {
-        files: mediaFiles.map((item) => item.file),
-      });
+      const uploadResponse = mediaFiles.length
+        ? await uploadFiles("imageUploader", {
+            files: mediaFiles.map((item) => item.file),
+          })
+        : [];
 
       const postMedia = uploadResponse.map((upload) => ({
         url: upload.ufsUrl,
@@ -73,9 +75,9 @@ export function PostComposer({
 
       createPost({
         id: uuidv7(),
-        author_id: session.user.id,
+        creator_id: session.user.id,
         content: content.trim(),
-        reply_to_id: parentPost?.id,
+        reply_parent_id: parentPost?.id,
         media: postMedia,
         media_length: postMedia.length,
       });
