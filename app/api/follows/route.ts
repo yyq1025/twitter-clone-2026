@@ -61,7 +61,7 @@ export async function POST(request: Request) {
 
     const parsedBody = insertFollowSchema.safeParse({
       ...body,
-      follower_id: session.user.id,
+      creator_id: session.user.id,
     });
 
     if (!parsedBody.success) {
@@ -115,8 +115,8 @@ export async function DELETE(request: Request) {
         .delete(follows)
         .where(
           and(
-            eq(follows.following_id, followingId),
-            eq(follows.follower_id, session.user.id),
+            eq(follows.subject_id, followingId),
+            eq(follows.creator_id, session.user.id),
           ),
         );
     });

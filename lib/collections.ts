@@ -60,7 +60,7 @@ export const electricFollowCollection = createCollection(
       url: `${baseUrl}/api/follows`,
     },
     schema: selectFollowSchema,
-    getKey: (item) => `${item.follower_id}-${item.following_id}`,
+    getKey: (item) => `${item.creator_id}-${item.subject_id}`,
     onInsert: async ({ transaction }) => {
       const newItem = transaction.mutations[0].modified;
       const response = await fetch("/api/follows", {
@@ -69,7 +69,7 @@ export const electricFollowCollection = createCollection(
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          followingId: newItem.following_id,
+          followingId: newItem.subject_id,
         }),
       });
       if (!response.ok) {
@@ -81,7 +81,7 @@ export const electricFollowCollection = createCollection(
     onDelete: async ({ transaction }) => {
       const { original } = transaction.mutations[0];
       const response = await fetch(
-        `/api/follows?followingId=${original.following_id}`,
+        `/api/follows?followingId=${original.subject_id}`,
         {
           method: "DELETE",
         },

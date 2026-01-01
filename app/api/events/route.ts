@@ -7,7 +7,7 @@ import { NextResponse } from "next/server";
 import { db } from "@/db/drizzle";
 import { posts } from "@/db/schema/post-shema";
 import { auth } from "@/lib/auth";
-import { insertEventSchema, insertPostSchema } from "@/lib/validators";
+import { insertPostSchema } from "@/lib/validators";
 
 async function generateTxId(tx: PgTransaction<any, any, any>): Promise<Txid> {
   const result = await tx.execute(
@@ -22,81 +22,47 @@ async function generateTxId(tx: PgTransaction<any, any, any>): Promise<Txid> {
   return parseInt(txid, 10);
 }
 
-export async function GET(request: Request) {
-  const proxyUrl = new URL(request.url);
-  const originUrl = new URL("/v1/shape", "https://api.electric-sql.cloud");
-
-  proxyUrl.searchParams.forEach((value, key) => {
-    if (ELECTRIC_PROTOCOL_QUERY_PARAMS.includes(key)) {
-      originUrl.searchParams.set(key, value);
-    }
-  });
-
-  originUrl.searchParams.set("table", "events");
-
-  originUrl.searchParams.set("source_id", process.env.ELECTRIC_SOURCE_ID!);
-  originUrl.searchParams.set("secret", process.env.ELECTRIC_SECRET!);
-
-  const response = await fetch(originUrl);
-  const headers = new Headers(response.headers);
-  headers.delete("content-encoding");
-  headers.delete("content-length");
-
-  return new NextResponse(response.body, {
-    status: response.status,
-    statusText: response.statusText,
-    headers: headers,
-  });
-}
-
 export async function POST(request: Request) {
-  try {
-    const session = await auth.api.getSession({ headers: await headers() });
-
-    if (!session?.user) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-    }
-
-    const body = await request.json();
-
-    const parsedEvent = insertEventSchema.safeParse({
-      ...body,
-      user_id: session.user.id,
-    });
-
-    if (!parsedEvent.success) {
-      return NextResponse.json(
-        {
-          message: "Invalid request body",
-          errors: parsedEvent.error.message,
-        },
-        { status: 400 },
-      );
-    }
-
-    const event = parsedEvent.data;
-
-    let txid!: Txid;
-    // const newPost = await db.transaction(async (tx) => {
-    //   txid = await generateTxId(tx);
-    //   const [post] = await tx.insert(posts).values(parsedPost.data).returning();
-    //   if (post.reply_to_id) {
-    //     await tx
-    //       .update(posts)
-    //       .set({
-    //         reply_count: sql`${posts.reply_count} + 1`,
-    //       })
-    //       .where(eq(posts.id, post.reply_to_id));
-    //   }
-    //   return post;
-    // });
-
-    // return NextResponse.json({ post: newPost, txid }, { status: 201 });
-  } catch (error) {
-    console.error("[POSTS_POST]", error);
-    return NextResponse.json(
-      { message: "Failed to create post" },
-      { status: 500 },
-    );
-  }
+  // try {
+  //   const session = await auth.api.getSession({ headers: await headers() });
+  //   if (!session?.user) {
+  //     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  //   }
+  //   const body = await request.json();
+  //   const parsedEvent = insertEventSchema.safeParse({
+  //     ...body,
+  //     user_id: session.user.id,
+  //   });
+  //   if (!parsedEvent.success) {
+  //     return NextResponse.json(
+  //       {
+  //         message: "Invalid request body",
+  //         errors: parsedEvent.error.message,
+  //       },
+  //       { status: 400 },
+  //     );
+  //   }
+  //   const event = parsedEvent.data;
+  //   let txid!: Txid;
+  //   const newPost = await db.transaction(async (tx) => {
+  //     txid = await generateTxId(tx);
+  //     const [post] = await tx.insert(posts).values(parsedPost.data).returning();
+  //     if (post.reply_to_id) {
+  //       await tx
+  //         .update(posts)
+  //         .set({
+  //           reply_count: sql`${posts.reply_count} + 1`,
+  //         })
+  //         .where(eq(posts.id, post.reply_to_id));
+  //     }
+  //     return post;
+  //   });
+  //   return NextResponse.json({ post: newPost, txid }, { status: 201 });
+  // } catch (error) {
+  //   console.error("[POSTS_POST]", error);
+  //   return NextResponse.json(
+  //     { message: "Failed to create post" },
+  //     { status: 500 },
+  //   );
+  // }
 }

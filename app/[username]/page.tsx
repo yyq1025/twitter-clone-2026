@@ -21,9 +21,9 @@ import {
 import dayjs from "dayjs";
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { type ReactNode, use } from "react";
-import PostsList from "@/components/posts-list";
+import { PostItem } from "@/components/post-item";
+import VirtualInfiniteList from "@/components/virtual-infinite-list";
 import { authClient } from "@/lib/auth-client";
 import {
   electricFollowCollection,
@@ -98,8 +98,8 @@ function UserProfile({ username }: { username: string }) {
         .from({ follow: electricFollowCollection })
         .where(({ follow }) =>
           and(
-            eq(follow.follower_id, session.user.id),
-            eq(follow.following_id, user.id),
+            eq(follow.creator_id, session.user.id),
+            eq(follow.subject_id, user.id),
           ),
         )
         .findOne();
@@ -114,8 +114,8 @@ function UserProfile({ username }: { username: string }) {
       }
       return q
         .from({ follow: electricFollowCollection })
-        .where(({ follow }) => eq(follow.follower_id, user.id))
-        .select(({ follow }) => ({ count: count(follow.following_id) }))
+        .where(({ follow }) => eq(follow.creator_id, user.id))
+        .select(({ follow }) => ({ count: count(follow.subject_id) }))
         .findOne();
     },
     [user?.id],
@@ -128,8 +128,8 @@ function UserProfile({ username }: { username: string }) {
       }
       return q
         .from({ follow: electricFollowCollection })
-        .where(({ follow }) => eq(follow.following_id, user.id))
-        .select(({ follow }) => ({ count: count(follow.follower_id) }))
+        .where(({ follow }) => eq(follow.subject_id, user.id))
+        .select(({ follow }) => ({ count: count(follow.creator_id) }))
         .findOne();
     },
     [user?.id],
@@ -285,8 +285,8 @@ function UserProfile({ username }: { username: string }) {
                 onClick={() => {
                   if (!user || !session?.user) return;
                   electricFollowCollection.insert({
-                    follower_id: session.user.id,
-                    following_id: user.id,
+                    creator_id: session.user.id,
+                    subject_id: user.id,
                     created_at: new Date(),
                   });
                 }}
@@ -353,20 +353,18 @@ function UserProfile({ username }: { username: string }) {
         </Tabs.List>
 
         <Tabs.Panel value="posts">
-          {isLoading ? (
-            <div className="p-4 text-center text-muted-foreground">
-              Loading posts...
-            </div>
-          ) : (
-            <PostsList
-              data={data}
-              hasNextPage={hasNextPage}
-              fetchNextPage={fetchNextPage}
-              isFetchingNextPage={isFetchingNextPage}
-              isError={isError}
-              isLoading={isLoading}
-            />
-          )}
+          <VirtualInfiniteList
+            data={data}
+            hasNextPage={hasNextPage}
+            fetchNextPage={fetchNextPage}
+            isFetchingNextPage={isFetchingNextPage}
+            isError={isError}
+            isLoading={isLoading}
+            getKey={(item) => item.post.id}
+            renderItem={(item) => (
+              <PostItem post={item.post} user={item.user} />
+            )}
+          />
         </Tabs.Panel>
 
         <Tabs.Panel value="with_replies">
@@ -379,20 +377,18 @@ function UserProfile({ username }: { username: string }) {
           <MediaPosts username={username} />
         </Tabs.Panel>
         <Tabs.Panel value="likes">
-          {!userLikedPosts || userLikedPosts.length === 0 ? (
-            <div className="p-4 text-center text-muted-foreground">
-              No liked posts yet.
-            </div>
-          ) : (
-            <PostsList
-              data={userLikedPosts}
-              hasNextPage={hasNextPageUserLikedPosts}
-              fetchNextPage={fetchNextPageUserLikedPosts}
-              isFetchingNextPage={isFetchingNextPageUserLikedPosts}
-              isError={isUserLikedPostsError}
-              isLoading={isUserLikedPostsLoading}
-            />
-          )}
+          <VirtualInfiniteList
+            data={userLikedPosts}
+            hasNextPage={hasNextPageUserLikedPosts}
+            fetchNextPage={fetchNextPageUserLikedPosts}
+            isFetchingNextPage={isFetchingNextPageUserLikedPosts}
+            isError={isUserLikedPostsError}
+            isLoading={isUserLikedPostsLoading}
+            getKey={(item) => item.post.id}
+            renderItem={(item) => (
+              <PostItem post={item.post} user={item.user} />
+            )}
+          />
         </Tabs.Panel>
       </Tabs.Root>
     </>

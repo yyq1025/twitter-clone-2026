@@ -13,13 +13,13 @@ import { PostItem } from "./post-item";
 
 type ParentThreadProps = {
   postId: string;
-  sessionUserId?: string;
+
   onParentLoaded?: () => void;
 };
 
 function ParentThread({
   postId,
-  sessionUserId,
+
   onParentLoaded,
 }: ParentThreadProps) {
   const { data: postData } = useLiveQuery(
@@ -49,15 +49,10 @@ function ParentThread({
       {postData.post.reply_parent_id ? (
         <ParentThread
           postId={postData.post.reply_parent_id}
-          sessionUserId={sessionUserId}
           onParentLoaded={onParentLoaded}
         />
       ) : null}
-      <PostItem
-        post={postData.post}
-        user={postData.user}
-        sessionUserId={sessionUserId}
-      />
+      <PostItem post={postData.post} user={postData.user} />
     </>
   );
 }
@@ -128,18 +123,13 @@ export function StatusThread({ username, postId }: StatusThreadProps) {
       {mainPostData.post.reply_parent_id ? (
         <ParentThread
           postId={mainPostData.post.reply_parent_id}
-          sessionUserId={session?.user?.id}
           onParentLoaded={() => setParentsLoaded(true)}
         />
       ) : null}
 
       <div className="min-h-screen">
         <div ref={ref} className="scroll-mt-15">
-          <PostItem
-            post={mainPostData.post}
-            user={mainPostData.user}
-            sessionUserId={session?.user?.id}
-          />
+          <PostItem post={mainPostData.post} user={mainPostData.user} />
         </div>
 
         <div className="border-gray-100 border-b">
@@ -153,12 +143,7 @@ export function StatusThread({ username, postId }: StatusThreadProps) {
           <div className="p-4 text-sm">Loading replies...</div>
         ) : (
           replies?.map(({ post, user }) => (
-            <PostItem
-              key={post.id}
-              post={post}
-              user={user}
-              sessionUserId={session?.user?.id}
-            />
+            <PostItem key={post.id} post={post} user={user} />
           ))
         )}
       </div>

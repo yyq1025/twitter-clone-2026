@@ -14,6 +14,7 @@ import { and, eq, useLiveQuery } from "@tanstack/react-db";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { likePost, unlikePost } from "@/lib/actions";
+import { authClient } from "@/lib/auth-client";
 import { electricLikeCollection } from "@/lib/collections";
 import { cn } from "@/lib/utils";
 import type { SelectPost, SelectUser } from "@/lib/validators";
@@ -37,36 +38,35 @@ function formatPostTime(value: Date | string | number | null | undefined) {
 type PostItemProps = {
   post: SelectPost;
   user?: SelectUser;
-  sessionUserId?: string;
 };
 
-export function PostItem({ post, user, sessionUserId }: PostItemProps) {
+export function PostItem({ post, user }: PostItemProps) {
+  const { data: session } = authClient.useSession();
   const router = useRouter();
   const [dialogOpen, setDialogOpen] = useState(false);
   const { data: userLiked } = useLiveQuery(
     (q) => {
-      if (!sessionUserId) return null;
+      if (!session?.user?.id) return null;
       return q
         .from({ like: electricLikeCollection })
         .where(({ like }) =>
-          and(eq(like.post_id, post.id), eq(like.user_id, sessionUserId)),
+          and(eq(like.post_id, post.id), eq(like.user_id, session.user.id)),
         )
         .findOne();
     },
-    [sessionUserId, post.id],
+    [session?.user?.id, post.id],
   );
 
   const handleLikeClick = () => {
-    if (!sessionUserId) return;
-
+    if (!session?.user?.id) return;
     if (userLiked) {
       unlikePost({
-        user_id: sessionUserId,
+        user_id: session.user.id,
         post_id: post.id,
       });
     } else {
       likePost({
-        user_id: sessionUserId,
+        user_id: session.user.id,
         post_id: post.id,
       });
     }

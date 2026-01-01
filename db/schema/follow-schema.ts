@@ -4,13 +4,13 @@ import { users } from "./auth-schema";
 export const follows = pgTable(
   "follows",
   {
-    follower_id: text()
+    creator_id: text()
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
-    following_id: text()
+    subject_id: text()
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
     created_at: timestamp({ withTimezone: true }).defaultNow().notNull(),
   },
-  (table) => [primaryKey({ columns: [table.follower_id, table.following_id] })],
+  (table) => [primaryKey({ columns: [table.creator_id, table.subject_id] })],
 );

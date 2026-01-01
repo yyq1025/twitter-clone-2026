@@ -55,13 +55,7 @@ export default function PostsFeed() {
         isError={isError}
         isLoading={isLoading}
         getKey={(item) => item.post.id}
-        renderItem={(item) => (
-          <PostItem
-            post={item.post}
-            user={item.user}
-            sessionUserId={session?.user?.id}
-          />
-        )}
+        renderItem={(item) => <PostItem post={item.post} user={item.user} />}
       />
     </>
   );
