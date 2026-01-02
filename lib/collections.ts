@@ -65,7 +65,7 @@ export const electricLikeCollection = createCollection(
       url: `${baseUrl}/api/likes`,
     },
     schema: selectLikeSchema,
-    getKey: (item) => `${item.user_id}-${item.post_id}`,
+    getKey: (item) => `${item.creator_id}-${item.subject_id}`,
   }),
 );
 

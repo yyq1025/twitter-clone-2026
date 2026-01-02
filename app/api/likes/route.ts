@@ -19,7 +19,7 @@ export async function GET(request: Request) {
   });
 
   originUrl.searchParams.set("table", "likes");
-  originUrl.searchParams.set("where", `"user_id" = '${session.user.id}'`);
+  originUrl.searchParams.set("where", `"creator_id" = '${session.user.id}'`);
 
   originUrl.searchParams.set("source_id", process.env.ELECTRIC_SOURCE_ID!);
   originUrl.searchParams.set("secret", process.env.ELECTRIC_SECRET!);

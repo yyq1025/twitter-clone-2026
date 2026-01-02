@@ -39,10 +39,10 @@ export default function LikedPosts({ username }: { username: string }) {
       q
         .from({ like: electricLikeCollection })
         .innerJoin({ creator: electricUserCollection }, ({ like, creator }) =>
-          eq(creator.id, like.user_id),
+          eq(creator.id, like.creator_id),
         )
         .innerJoin({ postWithUser: postsWithUser }, ({ like, postWithUser }) =>
-          eq(like.post_id, postWithUser.post.id),
+          eq(like.subject_id, postWithUser.post.id),
         )
         .leftJoin(
           { reply_parent: postsWithUser },

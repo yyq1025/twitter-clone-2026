@@ -1,7 +1,6 @@
 "use client";
 
 import { Button } from "@base-ui/react/button";
-import { Toggle } from "@base-ui/react/toggle";
 import {
   IconBookmark,
   IconDotsVertical,
@@ -15,7 +14,8 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { CreatePostDialog } from "@/components/create-post-dialog";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { likePost, unlikePost } from "@/lib/actions";
+import { Toggle } from "@/components/ui/toggle";
+import { mutateLike } from "@/lib/actions";
 import { authClient } from "@/lib/auth-client";
 import { electricLikeCollection } from "@/lib/collections";
 import { cn } from "@/lib/utils";
@@ -60,7 +60,10 @@ export function PostItem({
       return q
         .from({ like: electricLikeCollection })
         .where(({ like }) =>
-          and(eq(like.post_id, post.id), eq(like.user_id, session.user.id)),
+          and(
+            eq(like.subject_id, post.id),
+            eq(like.creator_id, session.user.id),
+          ),
         )
         .findOne();
     },
@@ -69,17 +72,22 @@ export function PostItem({
 
   const handleLikeClick = () => {
     if (!session?.user?.id) return;
-    if (userLiked) {
-      unlikePost({
-        userId: session.user.id,
-        payload: { post_id: post.id },
-      });
-    } else {
-      likePost({
-        userId: session.user.id,
-        payload: { post_id: post.id },
-      });
-    }
+    // if (userLiked) {
+    //   unlikePost({
+    //     userId: session.user.id,
+    //     payload: { post_id: post.id },
+    //   });
+    // } else {
+    //   likePost({
+    //     userId: session.user.id,
+    //     payload: { post_id: post.id },
+    //   });
+    // }
+    mutateLike({
+      type: userLiked ? "post.unlike" : "post.like",
+      payload: { post_id: post.id },
+      userId: session.user.id,
+    });
   };
 
   return (
@@ -193,7 +201,7 @@ export function PostItem({
             </div>
             <div className="flex-1">
               <Toggle
-                className="group flex cursor-pointer items-center gap-1 text-muted-foreground hover:text-green-500"
+                className="group flex cursor-pointer items-center gap-1 text-muted-foreground hover:bg-transparent hover:text-green-500"
                 onClick={(e) => e.stopPropagation()}
               >
                 <span className="-m-2 rounded-full p-2 group-hover:bg-green-500/10">
@@ -204,18 +212,18 @@ export function PostItem({
             </div>
             <div className="flex-1">
               <Toggle
-                className="group flex cursor-pointer items-center gap-1 text-muted-foreground hover:text-pink-600 data-pressed:text-pink-600"
+                className="group flex cursor-pointer items-center gap-1 text-muted-foreground hover:bg-transparent hover:text-pink-600 aria-pressed:bg-transparent aria-pressed:text-pink-600"
                 onPressedChange={handleLikeClick}
                 onClick={(e) => e.stopPropagation()}
                 pressed={!!userLiked}
               >
                 <span className="-m-2 rounded-full p-2 group-hover:bg-pink-600/10">
-                  <IconHeart className="size-5 group-data-pressed:fill-pink-600 group-data-pressed:stroke-pink-600" />
+                  <IconHeart className="size-5 group-aria-pressed:fill-pink-600 group-aria-pressed:stroke-pink-600" />
                 </span>
                 <span className="text-sm">{post.like_count}</span>
               </Toggle>
             </div>
-            <Toggle className="group mr-2 flex cursor-pointer items-center gap-2 text-muted-foreground hover:text-blue-500">
+            <Toggle className="group mr-2 flex cursor-pointer items-center gap-2 text-muted-foreground hover:bg-transparent hover:text-blue-500 aria-pressed:bg-transparent">
               <span className="-m-2 rounded-full p-2 group-hover:bg-blue-500/10">
                 <IconBookmark className="size-5" />
               </span>

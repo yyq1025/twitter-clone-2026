@@ -41,7 +41,7 @@ const postActionEventSchema = z.object({
     "post.unrepost",
   ]),
   payload: z.object({
-    post_id: selectPostSchema.shape.id,
+    subject_id: selectPostSchema.shape.id,
   }),
 });
 

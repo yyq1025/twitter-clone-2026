@@ -74,8 +74,8 @@ export async function POST(request: Request) {
           const [like] = await tx
             .insert(likes)
             .values({
-              user_id: session.user.id,
-              post_id: event.payload.post_id,
+              creator_id: session.user.id,
+              subject_id: event.payload.subject_id,
             })
             .returning();
           await tx
@@ -83,7 +83,7 @@ export async function POST(request: Request) {
             .set({
               like_count: sql`${posts.like_count} + 1`,
             })
-            .where(eq(posts.id, like.post_id));
+            .where(eq(posts.id, like.subject_id));
         });
         break;
       }
@@ -94,8 +94,8 @@ export async function POST(request: Request) {
             .delete(likes)
             .where(
               and(
-                eq(likes.post_id, event.payload.post_id),
-                eq(likes.user_id, session.user.id),
+                eq(likes.subject_id, event.payload.subject_id),
+                eq(likes.creator_id, session.user.id),
               ),
             )
             .returning();
@@ -107,7 +107,7 @@ export async function POST(request: Request) {
             .set({
               like_count: sql`${posts.like_count} - 1`,
             })
-            .where(eq(posts.id, like.post_id));
+            .where(eq(posts.id, like.subject_id));
         });
         break;
       }
