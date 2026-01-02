@@ -2,6 +2,7 @@
 
 import { IconBrandX } from "@tabler/icons-react";
 import dynamic from "next/dynamic";
+import { VirtualizerContainer } from "@/components/virtualizer-container";
 
 const TimelineFeed = dynamic(() => import("@/components/timeline-feed"), {
   ssr: false,
@@ -9,7 +10,7 @@ const TimelineFeed = dynamic(() => import("@/components/timeline-feed"), {
 
 export default function Home() {
   return (
-    <main className="flex max-w-xl flex-1 flex-col border-gray-100 border-x">
+    <>
       <div className="sticky top-0 z-10 border-gray-100 border-b bg-white/85 backdrop-blur-md">
         <div className="flex justify-center p-3 sm:hidden">
           <IconBrandX className="size-7" />
@@ -27,6 +28,6 @@ export default function Home() {
       </div>
 
       <TimelineFeed />
-    </main>
+    </>
   );
 }

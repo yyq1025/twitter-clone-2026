@@ -1,3 +1,4 @@
+import { snakeCamelMapper } from "@electric-sql/client";
 import { electricCollectionOptions } from "@tanstack/electric-db-collection";
 import { createCollection } from "@tanstack/react-db";
 import {
@@ -49,6 +50,7 @@ export const electricUserCollection = createCollection(
     syncMode: "progressive",
     shapeOptions: {
       url: `${baseUrl}/api/users`,
+      columnMapper: snakeCamelMapper(),
     },
     schema: selectUserSchema,
     getKey: (item) => item.id,

@@ -52,7 +52,10 @@ export const createPost = createOptimisticAction<{
     }
     const { txid } = await response.json();
 
-    await electricPostCollection.utils.awaitTxId(txid);
+    await Promise.all([
+      electricPostCollection.utils.awaitTxId(txid),
+      electricFeedItemCollection.utils.awaitTxId(txid),
+    ]);
   },
 });
 

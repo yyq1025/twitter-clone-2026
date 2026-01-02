@@ -1,6 +1,5 @@
 "use client";
 
-import { Avatar } from "@base-ui/react/avatar";
 import { Button } from "@base-ui/react/button";
 import { Toggle } from "@base-ui/react/toggle";
 import {
@@ -13,12 +12,13 @@ import {
 import { and, eq, useLiveQuery } from "@tanstack/react-db";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { CreatePostDialog } from "@/components/create-post-dialog";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { likePost, unlikePost } from "@/lib/actions";
 import { authClient } from "@/lib/auth-client";
 import { electricLikeCollection } from "@/lib/collections";
 import { cn } from "@/lib/utils";
 import type { SelectPost, SelectUser } from "@/lib/validators";
-import { CreatePostDialog } from "./create-post-dialog";
 
 function formatPostTime(value: Date | string | number | null | undefined) {
   if (!value) {
@@ -37,10 +37,19 @@ function formatPostTime(value: Date | string | number | null | undefined) {
 
 type PostItemProps = {
   post: SelectPost;
-  user?: SelectUser;
+  user: SelectUser;
+  isRoot?: boolean;
+  isParent?: boolean;
+  isChild?: boolean;
 };
 
-export function PostItem({ post, user }: PostItemProps) {
+export function PostItem({
+  post,
+  user,
+  isRoot = false,
+  isParent = false,
+  isChild = false,
+}: PostItemProps) {
   const { data: session } = authClient.useSession();
   const router = useRouter();
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -72,25 +81,33 @@ export function PostItem({ post, user }: PostItemProps) {
     }
   };
 
-  if (!user) {
-    return null;
-  }
-
   return (
     <>
       <article
-        className="flex cursor-pointer gap-2 border-gray-100 border-b px-3 py-4 transition hover:bg-gray-50"
+        className="flex cursor-pointer gap-2 border-gray-100 border-b px-4 transition hover:bg-gray-50"
         onClick={() => {
           router.push(`/profile/${user.username}/post/${post.id}`);
         }}
       >
-        <Avatar.Root className="size-10 select-none rounded-full bg-gray-100 font-medium text-base text-black">
-          <Avatar.Fallback className="flex size-full items-center justify-center">
-            {user.name ? user.name.charAt(0).toUpperCase() : "U"}
-          </Avatar.Fallback>
-        </Avatar.Root>
+        <div className="flex flex-col">
+          <div className="mb-1 h-2">
+            {(isParent || isChild) && (
+              <div className="mx-auto h-full w-0.5 bg-border" />
+            )}
+          </div>
+          <Avatar size="lg">
+            <AvatarFallback>
+              {user.name ? user.name[0].toUpperCase() : "U"}
+            </AvatarFallback>
+          </Avatar>
+          <div className="mt-1 flex-1">
+            {(isRoot || isParent) && (
+              <div className="mx-auto h-full w-0.5 bg-border" />
+            )}
+          </div>
+        </div>
 
-        <div className="min-w-0 flex-1">
+        <div className="min-w-0 flex-1 py-3">
           <div className="flex items-center gap-1 text-muted-foreground">
             <span className="font-bold text-foreground hover:underline">
               {user.name}

@@ -5,4 +5,5 @@ config({ path: ".env" });
 
 export const db = drizzle({
   connection: process.env.DATABASE_URL!,
+  casing: "snake_case",
 });
