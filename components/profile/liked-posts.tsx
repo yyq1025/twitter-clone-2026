@@ -1,14 +1,11 @@
 import {
-  and,
   createLiveQueryCollection,
   eq,
-  gt,
   useLiveInfiniteQuery,
 } from "@tanstack/react-db";
 import { PostItem } from "@/components/post-item";
 import VirtualInfiniteList from "@/components/virtual-infinite-list";
 import {
-  electricFeedItemCollection,
   electricLikeCollection,
   electricPostCollection,
   electricUserCollection,
@@ -16,7 +13,7 @@ import {
 
 const pageSize = 20;
 
-export default function LikedPosts({ username }: { username: string }) {
+export default function LikedPosts({ userId }: { userId: string }) {
   const postsWithUser = createLiveQueryCollection((q) =>
     q
       .from({
@@ -38,9 +35,6 @@ export default function LikedPosts({ username }: { username: string }) {
     (q) =>
       q
         .from({ like: electricLikeCollection })
-        .innerJoin({ creator: electricUserCollection }, ({ like, creator }) =>
-          eq(creator.id, like.creator_id),
-        )
         .innerJoin({ postWithUser: postsWithUser }, ({ like, postWithUser }) =>
           eq(like.subject_id, postWithUser.post.id),
         )
@@ -54,7 +48,7 @@ export default function LikedPosts({ username }: { username: string }) {
           ({ postWithUser, reply_root }) =>
             eq(reply_root.post.id, postWithUser.post.reply_root_id),
         )
-        .where(({ creator }) => eq(creator.username, username))
+        .where(({ like }) => eq(like.creator_id, userId))
         .orderBy(({ like }) => like.created_at, "desc")
         .select(
           ({ postWithUser: { post, user }, reply_parent, reply_root }) => ({
@@ -126,7 +120,7 @@ export default function LikedPosts({ username }: { username: string }) {
       isFetchingNextPage={isFetchingNextPage}
       isError={isError}
       isLoading={isLoading}
-      getKey={(item) => item[item.length - 1].post.id}
+      getKey={(item) => `${userId}-${item[item.length - 1].post.id}`}
       renderItem={(item) =>
         item.map(({ post, user }, idx) => (
           <PostItem

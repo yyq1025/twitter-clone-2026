@@ -16,7 +16,7 @@ import {
 
 const pageSize = 20;
 
-export default function PostsFeed({ username }: { username: string }) {
+export default function PostsFeed({ userId }: { userId: string }) {
   const postsWithUser = createLiveQueryCollection((q) =>
     q
       .from({
@@ -39,10 +39,6 @@ export default function PostsFeed({ username }: { username: string }) {
       q
         .from({ feed_item: electricFeedItemCollection })
         .innerJoin(
-          { creator: electricUserCollection },
-          ({ feed_item, creator }) => eq(creator.id, feed_item.creator_id),
-        )
-        .innerJoin(
           { postWithUser: postsWithUser },
           ({ feed_item, postWithUser }) =>
             eq(feed_item.post_id, postWithUser.post.id),
@@ -57,15 +53,12 @@ export default function PostsFeed({ username }: { username: string }) {
           ({ postWithUser, reply_root }) =>
             eq(reply_root.post.id, postWithUser.post.reply_root_id),
         )
-        .where(({ creator, feed_item, reply_root }) =>
+        .where(({ feed_item, reply_root }) =>
           and(
-            eq(creator.username, username),
+            eq(feed_item.creator_id, userId),
             or(
               eq(feed_item.type, "repost"),
-              or(
-                isUndefined(reply_root),
-                eq(reply_root?.user.username, username),
-              ),
+              or(isUndefined(reply_root), eq(reply_root?.user.id, userId)),
             ),
           ),
         )
@@ -118,6 +111,7 @@ export default function PostsFeed({ username }: { username: string }) {
           !seenPostIds.has(reply_root_post.id)
         ) {
           post_slice.push({
+            feed_item,
             post: reply_root_post,
             user: reply_root_user,
           });
@@ -129,6 +123,7 @@ export default function PostsFeed({ username }: { username: string }) {
           !seenPostIds.has(reply_parent_post.id)
         ) {
           post_slice.push({
+            feed_item,
             post: reply_parent_post,
             user: reply_parent_user,
           });
@@ -137,7 +132,7 @@ export default function PostsFeed({ username }: { username: string }) {
         if (seenPostIds.has(post.id)) {
           return [];
         }
-        post_slice.push({ post, user });
+        post_slice.push({ feed_item, post, user });
         seenPostIds.add(post.id);
         return post_slice;
       },
@@ -152,7 +147,10 @@ export default function PostsFeed({ username }: { username: string }) {
       isFetchingNextPage={isFetchingNextPage}
       isError={isError}
       isLoading={isLoading}
-      getKey={(item) => item[item.length - 1].post.id}
+      getKey={(item) => {
+        const feedItem = item[item.length - 1].feed_item;
+        return `${feedItem.creator_id}-${feedItem.type}-${feedItem.post_id}`;
+      }}
       renderItem={(item) =>
         item.map(({ post, user }, idx) => (
           <PostItem

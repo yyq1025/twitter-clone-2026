@@ -5,6 +5,7 @@ import { feed_items } from "@/db/schema/feed-item-schema";
 import { follows } from "@/db/schema/follow-schema";
 import { likes } from "@/db/schema/like-schema";
 import { posts } from "@/db/schema/post-shema";
+import { reposts } from "@/db/schema/repost-schema";
 
 export const selectUserSchema = createSelectSchema(users);
 export type SelectUser = z.infer<typeof selectUserSchema>;
@@ -20,8 +21,8 @@ export const insertPostSchema = createInsertSchema(posts, {
 export type InsertPost = z.infer<typeof insertPostSchema>;
 
 export const selectLikeSchema = createSelectSchema(likes);
-export const insertLikeSchema = createInsertSchema(likes);
-export type InsertLike = z.infer<typeof insertLikeSchema>;
+
+export const selectRepostSchema = createSelectSchema(reposts);
 
 export const selectFollowSchema = createSelectSchema(follows);
 export const insertFollowSchema = createInsertSchema(follows);

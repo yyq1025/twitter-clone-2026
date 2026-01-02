@@ -6,6 +6,7 @@ import {
   selectFollowSchema,
   selectLikeSchema,
   selectPostSchema,
+  selectRepostSchema,
   selectUserSchema,
 } from "@/lib/validators";
 
@@ -65,6 +66,18 @@ export const electricLikeCollection = createCollection(
       url: `${baseUrl}/api/likes`,
     },
     schema: selectLikeSchema,
+    getKey: (item) => `${item.creator_id}-${item.subject_id}`,
+  }),
+);
+
+export const electricRepostCollection = createCollection(
+  electricCollectionOptions({
+    id: "reposts",
+    syncMode: "progressive",
+    shapeOptions: {
+      url: `${baseUrl}/api/reposts`,
+    },
+    schema: selectRepostSchema,
     getKey: (item) => `${item.creator_id}-${item.subject_id}`,
   }),
 );

@@ -7,6 +7,7 @@ import { db } from "@/db/drizzle";
 import { feed_items } from "@/db/schema/feed-item-schema";
 import { likes } from "@/db/schema/like-schema";
 import { posts } from "@/db/schema/post-shema";
+import { reposts } from "@/db/schema/repost-schema";
 import { auth } from "@/lib/auth";
 import { eventSchema } from "@/lib/validators";
 
@@ -108,6 +109,63 @@ export async function POST(request: Request) {
               like_count: sql`${posts.like_count} - 1`,
             })
             .where(eq(posts.id, like.subject_id));
+        });
+        break;
+      }
+      case "post.repost": {
+        await db.transaction(async (tx) => {
+          txid = await generateTxId(tx);
+          const [repost] = await tx
+            .insert(reposts)
+            .values({
+              creator_id: session.user.id,
+              subject_id: event.payload.subject_id,
+            })
+            .returning();
+          await tx
+            .update(posts)
+            .set({
+              repost_count: sql`${posts.repost_count} + 1`,
+            })
+            .where(eq(posts.id, repost.subject_id));
+          await tx.insert(feed_items).values({
+            type: "repost",
+            creator_id: session.user.id,
+            post_id: repost.subject_id,
+          });
+        });
+        break;
+      }
+      case "post.unrepost": {
+        await db.transaction(async (tx) => {
+          txid = await generateTxId(tx);
+          const [repost] = await tx
+            .delete(reposts)
+            .where(
+              and(
+                eq(reposts.subject_id, event.payload.subject_id),
+                eq(reposts.creator_id, session.user.id),
+              ),
+            )
+            .returning();
+          if (!repost) {
+            throw new Error("Repost not found");
+          }
+          await tx
+            .update(posts)
+            .set({
+              repost_count: sql`${posts.repost_count} - 1`,
+            })
+            .where(eq(posts.id, repost.subject_id));
+          await tx
+            .delete(feed_items)
+            .where(
+              and(
+                eq(feed_items.type, "repost"),
+                eq(feed_items.creator_id, session.user.id),
+                eq(feed_items.post_id, repost.subject_id),
+              ),
+            );
         });
         break;
       }

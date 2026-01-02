@@ -91,7 +91,13 @@ function UserProfile({ username }: { username: string }) {
     [user?.id],
   );
 
-  if (!user && !isUserLoading) {
+  if (isUserLoading) {
+    return (
+      <div className="p-4 text-center text-muted-foreground">Loading...</div>
+    );
+  }
+
+  if (!user) {
     return (
       <div className="p-4 text-center text-muted-foreground">
         User "{username}" not found.
@@ -100,7 +106,7 @@ function UserProfile({ username }: { username: string }) {
   }
 
   const handle = `@${username}`;
-  const displayName = user?.name || "Unknown User";
+  const displayName = user.name || "Unknown User";
 
   return (
     <>
@@ -125,7 +131,7 @@ function UserProfile({ username }: { username: string }) {
         <div className="flex flex-wrap items-start justify-between">
           <div className="-mt-[15%] mb-3 aspect-square w-1/4 min-w-12 rounded-full border-4 border-white bg-linear-to-br from-white via-blue-100 to-blue-500" />
           <div className="flex">
-            {session?.user?.username === username ? (
+            {session?.user?.id === user.id ? (
               <button
                 type="button"
                 className="rounded-full border border-gray-300 bg-white px-4 py-1.5 font-bold hover:bg-gray-100 focus-visible:bg-gray-100"
@@ -179,7 +185,7 @@ function UserProfile({ username }: { username: string }) {
           <div className="flex flex-wrap gap-x-4 gap-y-2 text-muted-foreground">
             <span className="flex items-center gap-1">
               <IconCalendar className="size-5" />
-              Joined {dayjs(user?.createdAt).format("MMMM YYYY")}
+              Joined {dayjs(user.createdAt).format("MMMM YYYY")}
             </span>
           </div>
 
@@ -219,9 +225,7 @@ function UserProfile({ username }: { username: string }) {
             <span>Media</span>
             <span className="absolute -bottom-px h-1 w-14 rounded-full bg-blue-500 opacity-0 transition" />
           </Tabs.Tab>
-          <Activity
-            mode={session?.user?.username === username ? "visible" : "hidden"}
-          >
+          <Activity mode={session?.user?.id === user.id ? "visible" : "hidden"}>
             <Tabs.Tab
               value="likes"
               className="relative flex grow cursor-pointer justify-center py-4 text-center font-semibold text-muted-foreground outline-none transition hover:bg-gray-50 data-active:text-black data-active:*:opacity-100"
@@ -233,21 +237,19 @@ function UserProfile({ username }: { username: string }) {
         </Tabs.List>
 
         <Tabs.Panel value="posts">
-          <PostsFeed username={username} />
+          <PostsFeed userId={user.id} />
         </Tabs.Panel>
 
         <Tabs.Panel value="replies">
-          <RepliesFeed username={username} />
+          <RepliesFeed userId={user.id} />
         </Tabs.Panel>
 
         <Tabs.Panel value="media">
-          <MediaFeed username={username} />
+          <MediaFeed userId={user.id} />
         </Tabs.Panel>
-        <Activity
-          mode={session?.user?.username === username ? "visible" : "hidden"}
-        >
+        <Activity mode={session?.user?.id === user.id ? "visible" : "hidden"}>
           <Tabs.Panel value="likes">
-            <LikedPosts username={username} />
+            <LikedPosts userId={user.id} />
           </Tabs.Panel>
         </Activity>
       </Tabs.Root>

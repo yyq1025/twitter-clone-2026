@@ -15,9 +15,12 @@ import { useState } from "react";
 import { CreatePostDialog } from "@/components/create-post-dialog";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Toggle } from "@/components/ui/toggle";
-import { mutateLike } from "@/lib/actions";
+import { mutateLike, mutateRepost } from "@/lib/actions";
 import { authClient } from "@/lib/auth-client";
-import { electricLikeCollection } from "@/lib/collections";
+import {
+  electricLikeCollection,
+  electricRepostCollection,
+} from "@/lib/collections";
 import { cn } from "@/lib/utils";
 import type { SelectPost, SelectUser } from "@/lib/validators";
 
@@ -70,22 +73,36 @@ export function PostItem({
     [session?.user?.id, post.id],
   );
 
-  const handleLikeClick = () => {
+  const { data: userReposted } = useLiveQuery(
+    (q) => {
+      if (!session?.user?.id) return null;
+      return q
+        .from({ repost: electricRepostCollection })
+        .where(({ repost }) =>
+          and(
+            eq(repost.subject_id, post.id),
+            eq(repost.creator_id, session.user.id),
+          ),
+        )
+        .findOne();
+    },
+    [session?.user?.id, post.id],
+  );
+
+  const handleLikeMutate = () => {
     if (!session?.user?.id) return;
-    // if (userLiked) {
-    //   unlikePost({
-    //     userId: session.user.id,
-    //     payload: { post_id: post.id },
-    //   });
-    // } else {
-    //   likePost({
-    //     userId: session.user.id,
-    //     payload: { post_id: post.id },
-    //   });
-    // }
     mutateLike({
       type: userLiked ? "post.unlike" : "post.like",
-      payload: { post_id: post.id },
+      payload: { subject_id: post.id },
+      userId: session.user.id,
+    });
+  };
+
+  const handleRepostMutate = () => {
+    if (!session?.user?.id) return;
+    mutateRepost({
+      type: userReposted ? "post.unrepost" : "post.repost",
+      payload: { subject_id: post.id },
       userId: session.user.id,
     });
   };
@@ -187,13 +204,13 @@ export function PostItem({
           <div className="mt-3 flex items-center gap-1">
             <div className="flex-1">
               <Button
-                className="group flex cursor-pointer items-center gap-1 text-muted-foreground hover:text-blue-500"
+                className="group flex cursor-pointer items-center gap-1 text-muted-foreground hover:text-blue-600"
                 onClick={(e) => {
                   e.stopPropagation();
                   setDialogOpen(true);
                 }}
               >
-                <span className="-m-2 rounded-full p-2 group-hover:bg-blue-500/10">
+                <span className="-m-2 rounded-full p-2 group-hover:bg-blue-600/10">
                   <IconMessage className="size-5" />
                 </span>
                 <span className="text-sm">{post.reply_count}</span>
@@ -201,11 +218,13 @@ export function PostItem({
             </div>
             <div className="flex-1">
               <Toggle
-                className="group flex cursor-pointer items-center gap-1 text-muted-foreground hover:bg-transparent hover:text-green-500"
+                className="group flex cursor-pointer items-center gap-1 text-muted-foreground hover:bg-transparent hover:text-green-600 aria-pressed:bg-transparent aria-pressed:text-green-600"
                 onClick={(e) => e.stopPropagation()}
+                onPressedChange={handleRepostMutate}
+                pressed={!!userReposted}
               >
-                <span className="-m-2 rounded-full p-2 group-hover:bg-green-500/10">
-                  <IconRepeat className="size-5" />
+                <span className="-m-2 rounded-full p-2 group-hover:bg-green-600/10">
+                  <IconRepeat className="size-5 group-aria-pressed:stroke-green-600" />
                 </span>
                 <span className="text-sm">{post.repost_count}</span>
               </Toggle>
@@ -213,7 +232,7 @@ export function PostItem({
             <div className="flex-1">
               <Toggle
                 className="group flex cursor-pointer items-center gap-1 text-muted-foreground hover:bg-transparent hover:text-pink-600 aria-pressed:bg-transparent aria-pressed:text-pink-600"
-                onPressedChange={handleLikeClick}
+                onPressedChange={handleLikeMutate}
                 onClick={(e) => e.stopPropagation()}
                 pressed={!!userLiked}
               >
@@ -223,13 +242,13 @@ export function PostItem({
                 <span className="text-sm">{post.like_count}</span>
               </Toggle>
             </div>
-            <Toggle className="group mr-2 flex cursor-pointer items-center gap-2 text-muted-foreground hover:bg-transparent hover:text-blue-500 aria-pressed:bg-transparent">
-              <span className="-m-2 rounded-full p-2 group-hover:bg-blue-500/10">
+            <Toggle className="group mr-2 flex cursor-pointer items-center gap-2 text-muted-foreground hover:bg-transparent hover:text-blue-600 aria-pressed:bg-transparent">
+              <span className="-m-2 rounded-full p-2 group-hover:bg-blue-600/10">
                 <IconBookmark className="size-5" />
               </span>
             </Toggle>
-            <Button className="group flex cursor-pointer items-center gap-2 text-muted-foreground hover:text-blue-500">
-              <span className="-m-2 rounded-full p-2 group-hover:bg-blue-500/10">
+            <Button className="group flex cursor-pointer items-center gap-2 text-muted-foreground hover:text-blue-600">
+              <span className="-m-2 rounded-full p-2 group-hover:bg-blue-600/10">
                 <IconShare2 className="size-5" />
               </span>
             </Button>
