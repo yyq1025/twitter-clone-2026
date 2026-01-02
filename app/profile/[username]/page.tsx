@@ -2,35 +2,27 @@
 
 import { Tabs } from "@base-ui/react/tabs";
 import { IconArrowLeft, IconCalendar } from "@tabler/icons-react";
-import {
-  and,
-  count,
-  createLiveQueryCollection,
-  eq,
-  useLiveInfiniteQuery,
-  useLiveQuery,
-} from "@tanstack/react-db";
+import { and, count, eq, useLiveQuery } from "@tanstack/react-db";
 import dayjs from "dayjs";
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import { use } from "react";
-import { PostItem } from "@/components/post-item";
-import PostsFeed from "@/components/profile/posts-feed";
-import RepliesFeed from "@/components/profile/replies-feed";
-import VirtualInfiniteList from "@/components/virtual-infinite-list";
+import { Activity, use } from "react";
+import LikedPosts from "@/components/profile/liked-posts";
 import { authClient } from "@/lib/auth-client";
 import {
   electricFollowCollection,
-  electricLikeCollection,
-  electricPostCollection,
   electricUserCollection,
 } from "@/lib/collections";
 
-const MediaPosts = dynamic(() => import("@/components/profile/media-posts"), {
+const PostsFeed = dynamic(() => import("@/components/profile/posts-feed"), {
   ssr: false,
 });
-
-const pageSize = 20;
+const RepliesFeed = dynamic(() => import("@/components/profile/replies-feed"), {
+  ssr: false,
+});
+const MediaFeed = dynamic(() => import("@/components/profile/media-feed"), {
+  ssr: false,
+});
 
 export default function ProfilePage({
   params,
@@ -95,42 +87,6 @@ function UserProfile({ username }: { username: string }) {
         .where(({ follow }) => eq(follow.subject_id, user.id))
         .select(({ follow }) => ({ count: count(follow.creator_id) }))
         .findOne();
-    },
-    [user?.id],
-  );
-
-  const postsWithUser = createLiveQueryCollection((q) =>
-    q
-      .from({
-        post: electricPostCollection,
-      })
-      .innerJoin({ user: electricUserCollection }, ({ post, user }) =>
-        eq(user.id, post.creator_id),
-      ),
-  );
-
-  const {
-    data: userLikedPosts,
-    isError: isUserLikedPostsError,
-    isLoading: isUserLikedPostsLoading,
-    hasNextPage: hasNextPageUserLikedPosts,
-    fetchNextPage: fetchNextPageUserLikedPosts,
-    isFetchingNextPage: isFetchingNextPageUserLikedPosts,
-  } = useLiveInfiniteQuery(
-    (q) =>
-      q
-        .from({ like: electricLikeCollection })
-        .innerJoin(
-          { postWithUser: postsWithUser },
-          ({ like, postWithUser: { post } }) => eq(like.post_id, post.id),
-        )
-        .where(({ like }) => eq(like.user_id, user?.id ?? -1))
-        .orderBy(({ like }) => like.created_at, "desc")
-        .select(({ postWithUser: { post, user } }) => ({ post, user })),
-    {
-      pageSize: pageSize,
-      getNextPageParam: (lastPage, allPages) =>
-        lastPage.length === pageSize ? allPages.length : undefined,
     },
     [user?.id],
   );
@@ -242,21 +198,38 @@ function UserProfile({ username }: { username: string }) {
 
       <Tabs.Root defaultValue="posts">
         <Tabs.List className="flex border-gray-100 border-b">
-          {[
-            { name: "Posts", value: "posts" },
-            { name: "Replies", value: "replies" },
-            { name: "Media", value: "media" },
-            { name: "Likes", value: "likes" },
-          ].map((tab) => (
+          <Tabs.Tab
+            value="posts"
+            className="relative flex grow cursor-pointer justify-center py-4 text-center font-semibold text-muted-foreground outline-none transition hover:bg-gray-50 data-active:text-black data-active:*:opacity-100"
+          >
+            <span>Posts</span>
+            <span className="absolute -bottom-px h-1 w-14 rounded-full bg-blue-500 opacity-0 transition" />
+          </Tabs.Tab>
+          <Tabs.Tab
+            value="replies"
+            className="relative flex grow cursor-pointer justify-center py-4 text-center font-semibold text-muted-foreground outline-none transition hover:bg-gray-50 data-active:text-black data-active:*:opacity-100"
+          >
+            <span>Replies</span>
+            <span className="absolute -bottom-px h-1 w-14 rounded-full bg-blue-500 opacity-0 transition" />
+          </Tabs.Tab>
+          <Tabs.Tab
+            value="media"
+            className="relative flex grow cursor-pointer justify-center py-4 text-center font-semibold text-muted-foreground outline-none transition hover:bg-gray-50 data-active:text-black data-active:*:opacity-100"
+          >
+            <span>Media</span>
+            <span className="absolute -bottom-px h-1 w-14 rounded-full bg-blue-500 opacity-0 transition" />
+          </Tabs.Tab>
+          <Activity
+            mode={session?.user?.username === username ? "visible" : "hidden"}
+          >
             <Tabs.Tab
-              key={tab.value}
-              value={tab.value}
+              value="likes"
               className="relative flex grow cursor-pointer justify-center py-4 text-center font-semibold text-muted-foreground outline-none transition hover:bg-gray-50 data-active:text-black data-active:*:opacity-100"
             >
-              <span>{tab.name}</span>
+              <span>Likes</span>
               <span className="absolute -bottom-px h-1 w-14 rounded-full bg-blue-500 opacity-0 transition" />
             </Tabs.Tab>
-          ))}
+          </Activity>
         </Tabs.List>
 
         <Tabs.Panel value="posts">
@@ -268,22 +241,15 @@ function UserProfile({ username }: { username: string }) {
         </Tabs.Panel>
 
         <Tabs.Panel value="media">
-          <MediaPosts username={username} />
+          <MediaFeed username={username} />
         </Tabs.Panel>
-        <Tabs.Panel value="likes">
-          <VirtualInfiniteList
-            data={userLikedPosts}
-            hasNextPage={hasNextPageUserLikedPosts}
-            fetchNextPage={fetchNextPageUserLikedPosts}
-            isFetchingNextPage={isFetchingNextPageUserLikedPosts}
-            isError={isUserLikedPostsError}
-            isLoading={isUserLikedPostsLoading}
-            getKey={(item) => item.post.id}
-            renderItem={(item) => (
-              <PostItem post={item.post} user={item.user} />
-            )}
-          />
-        </Tabs.Panel>
+        <Activity
+          mode={session?.user?.username === username ? "visible" : "hidden"}
+        >
+          <Tabs.Panel value="likes">
+            <LikedPosts username={username} />
+          </Tabs.Panel>
+        </Activity>
       </Tabs.Root>
     </>
   );
