@@ -78,6 +78,7 @@ export function PostComposer({
           id: uuidv7(),
           creator_id: session.user.id,
           content: content.trim(),
+          reply_root_id: parentPost?.reply_root_id || parentPost?.id,
           reply_parent_id: parentPost?.id,
           media: postMedia,
           media_length: postMedia.length,

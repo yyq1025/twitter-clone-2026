@@ -3,7 +3,7 @@
 import { IconBrandX } from "@tabler/icons-react";
 import dynamic from "next/dynamic";
 
-const PostsFeed = dynamic(() => import("@/components/posts-feed"), {
+const TimelineFeed = dynamic(() => import("@/components/timeline-feed"), {
   ssr: false,
 });
 
@@ -26,7 +26,7 @@ export default function Home() {
         </div>
       </div>
 
-      <PostsFeed />
+      <TimelineFeed />
     </main>
   );
 }

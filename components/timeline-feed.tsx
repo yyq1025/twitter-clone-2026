@@ -1,18 +1,19 @@
 "use client";
 
-import { eq, isNull, useLiveInfiniteQuery } from "@tanstack/react-db";
+import { and, eq, isNull, useLiveInfiniteQuery } from "@tanstack/react-db";
 import AuthGuard from "@/components/auth-guard";
 import { PostComposer } from "@/components/post-composer";
 import { PostItem } from "@/components/post-item";
 import VirtualInfiniteList from "@/components/virtual-infinite-list";
 import {
+  electricFeedItemCollection,
   electricPostCollection,
   electricUserCollection,
 } from "@/lib/collections";
 
 const pageSize = 20;
 
-export default function PostsFeed() {
+export default function TimelineFeed() {
   const {
     data,
     hasNextPage,
@@ -24,13 +25,22 @@ export default function PostsFeed() {
     (q) =>
       q
         .from({
-          post: electricPostCollection,
+          feed_item: electricFeedItemCollection,
         })
+        .innerJoin({ post: electricPostCollection }, ({ feed_item, post }) =>
+          eq(feed_item.post_id, post.id),
+        )
         .innerJoin({ user: electricUserCollection }, ({ post, user }) =>
           eq(user.id, post.creator_id),
         )
-        .where(({ post }) => isNull(post.reply_parent_id))
-        .orderBy(({ post }) => post.created_at, "desc"),
+        .where(({ feed_item, post }) =>
+          and(eq(feed_item.type, "post"), isNull(post.reply_parent_id)),
+        )
+        .orderBy(({ feed_item }) => feed_item.created_at, "desc")
+        .select(({ post, user }) => ({
+          post,
+          user,
+        })),
     {
       pageSize: pageSize,
       getNextPageParam: (lastPage, allPages) =>

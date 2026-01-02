@@ -81,7 +81,7 @@ export function PostItem({ post, user }: PostItemProps) {
       <article
         className="flex cursor-pointer gap-2 border-gray-100 border-b px-3 py-4 transition hover:bg-gray-50"
         onClick={() => {
-          router.push(`/${user.username}/status/${post.id}`);
+          router.push(`/profile/${user.username}/post/${post.id}`);
         }}
       >
         <Avatar.Root className="size-10 select-none rounded-full bg-gray-100 font-medium text-base text-black">

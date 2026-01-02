@@ -90,7 +90,7 @@ export function StatusThread({ username, postId }: StatusThreadProps) {
 
   useEffect(() => {
     if (mainPostData && mainPostData.user.username !== username) {
-      router.replace(`/${mainPostData.user.username}/status/${postId}`);
+      router.replace(`/profile/${mainPostData.user.username}/post/${postId}`);
     }
   }, [mainPostData, username, postId, router]);
 

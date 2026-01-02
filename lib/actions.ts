@@ -20,6 +20,7 @@ export const createPost = createOptimisticAction<{
       like_count: 0,
       repost_count: 0,
       reply_count: 0,
+      reply_root_id: payload.reply_root_id || null,
       reply_parent_id: payload.reply_parent_id || null,
       quote_id: payload.quote_id || null,
     });
