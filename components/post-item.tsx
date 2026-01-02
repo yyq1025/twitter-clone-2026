@@ -4,6 +4,7 @@ import { Button } from "@base-ui/react/button";
 import { Toggle } from "@base-ui/react/toggle";
 import {
   IconBookmark,
+  IconDotsVertical,
   IconHeart,
   IconMessage,
   IconRepeat,
@@ -70,28 +71,46 @@ export function PostItem({
     if (!session?.user?.id) return;
     if (userLiked) {
       unlikePost({
-        user_id: session.user.id,
-        post_id: post.id,
+        userId: session.user.id,
+        payload: { post_id: post.id },
       });
     } else {
       likePost({
-        user_id: session.user.id,
-        post_id: post.id,
+        userId: session.user.id,
+        payload: { post_id: post.id },
       });
     }
   };
 
   return (
     <>
+      {isParent && post.reply_parent_id !== post.reply_root_id && (
+        <div
+          className="flex cursor-pointer items-center gap-2 px-4 transition hover:bg-gray-50"
+          onClick={() => {
+            router.push(
+              `/profile/${user.username}/post/${post.reply_parent_id}`,
+            );
+          }}
+        >
+          <div className="w-10">
+            <IconDotsVertical className="mx-auto my-1.5 text-border" />
+          </div>
+          <span className="text-primary">View full thread</span>
+        </div>
+      )}
       <article
-        className="flex cursor-pointer gap-2 border-gray-100 border-b px-4 transition hover:bg-gray-50"
+        className={cn(
+          "flex cursor-pointer gap-2 px-4 transition hover:bg-gray-50",
+          !isRoot && !isParent && "border-gray-100 border-b",
+        )}
         onClick={() => {
           router.push(`/profile/${user.username}/post/${post.id}`);
         }}
       >
         <div className="flex flex-col">
           <div className="mb-1 h-2">
-            {(isParent || isChild) && (
+            {(isChild || isParent) && (
               <div className="mx-auto h-full w-0.5 bg-border" />
             )}
           </div>
@@ -101,7 +120,7 @@ export function PostItem({
             </AvatarFallback>
           </Avatar>
           <div className="mt-1 flex-1">
-            {(isRoot || isParent) && (
+            {(isParent || isRoot) && (
               <div className="mx-auto h-full w-0.5 bg-border" />
             )}
           </div>
@@ -158,7 +177,7 @@ export function PostItem({
           )}
 
           <div className="mt-3 flex items-center gap-1">
-            <div className="grow">
+            <div className="flex-1">
               <Button
                 className="group flex cursor-pointer items-center gap-1 text-muted-foreground hover:text-blue-500"
                 onClick={(e) => {
@@ -172,7 +191,7 @@ export function PostItem({
                 <span className="text-sm">{post.reply_count}</span>
               </Button>
             </div>
-            <div className="grow">
+            <div className="flex-1">
               <Toggle
                 className="group flex cursor-pointer items-center gap-1 text-muted-foreground hover:text-green-500"
                 onClick={(e) => e.stopPropagation()}
@@ -183,7 +202,7 @@ export function PostItem({
                 <span className="text-sm">{post.repost_count}</span>
               </Toggle>
             </div>
-            <div className="grow">
+            <div className="flex-1">
               <Toggle
                 className="group flex cursor-pointer items-center gap-1 text-muted-foreground hover:text-pink-600 data-pressed:text-pink-600"
                 onPressedChange={handleLikeClick}

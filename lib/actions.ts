@@ -59,25 +59,31 @@ export const createPost = createOptimisticAction<{
   },
 });
 
-export const likePost = createOptimisticAction<InsertLike>({
-  onMutate: ({ user_id, post_id }) => {
+export const likePost = createOptimisticAction<{
+  payload: { post_id: string };
+  userId: string;
+}>({
+  onMutate: ({ payload, userId }) => {
     electricLikeCollection.insert({
-      user_id,
-      post_id,
+      user_id: userId,
+      post_id: payload.post_id,
       created_at: new Date(),
     });
 
-    electricPostCollection.update(post_id, (draft) => {
+    electricPostCollection.update(payload.post_id, (draft) => {
       draft.like_count += 1;
     });
   },
-  mutationFn: async ({ post_id }) => {
-    const response = await fetch("/api/likes", {
+  mutationFn: async ({ payload }) => {
+    const response = await fetch("/api/events", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ post_id }),
+      body: JSON.stringify({
+        type: "post.like",
+        payload,
+      }),
     });
     if (!response.ok) {
       throw new Error("Failed to like post");
@@ -91,19 +97,28 @@ export const likePost = createOptimisticAction<InsertLike>({
   },
 });
 
-export const unlikePost = createOptimisticAction<InsertLike>({
-  onMutate: ({ user_id, post_id }) => {
-    electricLikeCollection.delete(`${user_id}-${post_id}`);
+export const unlikePost = createOptimisticAction<{
+  payload: { post_id: string };
+  userId: string;
+}>({
+  onMutate: ({ payload, userId }) => {
+    electricLikeCollection.delete(`${userId}-${payload.post_id}`);
 
-    electricPostCollection.update(post_id, (draft) => {
+    electricPostCollection.update(payload.post_id, (draft) => {
       draft.like_count -= 1;
     });
   },
-  mutationFn: async ({ post_id }) => {
-    const response = await fetch(`/api/likes?post_id=${post_id}`, {
-      method: "DELETE",
+  mutationFn: async ({ payload }) => {
+    const response = await fetch(`/api/events`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        type: "post.unlike",
+        payload,
+      }),
     });
-
     if (!response.ok) {
       throw new Error("Failed to unlike post");
     }

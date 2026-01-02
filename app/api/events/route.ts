@@ -1,11 +1,12 @@
 import { ELECTRIC_PROTOCOL_QUERY_PARAMS } from "@electric-sql/client";
 import type { Txid } from "@tanstack/electric-db-collection";
-import { eq, sql } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import type { PgTransaction } from "drizzle-orm/pg-core";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import { db } from "@/db/drizzle";
 import { feed_items } from "@/db/schema/feed-item-schema";
+import { likes } from "@/db/schema/like-schema";
 import { posts } from "@/db/schema/post-shema";
 import { auth } from "@/lib/auth";
 import { eventSchema, insertPostSchema } from "@/lib/validators";
@@ -65,6 +66,49 @@ export async function POST(request: Request) {
               })
               .where(eq(posts.id, post.reply_parent_id));
           }
+        });
+        break;
+      }
+      case "post.like": {
+        await db.transaction(async (tx) => {
+          txid = await generateTxId(tx);
+          const [like] = await tx
+            .insert(likes)
+            .values({
+              user_id: session.user.id,
+              post_id: event.payload.post_id,
+            })
+            .returning();
+          await tx
+            .update(posts)
+            .set({
+              like_count: sql`${posts.like_count} + 1`,
+            })
+            .where(eq(posts.id, like.post_id));
+        });
+        break;
+      }
+      case "post.unlike": {
+        await db.transaction(async (tx) => {
+          txid = await generateTxId(tx);
+          const [like] = await tx
+            .delete(likes)
+            .where(
+              and(
+                eq(likes.post_id, event.payload.post_id),
+                eq(likes.user_id, session.user.id),
+              ),
+            )
+            .returning();
+          if (!like) {
+            throw new Error("Like not found");
+          }
+          await tx
+            .update(posts)
+            .set({
+              like_count: sql`${posts.like_count} - 1`,
+            })
+            .where(eq(posts.id, like.post_id));
         });
         break;
       }

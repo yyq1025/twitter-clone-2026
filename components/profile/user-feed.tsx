@@ -110,9 +110,6 @@ export default function UserFeed({ username }: { username: string }) {
         if (feed_item.type === "repost") {
           return [{ feed_item, post, user }];
         }
-        if (seenPostIds.has(post.id)) {
-          return [];
-        }
         const post_slice = [];
         if (
           reply_root_post &&
@@ -135,6 +132,9 @@ export default function UserFeed({ username }: { username: string }) {
             user: reply_parent_user,
           });
           seenPostIds.add(reply_parent_post.id);
+        }
+        if (seenPostIds.has(post.id)) {
+          return [];
         }
         post_slice.push({ post, user });
         seenPostIds.add(post.id);
