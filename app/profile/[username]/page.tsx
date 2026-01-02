@@ -15,7 +15,8 @@ import dynamic from "next/dynamic";
 import Link from "next/link";
 import { use } from "react";
 import { PostItem } from "@/components/post-item";
-import UserFeed from "@/components/profile/user-feed";
+import PostsFeed from "@/components/profile/posts-feed";
+import RepliesFeed from "@/components/profile/replies-feed";
 import VirtualInfiniteList from "@/components/virtual-infinite-list";
 import { authClient } from "@/lib/auth-client";
 import {
@@ -243,7 +244,7 @@ function UserProfile({ username }: { username: string }) {
         <Tabs.List className="flex border-gray-100 border-b">
           {[
             { name: "Posts", value: "posts" },
-            { name: "Replies", value: "with_replies" },
+            { name: "Replies", value: "replies" },
             { name: "Media", value: "media" },
             { name: "Likes", value: "likes" },
           ].map((tab) => (
@@ -259,10 +260,12 @@ function UserProfile({ username }: { username: string }) {
         </Tabs.List>
 
         <Tabs.Panel value="posts">
-          <UserFeed username={username} />
+          <PostsFeed username={username} />
         </Tabs.Panel>
 
-        <Tabs.Panel value="with_replies">replies</Tabs.Panel>
+        <Tabs.Panel value="replies">
+          <RepliesFeed username={username} />
+        </Tabs.Panel>
 
         <Tabs.Panel value="media">
           <MediaPosts username={username} />

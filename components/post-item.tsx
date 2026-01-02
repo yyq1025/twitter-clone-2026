@@ -86,7 +86,7 @@ export function PostItem({
     <>
       {isParent && post.reply_parent_id !== post.reply_root_id && (
         <div
-          className="flex cursor-pointer items-center gap-2 px-4 transition hover:bg-gray-50"
+          className="flex cursor-pointer items-center gap-2 px-4 py-1.5 transition hover:bg-gray-50"
           onClick={() => {
             router.push(
               `/profile/${user.username}/post/${post.reply_parent_id}`,
@@ -94,7 +94,7 @@ export function PostItem({
           }}
         >
           <div className="w-10">
-            <IconDotsVertical className="mx-auto my-1.5 text-border" />
+            <IconDotsVertical className="mx-auto text-border" />
           </div>
           <span className="text-primary">View full thread</span>
         </div>

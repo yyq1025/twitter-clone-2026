@@ -2,11 +2,8 @@ import {
   and,
   createLiveQueryCollection,
   eq,
-  isNull,
-  or,
   useLiveInfiniteQuery,
 } from "@tanstack/react-db";
-import { isUndefined } from "lodash-es";
 import { PostItem } from "@/components/post-item";
 import VirtualInfiniteList from "@/components/virtual-infinite-list";
 import {
@@ -17,7 +14,7 @@ import {
 
 const pageSize = 20;
 
-export default function UserFeed({ username }: { username: string }) {
+export default function RepliesFeed({ username }: { username: string }) {
   const postsWithUser = createLiveQueryCollection((q) =>
     q
       .from({
@@ -58,17 +55,8 @@ export default function UserFeed({ username }: { username: string }) {
           ({ postWithUser, reply_root }) =>
             eq(reply_root.post.id, postWithUser.post.reply_root_id),
         )
-        .where(({ creator, feed_item, reply_root }) =>
-          and(
-            eq(creator.username, username),
-            or(
-              eq(feed_item.type, "repost"),
-              or(
-                isUndefined(reply_root),
-                eq(reply_root?.user.username, username),
-              ),
-            ),
-          ),
+        .where(({ creator, feed_item }) =>
+          and(eq(creator.username, username), eq(feed_item.type, "post")),
         )
         .orderBy(({ feed_item }) => feed_item.created_at, "desc")
         .select(
@@ -142,8 +130,6 @@ export default function UserFeed({ username }: { username: string }) {
       },
     )
     .filter((post_slice) => post_slice.length > 0);
-
-  console.log("dedupedData", dedupedData);
 
   return (
     <VirtualInfiniteList

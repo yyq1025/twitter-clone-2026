@@ -1,7 +1,14 @@
 import { ELECTRIC_PROTOCOL_QUERY_PARAMS } from "@electric-sql/client";
+import { headers } from "next/headers";
 import { NextResponse } from "next/server";
+import { auth } from "@/lib/auth";
 
 export async function GET(request: Request) {
+  const session = await auth.api.getSession({ headers: await headers() });
+  if (!session?.user) {
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  }
+
   const proxyUrl = new URL(request.url);
   const originUrl = new URL("/v1/shape", "https://api.electric-sql.cloud");
 
@@ -12,6 +19,7 @@ export async function GET(request: Request) {
   });
 
   originUrl.searchParams.set("table", "likes");
+  originUrl.searchParams.set("where", `"user_id" = '${session.user.id}'`);
 
   originUrl.searchParams.set("source_id", process.env.ELECTRIC_SOURCE_ID!);
   originUrl.searchParams.set("secret", process.env.ELECTRIC_SECRET!);

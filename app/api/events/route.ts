@@ -1,4 +1,3 @@
-import { ELECTRIC_PROTOCOL_QUERY_PARAMS } from "@electric-sql/client";
 import type { Txid } from "@tanstack/electric-db-collection";
 import { and, eq, sql } from "drizzle-orm";
 import type { PgTransaction } from "drizzle-orm/pg-core";
@@ -9,7 +8,7 @@ import { feed_items } from "@/db/schema/feed-item-schema";
 import { likes } from "@/db/schema/like-schema";
 import { posts } from "@/db/schema/post-shema";
 import { auth } from "@/lib/auth";
-import { eventSchema, insertPostSchema } from "@/lib/validators";
+import { eventSchema } from "@/lib/validators";
 
 async function generateTxId(tx: PgTransaction<any, any, any>): Promise<Txid> {
   const result = await tx.execute(

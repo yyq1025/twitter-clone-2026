@@ -2,7 +2,6 @@
 
 import { IconBrandX } from "@tabler/icons-react";
 import dynamic from "next/dynamic";
-import { VirtualizerContainer } from "@/components/virtualizer-container";
 
 const TimelineFeed = dynamic(() => import("@/components/timeline-feed"), {
   ssr: false,
