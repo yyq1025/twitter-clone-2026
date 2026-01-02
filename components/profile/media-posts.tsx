@@ -1,7 +1,6 @@
 import { and, eq, gt, useLiveInfiniteQuery } from "@tanstack/react-db";
 import { PostItem } from "@/components/post-item";
 import VirtualInfiniteList from "@/components/virtual-infinite-list";
-import { authClient } from "@/lib/auth-client";
 import {
   electricPostCollection,
   electricUserCollection,
@@ -10,7 +9,6 @@ import {
 const pageSize = 20;
 
 export default function MediaPosts({ username }: { username: string }) {
-  const { data: session } = authClient.useSession();
   const {
     data,
     hasNextPage,

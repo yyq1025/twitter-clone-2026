@@ -1,4 +1,5 @@
 import {
+  type AnyPgColumn,
   pgTable,
   primaryKey,
   text,
@@ -8,19 +9,16 @@ import {
 import { users } from "./auth-schema";
 import { posts } from "./post-shema";
 
-export const feed_items = pgTable(
-  "feed_items",
+export const likes = pgTable(
+  "likes",
   {
-    creator_id: text()
+    user_id: text()
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
-    type: text().notNull(),
     post_id: uuid()
       .notNull()
-      .references(() => posts.id, { onDelete: "cascade" }),
+      .references((): AnyPgColumn => posts.id, { onDelete: "cascade" }),
     created_at: timestamp({ withTimezone: true }).defaultNow().notNull(),
   },
-  (table) => [
-    primaryKey({ columns: [table.creator_id, table.type, table.post_id] }),
-  ],
+  (table) => [primaryKey({ columns: [table.user_id, table.post_id] })],
 );

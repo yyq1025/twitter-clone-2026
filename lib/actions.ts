@@ -1,40 +1,53 @@
 import { createOptimisticAction } from "@tanstack/react-db";
 import {
+  electricFeedItemCollection,
   electricLikeCollection,
   electricPostCollection,
 } from "@/lib/collections";
 import type { InsertLike, InsertPost } from "@/lib/validators";
 
-export const createPost = createOptimisticAction<InsertPost>({
-  onMutate: (postData) => {
+export const createPost = createOptimisticAction<{
+  payload: InsertPost;
+  userId: string;
+}>({
+  onMutate: ({ payload, userId }) => {
     electricPostCollection.insert({
-      ...postData,
-      creator_id: postData.creator_id || null,
-      media: postData.media || [],
-      media_length: postData.media?.length || 0,
+      ...payload,
+      creator_id: userId,
+      media: payload.media || [],
+      media_length: payload.media?.length || 0,
       created_at: new Date(),
       like_count: 0,
       repost_count: 0,
       reply_count: 0,
-      reply_parent_id: postData.reply_parent_id || null,
-      quote_id: postData.quote_id || null,
+      reply_parent_id: payload.reply_parent_id || null,
+      quote_id: payload.quote_id || null,
     });
-    if (postData.reply_parent_id) {
-      electricPostCollection.update(postData.reply_parent_id, (draft) => {
+    electricFeedItemCollection.insert({
+      type: "post",
+      creator_id: userId,
+      post_id: payload.id,
+      created_at: new Date(),
+    });
+    if (payload.reply_parent_id) {
+      electricPostCollection.update(payload.reply_parent_id, (draft) => {
         draft.reply_count += 1;
       });
     }
   },
-  mutationFn: async (postData) => {
-    const response = await fetch("/api/posts", {
+  mutationFn: async ({ payload }) => {
+    const response = await fetch("/api/events", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(postData),
+      body: JSON.stringify({
+        type: "post.create",
+        payload,
+      }),
     });
     if (!response.ok) {
-      throw new Error("Failed to create post");
+      throw new Error("Failed to create post event");
     }
     const { txid } = await response.json();
 

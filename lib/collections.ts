@@ -1,7 +1,7 @@
-import { snakeCamelMapper } from "@electric-sql/client";
 import { electricCollectionOptions } from "@tanstack/electric-db-collection";
 import { createCollection } from "@tanstack/react-db";
 import {
+  selectFeedItemSchema,
   selectFollowSchema,
   selectLikeSchema,
   selectPostSchema,
@@ -25,6 +25,21 @@ export const electricPostCollection = createCollection(
     },
     schema: selectPostSchema,
     getKey: (item) => item.id,
+  }),
+);
+
+export const electricFeedItemCollection = createCollection(
+  electricCollectionOptions({
+    id: "feed_items",
+    syncMode: "progressive",
+    shapeOptions: {
+      url: `${baseUrl}/api/feed-items`,
+      parser: {
+        timestamptz: (date: string) => new Date(date),
+      },
+    },
+    schema: selectFeedItemSchema,
+    getKey: (item) => `${item.creator_id}-${item.type}-${item.post_id}`,
   }),
 );
 

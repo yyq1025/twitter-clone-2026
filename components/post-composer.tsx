@@ -74,12 +74,15 @@ export function PostComposer({
       }));
 
       createPost({
-        id: uuidv7(),
-        creator_id: session.user.id,
-        content: content.trim(),
-        reply_parent_id: parentPost?.id,
-        media: postMedia,
-        media_length: postMedia.length,
+        payload: {
+          id: uuidv7(),
+          creator_id: session.user.id,
+          content: content.trim(),
+          reply_parent_id: parentPost?.id,
+          media: postMedia,
+          media_length: postMedia.length,
+        },
+        userId: session.user.id,
       });
       setContent("");
       cleanupMedia();

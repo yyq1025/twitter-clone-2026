@@ -1,10 +1,8 @@
-import { sql } from "drizzle-orm";
 import {
   type AnyPgColumn,
   integer,
   jsonb,
   pgTable,
-  primaryKey,
   text,
   timestamp,
   uuid,
@@ -36,17 +34,3 @@ export const posts = pgTable("posts", {
 
   created_at: timestamp({ withTimezone: true }).defaultNow().notNull(),
 });
-
-export const likes = pgTable(
-  "likes",
-  {
-    user_id: text()
-      .notNull()
-      .references(() => users.id, { onDelete: "cascade" }),
-    post_id: uuid()
-      .notNull()
-      .references((): AnyPgColumn => posts.id, { onDelete: "cascade" }),
-    created_at: timestamp({ withTimezone: true }).defaultNow().notNull(),
-  },
-  (table) => [primaryKey({ columns: [table.user_id, table.post_id] })],
-);

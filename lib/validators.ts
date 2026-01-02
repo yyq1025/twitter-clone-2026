@@ -3,7 +3,8 @@ import * as z from "zod";
 import { users } from "@/db/schema/auth-schema";
 import { feed_items } from "@/db/schema/feed-item-schema";
 import { follows } from "@/db/schema/follow-schema";
-import { likes, posts } from "@/db/schema/post-shema";
+import { likes } from "@/db/schema/like-schema";
+import { posts } from "@/db/schema/post-shema";
 
 export const selectUserSchema = createSelectSchema(users);
 export type SelectUser = z.infer<typeof selectUserSchema>;

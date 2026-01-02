@@ -64,7 +64,7 @@ type StatusThreadProps = {
 
 export function StatusThread({ username, postId }: StatusThreadProps) {
   const router = useRouter();
-  const { data: session, isPending } = authClient.useSession();
+  const { isPending } = authClient.useSession();
   const ref = useRef<HTMLDivElement | null>(null);
   const [parentsLoaded, setParentsLoaded] = useState(false);
 

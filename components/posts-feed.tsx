@@ -5,7 +5,6 @@ import AuthGuard from "@/components/auth-guard";
 import { PostComposer } from "@/components/post-composer";
 import { PostItem } from "@/components/post-item";
 import VirtualInfiniteList from "@/components/virtual-infinite-list";
-import { authClient } from "@/lib/auth-client";
 import {
   electricPostCollection,
   electricUserCollection,
@@ -14,7 +13,6 @@ import {
 const pageSize = 20;
 
 export default function PostsFeed() {
-  const { data: session } = authClient.useSession();
   const {
     data,
     hasNextPage,
