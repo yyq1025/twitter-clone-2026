@@ -5,9 +5,10 @@ import type { PgTransaction } from "drizzle-orm/pg-core";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import { db } from "@/db/drizzle";
+import { feed_items } from "@/db/schema/feed-item-schema";
 import { posts } from "@/db/schema/post-shema";
 import { auth } from "@/lib/auth";
-import { insertPostSchema } from "@/lib/validators";
+import { eventSchema, insertPostSchema } from "@/lib/validators";
 
 async function generateTxId(tx: PgTransaction<any, any, any>): Promise<Txid> {
   const result = await tx.execute(
@@ -23,46 +24,60 @@ async function generateTxId(tx: PgTransaction<any, any, any>): Promise<Txid> {
 }
 
 export async function POST(request: Request) {
-  // try {
-  //   const session = await auth.api.getSession({ headers: await headers() });
-  //   if (!session?.user) {
-  //     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-  //   }
-  //   const body = await request.json();
-  //   const parsedEvent = insertEventSchema.safeParse({
-  //     ...body,
-  //     user_id: session.user.id,
-  //   });
-  //   if (!parsedEvent.success) {
-  //     return NextResponse.json(
-  //       {
-  //         message: "Invalid request body",
-  //         errors: parsedEvent.error.message,
-  //       },
-  //       { status: 400 },
-  //     );
-  //   }
-  //   const event = parsedEvent.data;
-  //   let txid!: Txid;
-  //   const newPost = await db.transaction(async (tx) => {
-  //     txid = await generateTxId(tx);
-  //     const [post] = await tx.insert(posts).values(parsedPost.data).returning();
-  //     if (post.reply_to_id) {
-  //       await tx
-  //         .update(posts)
-  //         .set({
-  //           reply_count: sql`${posts.reply_count} + 1`,
-  //         })
-  //         .where(eq(posts.id, post.reply_to_id));
-  //     }
-  //     return post;
-  //   });
-  //   return NextResponse.json({ post: newPost, txid }, { status: 201 });
-  // } catch (error) {
-  //   console.error("[POSTS_POST]", error);
-  //   return NextResponse.json(
-  //     { message: "Failed to create post" },
-  //     { status: 500 },
-  //   );
-  // }
+  try {
+    const session = await auth.api.getSession({ headers: await headers() });
+    if (!session?.user) {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    }
+    const body = await request.json();
+    const parsedEvent = eventSchema.safeParse(body);
+    if (!parsedEvent.success) {
+      return NextResponse.json(
+        {
+          message: "Invalid request body",
+          errors: parsedEvent.error.message,
+        },
+        { status: 400 },
+      );
+    }
+
+    const event = parsedEvent.data;
+    let txid!: Txid;
+
+    switch (event.type) {
+      case "post.create": {
+        await db.transaction(async (tx) => {
+          txid = await generateTxId(tx);
+          const [post] = await tx
+            .insert(posts)
+            .values(event.payload)
+            .returning();
+          await tx.insert(feed_items).values({
+            type: "post",
+            creator_id: session.user.id,
+            post_id: post.id,
+          });
+          if (post.reply_parent_id) {
+            await tx
+              .update(posts)
+              .set({
+                reply_count: sql`${posts.reply_count} + 1`,
+              })
+              .where(eq(posts.id, post.reply_parent_id));
+          }
+        });
+        break;
+      }
+      default:
+        throw new Error(`Unsupported event type: ${event.type}`);
+    }
+
+    return NextResponse.json({ txid }, { status: 201 });
+  } catch (error) {
+    console.error("[EVENTS_POST]", error);
+    return NextResponse.json(
+      { message: "Failed to create post" },
+      { status: 500 },
+    );
+  }
 }
