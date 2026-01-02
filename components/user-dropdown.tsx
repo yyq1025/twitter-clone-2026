@@ -24,20 +24,22 @@ export function UserDropdown() {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <button
-          type="button"
-          className="flex items-center gap-3 p-3 hover:bg-gray-100 rounded-full cursor-pointer w-max xl:w-full mb-2 transition"
-        >
-          <div className="w-10 h-10 rounded-full bg-gray-600" />
-          <div className="hidden xl:block text-left">
-            <p className="font-bold text-sm">{displayName}</p>
-            <p className="text-sm">@{username}</p>
-          </div>
-          <div className="hidden xl:block ml-auto">...</div>
-        </button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="start" side="top">
+      <DropdownMenuTrigger
+        render={
+          <button
+            type="button"
+            className="mb-2 flex w-max cursor-pointer items-center gap-3 rounded-full p-3 transition hover:bg-gray-100 xl:w-full"
+          >
+            <div className="h-10 w-10 rounded-full bg-gray-600" />
+            <div className="hidden text-left xl:block">
+              <p className="font-bold text-sm">{displayName}</p>
+              <p className="text-sm">@{username}</p>
+            </div>
+            <div className="ml-auto hidden xl:block">...</div>
+          </button>
+        }
+      />
+      <DropdownMenuContent side="top">
         <DropdownMenuItem variant="destructive" onClick={handleLogout}>
           Log out {username}
         </DropdownMenuItem>

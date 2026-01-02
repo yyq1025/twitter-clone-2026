@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, type ReactNode } from "react";
+import { type ReactElement, type ReactNode, useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -24,7 +24,7 @@ import { useMediaQuery } from "@/hooks/use-media-query";
 import { authClient } from "@/lib/auth-client";
 
 type SignInDrawerDialogProps = {
-  trigger?: ReactNode;
+  trigger?: ReactElement;
 };
 
 export function SignInDrawerDialog({
@@ -50,12 +50,6 @@ export function SignInDrawerDialog({
       setLoading(null);
     }
   };
-
-  const triggerButton = useMemo(
-    () =>
-      trigger ?? <Button className="rounded-full font-bold">Sign in</Button>,
-    [trigger],
-  );
 
   const actionButtons = (
     <div className="flex flex-col gap-3">
@@ -84,7 +78,13 @@ export function SignInDrawerDialog({
   if (isDesktop) {
     return (
       <Dialog>
-        <DialogTrigger asChild>{triggerButton}</DialogTrigger>
+        <DialogTrigger
+          render={
+            trigger ?? (
+              <Button className="rounded-full font-bold">Sign in</Button>
+            )
+          }
+        />
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Sign in</DialogTitle>
@@ -101,7 +101,9 @@ export function SignInDrawerDialog({
 
   return (
     <Drawer>
-      <DrawerTrigger asChild>{triggerButton}</DrawerTrigger>
+      <DrawerTrigger asChild>
+        {trigger ?? <Button className="rounded-full font-bold">Sign in</Button>}
+      </DrawerTrigger>
       <DrawerContent>
         <DrawerHeader>
           <DrawerTitle>Sign in</DrawerTitle>

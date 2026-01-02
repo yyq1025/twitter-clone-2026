@@ -1,6 +1,7 @@
 "use client";
 
 import { IconX } from "@tabler/icons-react";
+import type { ReactElement } from "react";
 import { PostComposer } from "@/components/post-composer";
 import { Button } from "@/components/ui/button";
 import {
@@ -16,7 +17,7 @@ import type { SelectPost, SelectUser } from "@/lib/validators";
 type CreatePostDialogProps = {
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
-  trigger?: React.ReactNode;
+  trigger?: ReactElement;
   parentPost?: SelectPost;
   parentUser?: SelectUser;
 };
@@ -36,7 +37,7 @@ export function CreatePostDialog({
 
   return (
     <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-      <DialogTrigger asChild>{trigger}</DialogTrigger>
+      {trigger && <DialogTrigger render={trigger} />}
       <DialogContent
         className="gap-0 p-0 sm:max-w-xl"
         showCloseButton={false}

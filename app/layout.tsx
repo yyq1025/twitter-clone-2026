@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist_Mono, Inter } from "next/font/google";
 import "./globals.css";
 import {
   IconBell,
@@ -16,10 +16,7 @@ import { SignInDrawerDialog } from "@/components/sign-in-drawer-dialog";
 import { Button } from "@/components/ui/button";
 import { UserDropdown } from "@/components/user-dropdown";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
+const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
@@ -37,10 +34,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased`}
-      >
+    <html lang="en" className={inter.variable}>
+      <body className={`${geistMono.variable} antialiased`}>
         <div className="mx-auto flex max-w-7xl justify-center">
           <header className="sticky top-0 hidden h-screen w-20 flex-col justify-between px-2 py-4 sm:flex xl:w-2xs">
             <div className="flex flex-col items-center gap-4 xl:items-start">
