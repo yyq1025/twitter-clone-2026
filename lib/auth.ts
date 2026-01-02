@@ -13,6 +13,22 @@ export const auth = betterAuth({
     usePlural: true,
     schema: authSchema,
   }),
+  user: {
+    additionalFields: {
+      postsCount: {
+        type: "number",
+        defaultValue: 0,
+      },
+      followersCount: {
+        type: "number",
+        defaultValue: 0,
+      },
+      followsCount: {
+        type: "number",
+        defaultValue: 0,
+      },
+    },
+  },
   socialProviders: {
     google: {
       clientId: process.env.GOOGLE_CLIENT_ID as string,

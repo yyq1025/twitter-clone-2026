@@ -4,7 +4,9 @@ import type { PgTransaction } from "drizzle-orm/pg-core";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import { db } from "@/db/drizzle";
+import { users } from "@/db/schema/auth-schema";
 import { feed_items } from "@/db/schema/feed-item-schema";
+import { follows } from "@/db/schema/follow-schema";
 import { likes } from "@/db/schema/like-schema";
 import { posts } from "@/db/schema/post-shema";
 import { reposts } from "@/db/schema/repost-schema";
@@ -58,6 +60,12 @@ export async function POST(request: Request) {
             creator_id: session.user.id,
             post_id: post.id,
           });
+          await tx
+            .update(users)
+            .set({
+              postsCount: sql`${users.postsCount} + 1`,
+            })
+            .where(eq(users.id, session.user.id));
           if (post.reply_parent_id) {
             await tx
               .update(posts)
@@ -130,7 +138,7 @@ export async function POST(request: Request) {
             .where(eq(posts.id, repost.subject_id));
           await tx.insert(feed_items).values({
             type: "repost",
-            creator_id: session.user.id,
+            creator_id: repost.creator_id,
             post_id: repost.subject_id,
           });
         });
@@ -166,6 +174,61 @@ export async function POST(request: Request) {
                 eq(feed_items.post_id, repost.subject_id),
               ),
             );
+        });
+        break;
+      }
+      case "user.follow": {
+        await db.transaction(async (tx) => {
+          txid = await generateTxId(tx);
+          const [follow] = await tx
+            .insert(follows)
+            .values({
+              creator_id: session.user.id,
+              subject_id: event.payload.subject_id,
+            })
+            .returning();
+          await tx
+            .update(users)
+            .set({
+              followersCount: sql`${users.followersCount} + 1`,
+            })
+            .where(eq(users.id, follow.subject_id));
+          await tx
+            .update(users)
+            .set({
+              followsCount: sql`${users.followsCount} + 1`,
+            })
+            .where(eq(users.id, follow.creator_id));
+        });
+        break;
+      }
+      case "user.unfollow": {
+        await db.transaction(async (tx) => {
+          txid = await generateTxId(tx);
+          const [unfollow] = await tx
+            .delete(follows)
+            .where(
+              and(
+                eq(follows.subject_id, event.payload.subject_id),
+                eq(follows.creator_id, session.user.id),
+              ),
+            )
+            .returning();
+          if (!unfollow) {
+            throw new Error("Follow not found");
+          }
+          await tx
+            .update(users)
+            .set({
+              followersCount: sql`${users.followersCount} - 1`,
+            })
+            .where(eq(users.id, unfollow.subject_id));
+          await tx
+            .update(users)
+            .set({
+              followsCount: sql`${users.followsCount} - 1`,
+            })
+            .where(eq(users.id, unfollow.creator_id));
         });
         break;
       }

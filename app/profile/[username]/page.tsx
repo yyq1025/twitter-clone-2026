@@ -8,6 +8,7 @@ import dynamic from "next/dynamic";
 import Link from "next/link";
 import { Activity, use } from "react";
 import LikedPosts from "@/components/profile/liked-posts";
+import { mutateFollow } from "@/lib/actions";
 import { authClient } from "@/lib/auth-client";
 import {
   electricFollowCollection,
@@ -121,7 +122,9 @@ function UserProfile({ username }: { username: string }) {
           </Link>
           <div>
             <p className="font-semibold text-lg leading-tight">{displayName}</p>
-            <p className="text-muted-foreground text-sm">{0} posts</p>
+            <p className="text-muted-foreground text-sm">
+              {user.postsCount || 0} posts
+            </p>
           </div>
         </div>
       </div>
@@ -143,9 +146,11 @@ function UserProfile({ username }: { username: string }) {
                 type="button"
                 onClick={() => {
                   if (!user || !session?.user) return;
-                  electricFollowCollection.delete(
-                    `${session.user.id}-${user.id}`,
-                  );
+                  mutateFollow({
+                    userId: session.user.id,
+                    payload: { subject_id: user.id },
+                    type: "user.unfollow",
+                  });
                 }}
                 className="rounded-full border border-gray-300 bg-white px-4 py-1.5 font-bold hover:bg-gray-100 focus-visible:bg-gray-100"
               >
@@ -156,10 +161,10 @@ function UserProfile({ username }: { username: string }) {
                 type="button"
                 onClick={() => {
                   if (!user || !session?.user) return;
-                  electricFollowCollection.insert({
-                    creator_id: session.user.id,
-                    subject_id: user.id,
-                    created_at: new Date(),
+                  mutateFollow({
+                    userId: session.user.id,
+                    payload: { subject_id: user.id },
+                    type: "user.follow",
                   });
                 }}
                 className="rounded-full bg-primary px-4 py-1.5 font-bold text-white hover:bg-primary/90 focus-visible:bg-primary/90"

@@ -52,6 +52,9 @@ export const electricUserCollection = createCollection(
     shapeOptions: {
       url: `${baseUrl}/api/users`,
       columnMapper: snakeCamelMapper(),
+      parser: {
+        timestamp: (date: string) => new Date(date),
+      },
     },
     schema: selectUserSchema,
     getKey: (item) => item.id,
@@ -64,6 +67,9 @@ export const electricLikeCollection = createCollection(
     syncMode: "progressive",
     shapeOptions: {
       url: `${baseUrl}/api/likes`,
+      parser: {
+        timestamptz: (date: string) => new Date(date),
+      },
     },
     schema: selectLikeSchema,
     getKey: (item) => `${item.creator_id}-${item.subject_id}`,
@@ -76,6 +82,9 @@ export const electricRepostCollection = createCollection(
     syncMode: "progressive",
     shapeOptions: {
       url: `${baseUrl}/api/reposts`,
+      parser: {
+        timestamptz: (date: string) => new Date(date),
+      },
     },
     schema: selectRepostSchema,
     getKey: (item) => `${item.creator_id}-${item.subject_id}`,
@@ -91,36 +100,5 @@ export const electricFollowCollection = createCollection(
     },
     schema: selectFollowSchema,
     getKey: (item) => `${item.creator_id}-${item.subject_id}`,
-    onInsert: async ({ transaction }) => {
-      const newItem = transaction.mutations[0].modified;
-      const response = await fetch("/api/follows", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          followingId: newItem.subject_id,
-        }),
-      });
-      if (!response.ok) {
-        throw new Error("Failed to create follow");
-      }
-      const { txid } = await response.json();
-      return { txid };
-    },
-    onDelete: async ({ transaction }) => {
-      const { original } = transaction.mutations[0];
-      const response = await fetch(
-        `/api/follows?followingId=${original.subject_id}`,
-        {
-          method: "DELETE",
-        },
-      );
-      if (!response.ok) {
-        throw new Error("Failed to delete follow");
-      }
-      const { txid } = await response.json();
-      return { txid };
-    },
   }),
 );

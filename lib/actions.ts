@@ -2,9 +2,11 @@ import { createOptimisticAction } from "@tanstack/react-db";
 import { asyncDebounce } from "@tanstack/react-pacer";
 import {
   electricFeedItemCollection,
+  electricFollowCollection,
   electricLikeCollection,
   electricPostCollection,
   electricRepostCollection,
+  electricUserCollection,
 } from "@/lib/collections";
 import type { InsertPost } from "@/lib/validators";
 
@@ -31,6 +33,9 @@ export const createPost = createOptimisticAction<{
       creator_id: userId,
       post_id: payload.id,
       created_at: new Date(),
+    });
+    electricUserCollection.update(userId, (draft) => {
+      draft.postsCount = (draft.postsCount || 0) + 1;
     });
     if (payload.reply_parent_id) {
       electricPostCollection.update(payload.reply_parent_id, (draft) => {
@@ -205,6 +210,80 @@ export const mutateRepost = createOptimisticAction<{
       electricRepostCollection.utils.awaitTxId(txid),
       electricPostCollection.utils.awaitTxId(txid),
       electricFeedItemCollection.utils.awaitTxId(txid),
+    ]);
+  },
+});
+
+const debouncedFollowMutation = asyncDebounce(
+  async ({
+    type,
+    payload,
+  }: {
+    type: "user.follow" | "user.unfollow";
+    payload: { subject_id: string };
+  }) => {
+    const response = await fetch(`/api/events`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        type,
+        payload,
+      }),
+    });
+    if (!response.ok) {
+      throw new Error(
+        `Failed to ${type === "user.follow" ? "follow" : "unfollow"} user`,
+      );
+    }
+    const { txid } = await response.json();
+    return txid;
+  },
+  {
+    wait: 500,
+    onError: (error) => {
+      console.error("Debounced follow mutation error:", error);
+    },
+  },
+);
+
+export const mutateFollow = createOptimisticAction<{
+  type: "user.follow" | "user.unfollow";
+  payload: { subject_id: string };
+  userId: string;
+}>({
+  onMutate: ({ type, payload, userId }) => {
+    if (type === "user.follow") {
+      electricFollowCollection.insert({
+        creator_id: userId,
+        subject_id: payload.subject_id,
+        created_at: new Date(),
+      });
+      electricUserCollection.update(payload.subject_id, (draft) => {
+        draft.followersCount = (draft.followersCount || 0) + 1;
+      });
+      electricUserCollection.update(userId, (draft) => {
+        draft.followsCount = (draft.followsCount || 0) + 1;
+      });
+    } else if (type === "user.unfollow") {
+      electricFollowCollection.delete(`${userId}-${payload.subject_id}`);
+
+      electricUserCollection.update(payload.subject_id, (draft) => {
+        draft.followersCount = (draft.followersCount || 1) - 1;
+      });
+
+      electricUserCollection.update(userId, (draft) => {
+        draft.followsCount = (draft.followsCount || 1) - 1;
+      });
+    }
+  },
+  mutationFn: async ({ type, payload }) => {
+    const txid = await debouncedFollowMutation({ type, payload });
+
+    await Promise.all([
+      electricFollowCollection.utils.awaitTxId(txid),
+      electricUserCollection.utils.awaitTxId(txid),
     ]);
   },
 });
