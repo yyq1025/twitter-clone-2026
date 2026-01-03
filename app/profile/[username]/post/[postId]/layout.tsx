@@ -8,7 +8,7 @@ export default function StatusLayout({
   children: React.ReactNode;
 }) {
   return (
-    <VirtualizerContainer>
+    <>
       <div className="sticky top-0 z-10 flex items-center gap-3 border-gray-100 border-b bg-white/85 px-4 py-3 backdrop-blur-md">
         <Link
           href="/"
@@ -21,6 +21,6 @@ export default function StatusLayout({
         <span className="font-bold text-lg">Post</span>
       </div>
       {children}
-    </VirtualizerContainer>
+    </>
   );
 }

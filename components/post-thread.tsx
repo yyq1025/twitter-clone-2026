@@ -57,12 +57,12 @@ function ParentThread({
   );
 }
 
-type StatusThreadProps = {
+type PostThreadProps = {
   username: string;
   postId: string;
 };
 
-export function StatusThread({ username, postId }: StatusThreadProps) {
+export function PostThread({ username, postId }: PostThreadProps) {
   const router = useRouter();
   const { isPending } = authClient.useSession();
   const ref = useRef<HTMLDivElement | null>(null);

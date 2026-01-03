@@ -86,8 +86,6 @@ export default function PostsFeed({ userId }: { userId: string }) {
     },
   );
 
-  console.log("PostsFeed data", data);
-
   // Feed dedup
   const seenPostIds = new Set<string>();
   const dedupedData = data

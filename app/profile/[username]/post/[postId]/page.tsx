@@ -1,7 +1,7 @@
 "use client";
 
 import { Activity, use, useEffect, useState } from "react";
-import { StatusThread } from "@/components/status-thread";
+import { PostThread } from "@/components/post-thread";
 import { electricUserCollection } from "@/lib/collections";
 
 export const dynamic = "force-dynamic";
@@ -25,7 +25,7 @@ export default function StatusPage({
 
   return (
     <Activity mode={collectionsLoaded ? "visible" : "hidden"}>
-      <StatusThread username={username} postId={postId} />
+      <PostThread username={username} postId={postId} />
     </Activity>
   );
 }

@@ -1,7 +1,9 @@
 "use client";
 
+import { Tabs } from "@base-ui/react/tabs";
 import { IconBrandX } from "@tabler/icons-react";
 import dynamic from "next/dynamic";
+import FollowingFeed from "@/components/following-feed";
 
 const TimelineFeed = dynamic(() => import("@/components/timeline-feed"), {
   ssr: false,
@@ -9,24 +11,31 @@ const TimelineFeed = dynamic(() => import("@/components/timeline-feed"), {
 
 export default function Home() {
   return (
-    <>
-      <div className="sticky top-0 z-10 border-gray-100 border-b bg-white/85 backdrop-blur-md">
-        <div className="flex justify-center p-3 sm:hidden">
-          <IconBrandX className="size-7" />
-        </div>
+    <Tabs.Root defaultValue="for-you">
+      <Tabs.List className="sticky top-0 z-10 flex border-b bg-white/85 backdrop-blur-md">
+        <Tabs.Tab
+          value="for-you"
+          className="relative flex grow cursor-pointer justify-center py-4 text-center font-semibold text-muted-foreground outline-none transition hover:bg-gray-50 data-active:text-black data-active:*:opacity-100"
+        >
+          <span>For you</span>
+          <span className="absolute -bottom-px h-1 w-14 rounded-full bg-primary opacity-0 transition" />
+        </Tabs.Tab>
+        <Tabs.Tab
+          value="following"
+          className="relative flex grow cursor-pointer justify-center py-4 text-center font-semibold text-muted-foreground outline-none transition hover:bg-gray-50 data-active:text-black data-active:*:opacity-100"
+        >
+          <span>Following</span>
+          <span className="absolute -bottom-px h-1 w-14 rounded-full bg-primary opacity-0 transition" />
+        </Tabs.Tab>
+      </Tabs.List>
 
-        <div className="flex w-full">
-          <div className="relative flex-1 cursor-pointer p-4 text-center hover:bg-gray-100">
-            <span className="font-bold">For you</span>
-            <div className="absolute bottom-0 left-1/2 h-1 w-14 -translate-x-1/2 rounded-full bg-blue-500"></div>
-          </div>
-          <div className="flex-1 cursor-pointer p-4 text-center hover:bg-gray-100">
-            <span>Following</span>
-          </div>
-        </div>
-      </div>
+      <Tabs.Panel value="for-you">
+        <TimelineFeed />
+      </Tabs.Panel>
 
-      <TimelineFeed />
-    </>
+      <Tabs.Panel value="following">
+        <FollowingFeed />
+      </Tabs.Panel>
+    </Tabs.Root>
   );
 }

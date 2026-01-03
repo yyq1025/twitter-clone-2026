@@ -66,9 +66,7 @@ export default function RootLayout({
 
               <UserDropdown />
             </header>
-            <main className="max-w-xl flex-1 border-gray-100 border-x">
-              {children}
-            </main>
+            <main className="max-w-xl flex-1 border-x">{children}</main>
             <aside className="sticky top-0 ml-8 hidden h-screen w-87.5 py-2 lg:block">
               <div className="sticky top-0 z-10 bg-white pt-1 pb-2">
                 <div className="group relative">

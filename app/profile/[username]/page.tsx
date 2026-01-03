@@ -208,27 +208,27 @@ function UserProfile({ username }: { username: string }) {
       </div>
 
       <Tabs.Root defaultValue="posts">
-        <Tabs.List className="flex border-gray-100 border-b">
+        <Tabs.List className="flex border-b">
           <Tabs.Tab
             value="posts"
             className="relative flex grow cursor-pointer justify-center py-4 text-center font-semibold text-muted-foreground outline-none transition hover:bg-gray-50 data-active:text-black data-active:*:opacity-100"
           >
             <span>Posts</span>
-            <span className="absolute -bottom-px h-1 w-14 rounded-full bg-blue-500 opacity-0 transition" />
+            <span className="absolute -bottom-px h-1 w-14 rounded-full bg-primary opacity-0 transition" />
           </Tabs.Tab>
           <Tabs.Tab
             value="replies"
             className="relative flex grow cursor-pointer justify-center py-4 text-center font-semibold text-muted-foreground outline-none transition hover:bg-gray-50 data-active:text-black data-active:*:opacity-100"
           >
             <span>Replies</span>
-            <span className="absolute -bottom-px h-1 w-14 rounded-full bg-blue-500 opacity-0 transition" />
+            <span className="absolute -bottom-px h-1 w-14 rounded-full bg-primary opacity-0 transition" />
           </Tabs.Tab>
           <Tabs.Tab
             value="media"
             className="relative flex grow cursor-pointer justify-center py-4 text-center font-semibold text-muted-foreground outline-none transition hover:bg-gray-50 data-active:text-black data-active:*:opacity-100"
           >
             <span>Media</span>
-            <span className="absolute -bottom-px h-1 w-14 rounded-full bg-blue-500 opacity-0 transition" />
+            <span className="absolute -bottom-px h-1 w-14 rounded-full bg-primary opacity-0 transition" />
           </Tabs.Tab>
           <Activity mode={session?.user?.id === user.id ? "visible" : "hidden"}>
             <Tabs.Tab
@@ -236,7 +236,7 @@ function UserProfile({ username }: { username: string }) {
               className="relative flex grow cursor-pointer justify-center py-4 text-center font-semibold text-muted-foreground outline-none transition hover:bg-gray-50 data-active:text-black data-active:*:opacity-100"
             >
               <span>Likes</span>
-              <span className="absolute -bottom-px h-1 w-14 rounded-full bg-blue-500 opacity-0 transition" />
+              <span className="absolute -bottom-px h-1 w-14 rounded-full bg-primary opacity-0 transition" />
             </Tabs.Tab>
           </Activity>
         </Tabs.List>

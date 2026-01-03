@@ -126,132 +126,141 @@ export function PostItem({
       )}
       <article
         className={cn(
-          "flex cursor-pointer gap-2 px-4 transition hover:bg-gray-50",
-          !isRoot && !isParent && "border-gray-100 border-b",
+          "cursor-pointer px-4 transition hover:bg-gray-50",
+          !isRoot && !isParent && "border-b",
         )}
         onClick={() => {
           router.push(`/profile/${user.username}/post/${post.id}`);
         }}
       >
-        <div className="flex flex-col">
-          <div className="mb-1 h-2">
-            {(isChild || isParent) && (
-              <div className="mx-auto h-full w-0.5 bg-border" />
+        <div className="mb-1 flex items-center gap-2">
+          <div className="h-full w-10">
+            {isChild || isParent ? (
+              <div className="mx-auto h-2 w-0.5 bg-border" />
+            ) : (
+              <IconRepeat className="mt-2 ml-auto size-4 text-muted-foreground" />
             )}
           </div>
-          <Avatar size="lg">
-            <AvatarFallback>
-              {user.name ? user.name[0].toUpperCase() : "U"}
-            </AvatarFallback>
-          </Avatar>
-          <div className="mt-1 flex-1">
-            {(isParent || isRoot) && (
-              <div className="mx-auto h-full w-0.5 bg-border" />
-            )}
-          </div>
+          <span className="pt-2 text-muted-foreground text-sm leading-4">
+            Reposted by XXX
+          </span>
         </div>
-
-        <div className="min-w-0 flex-1 py-3">
-          <div className="flex items-center gap-1 text-muted-foreground">
-            <span className="font-bold text-foreground hover:underline">
-              {user.name}
-            </span>
-            <span>@{user.username}</span>
-            {post.created_at ? (
-              <>
-                <span>·</span>
-                <span>{formatPostTime(post.created_at)}</span>
-              </>
-            ) : null}
-          </div>
-
-          <p className="wrap-break-word whitespace-pre-wrap leading-normal">
-            {post.content}
-          </p>
-          {post.media && post.media.length > 0 && (
-            <div
-              className={cn(
-                "mt-2 grid w-fit grid-cols-2 grid-rows-2 gap-0.5 overflow-hidden rounded-xl border border-gray-100",
-                post.media.length > 1 && "aspect-video",
-              )}
-            >
-              {post.media.map(
-                (media, idx) =>
-                  post.media && (
-                    <div
-                      key={media.url}
-                      className={cn(
-                        "h-full w-full",
-                        post.media.length + idx <= 3 && "row-span-2",
-                        post.media.length + idx === 1 && "col-span-2",
-                      )}
-                    >
-                      <img
-                        src={media.url}
-                        alt="Post media"
-                        className={cn(
-                          post.media.length > 1
-                            ? "h-full w-full object-cover"
-                            : "max-h-100 max-w-full object-contain",
-                        )}
-                      />
-                    </div>
-                  ),
+        <div className="flex gap-2">
+          <div className="flex flex-col">
+            <Avatar size="lg">
+              <AvatarFallback>
+                {user.name ? user.name[0].toUpperCase() : "U"}
+              </AvatarFallback>
+            </Avatar>
+            <div className="mt-1 flex-1">
+              {(isParent || isRoot) && (
+                <div className="mx-auto h-full w-0.5 bg-border" />
               )}
             </div>
-          )}
+          </div>
 
-          <div className="mt-3 flex items-center gap-1">
-            <div className="flex-1">
-              <Button
-                className="group flex cursor-pointer items-center gap-1 text-muted-foreground hover:text-blue-600"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setDialogOpen(true);
-                }}
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-1 text-muted-foreground">
+              <span className="font-bold text-foreground hover:underline">
+                {user.name}
+              </span>
+              <span>@{user.username}</span>
+              {post.created_at ? (
+                <>
+                  <span>·</span>
+                  <span>{formatPostTime(post.created_at)}</span>
+                </>
+              ) : null}
+            </div>
+
+            <p className="wrap-break-word whitespace-pre-wrap leading-normal">
+              {post.content}
+            </p>
+            {post.media && post.media.length > 0 && (
+              <div
+                className={cn(
+                  "mt-2 grid w-fit grid-cols-2 grid-rows-2 gap-0.5 overflow-hidden rounded-xl border border-gray-100",
+                  post.media.length > 1 && "aspect-video",
+                )}
               >
+                {post.media.map(
+                  (media, idx) =>
+                    post.media && (
+                      <div
+                        key={media.url}
+                        className={cn(
+                          "h-full w-full",
+                          post.media.length + idx <= 3 && "row-span-2",
+                          post.media.length + idx === 1 && "col-span-2",
+                        )}
+                      >
+                        <img
+                          src={media.url}
+                          alt="Post media"
+                          className={cn(
+                            post.media.length > 1
+                              ? "h-full w-full object-cover"
+                              : "max-h-100 max-w-full object-contain",
+                          )}
+                        />
+                      </div>
+                    ),
+                )}
+              </div>
+            )}
+
+            <div className="flex items-center gap-1 py-1">
+              <div className="flex-1">
+                <Button
+                  className="group flex cursor-pointer items-center gap-1 text-muted-foreground hover:text-blue-600"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setDialogOpen(true);
+                  }}
+                >
+                  <span className="-m-2 rounded-full p-2 group-hover:bg-blue-600/10">
+                    <IconMessage className="size-5" />
+                  </span>
+                  <span className="text-sm">{post.reply_count}</span>
+                </Button>
+              </div>
+              <div className="flex-1">
+                <Toggle
+                  className="group flex cursor-pointer items-center gap-1 text-muted-foreground hover:bg-transparent hover:text-green-600 aria-pressed:bg-transparent aria-pressed:text-green-600"
+                  onClick={(e) => e.stopPropagation()}
+                  onPressedChange={handleRepostMutate}
+                  pressed={!!userReposted}
+                >
+                  <span className="-m-2 rounded-full p-2 group-hover:bg-green-600/10">
+                    <IconRepeat className="size-5 group-aria-pressed:stroke-green-600" />
+                  </span>
+                  <span className="text-sm">{post.repost_count}</span>
+                </Toggle>
+              </div>
+              <div className="flex-1">
+                <Toggle
+                  className="group flex cursor-pointer items-center gap-1 text-muted-foreground hover:bg-transparent hover:text-pink-600 aria-pressed:bg-transparent aria-pressed:text-pink-600"
+                  onPressedChange={handleLikeMutate}
+                  onClick={(e) => e.stopPropagation()}
+                  pressed={!!userLiked}
+                >
+                  <span className="-m-2 rounded-full p-2 group-hover:bg-pink-600/10">
+                    <IconHeart className="size-5 group-aria-pressed:fill-pink-600 group-aria-pressed:stroke-pink-600" />
+                  </span>
+                  <span className="text-sm">{post.like_count}</span>
+                </Toggle>
+              </div>
+              <Toggle className="group mr-2 flex cursor-pointer items-center gap-2 text-muted-foreground hover:bg-transparent hover:text-blue-600 aria-pressed:bg-transparent">
                 <span className="-m-2 rounded-full p-2 group-hover:bg-blue-600/10">
-                  <IconMessage className="size-5" />
+                  <IconBookmark className="size-5" />
                 </span>
-                <span className="text-sm">{post.reply_count}</span>
+              </Toggle>
+              <Button className="group flex cursor-pointer items-center gap-2 text-muted-foreground hover:text-blue-600">
+                <span className="-m-2 rounded-full p-2 group-hover:bg-blue-600/10">
+                  <IconShare2 className="size-5" />
+                </span>
               </Button>
             </div>
-            <div className="flex-1">
-              <Toggle
-                className="group flex cursor-pointer items-center gap-1 text-muted-foreground hover:bg-transparent hover:text-green-600 aria-pressed:bg-transparent aria-pressed:text-green-600"
-                onClick={(e) => e.stopPropagation()}
-                onPressedChange={handleRepostMutate}
-                pressed={!!userReposted}
-              >
-                <span className="-m-2 rounded-full p-2 group-hover:bg-green-600/10">
-                  <IconRepeat className="size-5 group-aria-pressed:stroke-green-600" />
-                </span>
-                <span className="text-sm">{post.repost_count}</span>
-              </Toggle>
-            </div>
-            <div className="flex-1">
-              <Toggle
-                className="group flex cursor-pointer items-center gap-1 text-muted-foreground hover:bg-transparent hover:text-pink-600 aria-pressed:bg-transparent aria-pressed:text-pink-600"
-                onPressedChange={handleLikeMutate}
-                onClick={(e) => e.stopPropagation()}
-                pressed={!!userLiked}
-              >
-                <span className="-m-2 rounded-full p-2 group-hover:bg-pink-600/10">
-                  <IconHeart className="size-5 group-aria-pressed:fill-pink-600 group-aria-pressed:stroke-pink-600" />
-                </span>
-                <span className="text-sm">{post.like_count}</span>
-              </Toggle>
-            </div>
-            <Toggle className="group mr-2 flex cursor-pointer items-center gap-2 text-muted-foreground hover:bg-transparent hover:text-blue-600 aria-pressed:bg-transparent">
-              <span className="-m-2 rounded-full p-2 group-hover:bg-blue-600/10">
-                <IconBookmark className="size-5" />
-              </span>
-            </Toggle>
-            <Button className="group flex cursor-pointer items-center gap-2 text-muted-foreground hover:text-blue-600">
-              <span className="-m-2 rounded-full p-2 group-hover:bg-blue-600/10">
-                <IconShare2 className="size-5" />
-              </span>
-            </Button>
           </div>
         </div>
       </article>
