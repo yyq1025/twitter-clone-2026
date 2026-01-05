@@ -1,5 +1,8 @@
+"use client";
+
 import { IconArrowLeft } from "@tabler/icons-react";
 import Link from "next/link";
+import NotificationList from "@/components/notifications/notification-list";
 
 export default function NotificationsPage() {
   return (
@@ -15,7 +18,7 @@ export default function NotificationsPage() {
         </Link>
         <span className="font-bold text-lg">Notifications</span>
       </div>
-      <div>Notifications Page</div>
+      <NotificationList />
     </>
   );
 }

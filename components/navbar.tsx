@@ -9,14 +9,32 @@ import {
   IconUser,
   IconUserFilled,
 } from "@tabler/icons-react";
+import { and, eq, gt, useLiveQuery } from "@tanstack/react-db";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { authClient } from "@/lib/auth-client";
+import { electricNotificationCollection } from "@/lib/collections";
 
 export default function Navbar() {
   const { data: session } = authClient.useSession();
   const pathname = usePathname();
+
+  const { data: unreadNotifications } = useLiveQuery(
+    (q) =>
+      q
+        .from({
+          notification: electricNotificationCollection,
+        })
+        .where(({ notification }) =>
+          and(
+            eq(notification.recipient_id, session?.user?.id),
+            gt(notification.id, session?.user?.lastSeenNotificationId || 0),
+          ),
+        ),
+    [session],
+  );
+
   return (
     <nav className="flex w-full flex-col items-center gap-2 xl:items-start">
       <Link
@@ -39,9 +57,13 @@ export default function Navbar() {
         <div className="relative">
           <IconBell className="size-7 group-data-[active=true]:hidden" />
           <IconBellFilled className="hidden size-7 group-data-[active=true]:block" />
-          <Badge className="absolute -top-1.5 left-2.5 h-5 min-w-5 rounded-full px-1">
-            3
-          </Badge>
+          {unreadNotifications?.length > 0 && (
+            <Badge className="absolute -top-1.5 left-2.5 h-5 min-w-5 rounded-full px-1">
+              {unreadNotifications.length > 30
+                ? "30+"
+                : unreadNotifications.length}
+            </Badge>
+          )}
         </div>
         <span className="hidden text-xl xl:block">Notifications</span>
       </Link>

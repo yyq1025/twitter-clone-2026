@@ -6,12 +6,14 @@ import { and, eq, useLiveQuery } from "@tanstack/react-db";
 import dayjs from "dayjs";
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import { Activity, use } from "react";
+import { Activity, use, useEffect, useState } from "react";
 import LikedPosts from "@/components/profile/liked-posts";
 import { mutateFollow } from "@/lib/actions";
 import { authClient } from "@/lib/auth-client";
 import {
   electricFollowCollection,
+  electricLikeCollection,
+  electricRepostCollection,
   electricUserCollection,
 } from "@/lib/collections";
 
@@ -63,6 +65,19 @@ function UserProfile({ username }: { username: string }) {
     },
     [session?.user.id, user?.id],
   );
+
+  const [preloaded, setPreloaded] = useState(
+    [electricLikeCollection, electricRepostCollection].every((col) =>
+      col.isReady(),
+    ),
+  );
+  useEffect(() => {
+    if (preloaded) return;
+    Promise.all([
+      electricLikeCollection.preload(),
+      electricRepostCollection.preload(),
+    ]).then(() => setPreloaded(true));
+  }, [preloaded]);
 
   if (isUserLoading) {
     return (
@@ -214,17 +229,27 @@ function UserProfile({ username }: { username: string }) {
         </Tabs.List>
 
         <Tabs.Panel value="posts">
-          <PostsFeed userId={user.id} />
+          <Activity mode={preloaded ? "visible" : "hidden"}>
+            <PostsFeed userId={user.id} />
+          </Activity>
         </Tabs.Panel>
 
         <Tabs.Panel value="replies">
-          <RepliesFeed userId={user.id} />
+          <Activity mode={preloaded ? "visible" : "hidden"}>
+            <RepliesFeed userId={user.id} />
+          </Activity>
         </Tabs.Panel>
 
         <Tabs.Panel value="media">
-          <MediaFeed userId={user.id} />
+          <Activity mode={preloaded ? "visible" : "hidden"}>
+            <MediaFeed userId={user.id} />
+          </Activity>
         </Tabs.Panel>
-        <Activity mode={session?.user?.id === user.id ? "visible" : "hidden"}>
+        <Activity
+          mode={
+            session?.user?.id === user.id && preloaded ? "visible" : "hidden"
+          }
+        >
           <Tabs.Panel value="likes">
             <LikedPosts userId={user.id} />
           </Tabs.Panel>

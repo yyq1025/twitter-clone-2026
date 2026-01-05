@@ -82,7 +82,7 @@ export async function POST(request: Request) {
                   creator_id: session.user.id,
                   recipient_id: replyParent.creator_id,
                   reason: "reply",
-                  subject_id: replyParent.id,
+                  reason_subject_id: replyParent.id,
                 })
                 .onConflictDoNothing();
             }
@@ -114,7 +114,7 @@ export async function POST(request: Request) {
                 creator_id: session.user.id,
                 recipient_id: post.creator_id,
                 reason: "like",
-                subject_id: post.id,
+                reason_subject_id: post.id,
               })
               .onConflictDoNothing();
           }
@@ -142,6 +142,15 @@ export async function POST(request: Request) {
               like_count: sql`${posts.like_count} - 1`,
             })
             .where(eq(posts.id, like.subject_id));
+          await tx
+            .delete(notifications)
+            .where(
+              and(
+                eq(notifications.creator_id, like.creator_id),
+                eq(notifications.reason, "like"),
+                eq(notifications.reason_subject_id, like.subject_id),
+              ),
+            );
         });
         break;
       }
@@ -174,7 +183,7 @@ export async function POST(request: Request) {
                 creator_id: session.user.id,
                 recipient_id: post.creator_id,
                 reason: "repost",
-                subject_id: post.id,
+                reason_subject_id: post.id,
               })
               .onConflictDoNothing();
           }
@@ -209,6 +218,15 @@ export async function POST(request: Request) {
                 eq(feed_items.type, "repost"),
                 eq(feed_items.creator_id, session.user.id),
                 eq(feed_items.post_id, repost.subject_id),
+              ),
+            );
+          await tx
+            .delete(notifications)
+            .where(
+              and(
+                eq(notifications.creator_id, repost.creator_id),
+                eq(notifications.reason, "repost"),
+                eq(notifications.reason_subject_id, repost.subject_id),
               ),
             );
         });
@@ -277,6 +295,15 @@ export async function POST(request: Request) {
               followsCount: sql`${users.followsCount} - 1`,
             })
             .where(eq(users.id, unfollow.creator_id));
+          await tx
+            .delete(notifications)
+            .where(
+              and(
+                eq(notifications.creator_id, unfollow.creator_id),
+                eq(notifications.reason, "follow"),
+                eq(notifications.recipient_id, unfollow.subject_id),
+              ),
+            );
         });
         break;
       }

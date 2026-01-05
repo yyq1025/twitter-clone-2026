@@ -5,6 +5,7 @@ import {
   selectFeedItemSchema,
   selectFollowSchema,
   selectLikeSchema,
+  selectNotificationSchema,
   selectPostSchema,
   selectRepostSchema,
   selectUserSchema,
@@ -64,7 +65,6 @@ export const electricUserCollection = createCollection(
 export const electricLikeCollection = createCollection(
   electricCollectionOptions({
     id: "likes",
-    syncMode: "progressive",
     shapeOptions: {
       url: `${baseUrl}/api/likes`,
       parser: {
@@ -79,7 +79,6 @@ export const electricLikeCollection = createCollection(
 export const electricRepostCollection = createCollection(
   electricCollectionOptions({
     id: "reposts",
-    syncMode: "progressive",
     shapeOptions: {
       url: `${baseUrl}/api/reposts`,
       parser: {
@@ -100,5 +99,20 @@ export const electricFollowCollection = createCollection(
     },
     schema: selectFollowSchema,
     getKey: (item) => `${item.creator_id}-${item.subject_id}`,
+  }),
+);
+
+export const electricNotificationCollection = createCollection(
+  electricCollectionOptions({
+    id: "notifications",
+    syncMode: "progressive",
+    shapeOptions: {
+      url: `${baseUrl}/api/notifications`,
+      parser: {
+        timestamptz: (date: string) => new Date(date),
+      },
+    },
+    schema: selectNotificationSchema,
+    getKey: (item) => `${item.id}`,
   }),
 );

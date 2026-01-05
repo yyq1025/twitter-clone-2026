@@ -3,7 +3,6 @@
 import { and, eq, isNull, useLiveInfiniteQuery } from "@tanstack/react-db";
 import { PostItem } from "@/components/post-item";
 import VirtualInfiniteList from "@/components/virtual-infinite-list";
-import { follows } from "@/db/schema/follow-schema";
 import { authClient } from "@/lib/auth-client";
 import {
   electricFeedItemCollection,
@@ -57,16 +56,6 @@ export default function FollowingFeed() {
     },
     [session?.user?.id],
   );
-
-  // const seenPostIds = new Set<string>();
-  // const dedupedData = data?.filter((item) => {
-  //   if (seenPostIds.has(item.post.id)) {
-  //     return false;
-  //   } else {
-  //     seenPostIds.add(item.post.id);
-  //     return true;
-  //   }
-  // });
 
   return (
     <VirtualInfiniteList

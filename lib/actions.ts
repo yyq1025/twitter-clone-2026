@@ -66,40 +66,6 @@ export const createPost = createOptimisticAction<{
   },
 });
 
-const debouncedLikeMutation = asyncDebounce(
-  async ({
-    type,
-    payload,
-  }: {
-    type: "post.like" | "post.unlike";
-    payload: { subject_id: string };
-  }) => {
-    const response = await fetch(`/api/events`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        type,
-        payload,
-      }),
-    });
-    if (!response.ok) {
-      throw new Error(
-        `Failed to ${type === "post.like" ? "like" : "unlike"} post`,
-      );
-    }
-    const { txid } = await response.json();
-    return txid;
-  },
-  {
-    wait: 500,
-    onError: (error) => {
-      console.error("Debounced like mutation error:", error);
-    },
-  },
-);
-
 export const mutateLike = createOptimisticAction<{
   type: "post.like" | "post.unlike";
   payload: { subject_id: string };
@@ -125,7 +91,22 @@ export const mutateLike = createOptimisticAction<{
     }
   },
   mutationFn: async ({ type, payload }) => {
-    const txid = await debouncedLikeMutation({ type, payload });
+    const response = await fetch(`/api/events`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        type,
+        payload,
+      }),
+    });
+    if (!response.ok) {
+      throw new Error(
+        `Failed to ${type === "post.like" ? "like" : "unlike"} post`,
+      );
+    }
+    const { txid } = await response.json();
 
     await Promise.all([
       electricLikeCollection.utils.awaitTxId(txid),

@@ -1,20 +1,29 @@
 "use client";
 
 import { Tabs } from "@base-ui/react/tabs";
-import dynamic from "next/dynamic";
-
-const TimelineFeed = dynamic(() => import("@/components/home/timeline-feed"), {
-  ssr: false,
-});
-
-const FollowingFeed = dynamic(
-  () => import("@/components/home/following-feed"),
-  {
-    ssr: false,
-  },
-);
+import { Activity, useEffect, useState } from "react";
+import FollowingFeed from "@/components/home/following-feed";
+import TimelineFeed from "@/components/home/timeline-feed";
+import {
+  electricLikeCollection,
+  electricRepostCollection,
+} from "@/lib/collections";
 
 export default function Home() {
+  const [preloaded, setPreloaded] = useState(
+    [electricLikeCollection, electricRepostCollection].every((col) =>
+      col.isReady(),
+    ),
+  );
+
+  useEffect(() => {
+    if (preloaded) return;
+    Promise.all([
+      electricLikeCollection.preload(),
+      electricRepostCollection.preload(),
+    ]).then(() => setPreloaded(true));
+  }, [preloaded]);
+
   return (
     <Tabs.Root defaultValue="for-you">
       <Tabs.List className="sticky top-0 z-10 flex border-b bg-white/85 backdrop-blur-md">
@@ -35,11 +44,15 @@ export default function Home() {
       </Tabs.List>
 
       <Tabs.Panel value="for-you">
-        <TimelineFeed />
+        <Activity mode={preloaded ? "visible" : "hidden"}>
+          <TimelineFeed />
+        </Activity>
       </Tabs.Panel>
 
       <Tabs.Panel value="following">
-        <FollowingFeed />
+        <Activity mode={preloaded ? "visible" : "hidden"}>
+          <FollowingFeed />
+        </Activity>
       </Tabs.Panel>
     </Tabs.Root>
   );
