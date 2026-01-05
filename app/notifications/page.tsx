@@ -1,8 +1,13 @@
 "use client";
 
 import { IconArrowLeft } from "@tabler/icons-react";
+import dynamic from "next/dynamic";
 import Link from "next/link";
-import NotificationList from "@/components/notifications/notification-list";
+
+const NotificationList = dynamic(
+  () => import("@/components/notifications/notification-list"),
+  { ssr: false },
+);
 
 export default function NotificationsPage() {
   return (

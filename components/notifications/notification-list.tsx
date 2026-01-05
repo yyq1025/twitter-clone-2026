@@ -1,3 +1,5 @@
+"use client";
+
 import { eq, useLiveInfiniteQuery } from "@tanstack/react-db";
 import { useEffect, useState } from "react";
 import { authClient } from "@/lib/auth-client";
