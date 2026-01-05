@@ -4,6 +4,7 @@ import { users } from "@/db/schema/auth-schema";
 import { feed_items } from "@/db/schema/feed-item-schema";
 import { follows } from "@/db/schema/follow-schema";
 import { likes } from "@/db/schema/like-schema";
+import { notifications } from "@/db/schema/notification-schema";
 import { posts } from "@/db/schema/post-shema";
 import { reposts } from "@/db/schema/repost-schema";
 
@@ -59,4 +60,8 @@ export const eventSchema = z.union([
   userActionEventSchema,
 ]);
 
-export type Event = z.infer<typeof eventSchema>;
+export const selectNotificationSchema = createSelectSchema(notifications, {
+  reason: z.enum(["like", "reply", "repost", "follow"]),
+});
+
+export type SelectNotification = z.infer<typeof selectNotificationSchema>;

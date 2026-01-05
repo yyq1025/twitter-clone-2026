@@ -25,6 +25,7 @@ export const users = pgTable("users", {
   postsCount: integer("posts_count").default(0),
   followersCount: integer("followers_count").default(0),
   followsCount: integer("follows_count").default(0),
+  lastSeenNotificationId: integer("last_seen_notification_id").default(0),
 });
 
 export const sessions = pgTable(

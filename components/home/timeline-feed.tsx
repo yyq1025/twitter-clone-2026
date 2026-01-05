@@ -1,8 +1,6 @@
 "use client";
 
 import { and, eq, isNull, useLiveInfiniteQuery } from "@tanstack/react-db";
-import AuthGuard from "@/components/auth-guard";
-import { PostComposer } from "@/components/post-composer";
 import { PostItem } from "@/components/post-item";
 import VirtualInfiniteList from "@/components/virtual-infinite-list";
 import {

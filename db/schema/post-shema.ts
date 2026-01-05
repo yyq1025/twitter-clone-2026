@@ -16,7 +16,9 @@ interface PostMedia {
 
 export const posts = pgTable("posts", {
   id: uuid().primaryKey(),
-  creator_id: text().references(() => users.id, { onDelete: "set null" }),
+  creator_id: text()
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
   content: text().notNull(),
   media: jsonb().$type<PostMedia[]>().default([]).notNull(),
   media_length: integer().default(0).notNull(),

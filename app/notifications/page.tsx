@@ -1,12 +1,7 @@
 import { IconArrowLeft } from "@tabler/icons-react";
 import Link from "next/link";
-import { VirtualizerContainer } from "@/components/virtualizer-container";
 
-export default function StatusLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function NotificationsPage() {
   return (
     <>
       <div className="sticky top-0 z-10 flex items-center gap-3 border-b bg-white/85 px-4 py-3 backdrop-blur-md">
@@ -18,9 +13,9 @@ export default function StatusLayout({
         >
           <IconArrowLeft className="size-5" />
         </Link>
-        <span className="font-bold text-lg">Post</span>
+        <span className="font-bold text-lg">Notifications</span>
       </div>
-      {children}
+      <div>Notifications Page</div>
     </>
   );
 }

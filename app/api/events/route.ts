@@ -8,6 +8,7 @@ import { users } from "@/db/schema/auth-schema";
 import { feed_items } from "@/db/schema/feed-item-schema";
 import { follows } from "@/db/schema/follow-schema";
 import { likes } from "@/db/schema/like-schema";
+import { notifications } from "@/db/schema/notification-schema";
 import { posts } from "@/db/schema/post-shema";
 import { reposts } from "@/db/schema/repost-schema";
 import { auth } from "@/lib/auth";
@@ -67,12 +68,24 @@ export async function POST(request: Request) {
             })
             .where(eq(users.id, session.user.id));
           if (post.reply_parent_id) {
-            await tx
+            const [replyParent] = await tx
               .update(posts)
               .set({
                 reply_count: sql`${posts.reply_count} + 1`,
               })
-              .where(eq(posts.id, post.reply_parent_id));
+              .where(eq(posts.id, post.reply_parent_id))
+              .returning();
+            if (replyParent && session.user.id !== replyParent.creator_id) {
+              await tx
+                .insert(notifications)
+                .values({
+                  creator_id: session.user.id,
+                  recipient_id: replyParent.creator_id,
+                  reason: "reply",
+                  subject_id: replyParent.id,
+                })
+                .onConflictDoNothing();
+            }
           }
         });
         break;
@@ -87,12 +100,24 @@ export async function POST(request: Request) {
               subject_id: event.payload.subject_id,
             })
             .returning();
-          await tx
+          const [post] = await tx
             .update(posts)
             .set({
               like_count: sql`${posts.like_count} + 1`,
             })
-            .where(eq(posts.id, like.subject_id));
+            .where(eq(posts.id, like.subject_id))
+            .returning();
+          if (post && session.user.id !== post.creator_id) {
+            await tx
+              .insert(notifications)
+              .values({
+                creator_id: session.user.id,
+                recipient_id: post.creator_id,
+                reason: "like",
+                subject_id: post.id,
+              })
+              .onConflictDoNothing();
+          }
         });
         break;
       }
@@ -130,17 +155,29 @@ export async function POST(request: Request) {
               subject_id: event.payload.subject_id,
             })
             .returning();
-          await tx
-            .update(posts)
-            .set({
-              repost_count: sql`${posts.repost_count} + 1`,
-            })
-            .where(eq(posts.id, repost.subject_id));
           await tx.insert(feed_items).values({
             type: "repost",
             creator_id: repost.creator_id,
             post_id: repost.subject_id,
           });
+          const [post] = await tx
+            .update(posts)
+            .set({
+              repost_count: sql`${posts.repost_count} + 1`,
+            })
+            .where(eq(posts.id, repost.subject_id))
+            .returning();
+          if (post && session.user.id !== post.creator_id) {
+            await tx
+              .insert(notifications)
+              .values({
+                creator_id: session.user.id,
+                recipient_id: post.creator_id,
+                reason: "repost",
+                subject_id: post.id,
+              })
+              .onConflictDoNothing();
+          }
         });
         break;
       }
@@ -180,6 +217,9 @@ export async function POST(request: Request) {
       case "user.follow": {
         await db.transaction(async (tx) => {
           txid = await generateTxId(tx);
+          if (session.user.id === event.payload.subject_id) {
+            throw new Error("Cannot follow yourself");
+          }
           const [follow] = await tx
             .insert(follows)
             .values({
@@ -199,6 +239,14 @@ export async function POST(request: Request) {
               followsCount: sql`${users.followsCount} + 1`,
             })
             .where(eq(users.id, follow.creator_id));
+          await tx
+            .insert(notifications)
+            .values({
+              creator_id: session.user.id,
+              recipient_id: follow.subject_id,
+              reason: "follow",
+            })
+            .onConflictDoNothing();
         });
         break;
       }

@@ -2,7 +2,7 @@
 
 import { Tabs } from "@base-ui/react/tabs";
 import { IconArrowLeft, IconCalendar } from "@tabler/icons-react";
-import { and, count, eq, useLiveQuery } from "@tanstack/react-db";
+import { and, eq, useLiveQuery } from "@tanstack/react-db";
 import dayjs from "dayjs";
 import dynamic from "next/dynamic";
 import Link from "next/link";
@@ -62,34 +62,6 @@ function UserProfile({ username }: { username: string }) {
         .findOne();
     },
     [session?.user.id, user?.id],
-  );
-
-  const { data: following } = useLiveQuery(
-    (q) => {
-      if (!user?.id) {
-        return null;
-      }
-      return q
-        .from({ follow: electricFollowCollection })
-        .where(({ follow }) => eq(follow.creator_id, user.id))
-        .select(({ follow }) => ({ count: count(follow.subject_id) }))
-        .findOne();
-    },
-    [user?.id],
-  );
-
-  const { data: followers } = useLiveQuery(
-    (q) => {
-      if (!user?.id) {
-        return null;
-      }
-      return q
-        .from({ follow: electricFollowCollection })
-        .where(({ follow }) => eq(follow.subject_id, user.id))
-        .select(({ follow }) => ({ count: count(follow.creator_id) }))
-        .findOne();
-    },
-    [user?.id],
   );
 
   if (isUserLoading) {
@@ -196,11 +168,11 @@ function UserProfile({ username }: { username: string }) {
 
           <div className="flex gap-4">
             <span>
-              <span className="font-semibold">{following?.count || 0}</span>{" "}
+              <span className="font-semibold">{user.followsCount || 0}</span>{" "}
               <span className="text-muted-foreground">Following</span>
             </span>
             <span>
-              <span className="font-semibold">{followers?.count || 0}</span>{" "}
+              <span className="font-semibold">{user.followersCount || 0}</span>{" "}
               <span className="text-muted-foreground">Followers</span>
             </span>
           </div>

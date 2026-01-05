@@ -1,13 +1,18 @@
 "use client";
 
 import { Tabs } from "@base-ui/react/tabs";
-import { IconBrandX } from "@tabler/icons-react";
 import dynamic from "next/dynamic";
-import FollowingFeed from "@/components/following-feed";
 
-const TimelineFeed = dynamic(() => import("@/components/timeline-feed"), {
+const TimelineFeed = dynamic(() => import("@/components/home/timeline-feed"), {
   ssr: false,
 });
+
+const FollowingFeed = dynamic(
+  () => import("@/components/home/following-feed"),
+  {
+    ssr: false,
+  },
+);
 
 export default function Home() {
   return (

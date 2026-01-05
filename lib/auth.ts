@@ -27,6 +27,10 @@ export const auth = betterAuth({
         type: "number",
         defaultValue: 0,
       },
+      lastSeenNotificationId: {
+        type: "number",
+        defaultValue: 0,
+      },
     },
   },
   socialProviders: {

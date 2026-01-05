@@ -3,7 +3,7 @@ import { Geist_Mono, Inter } from "next/font/google";
 import "./globals.css";
 import {
   IconBell,
-  IconBrandX,
+  IconBrandTwitter,
   IconFeatherFilled,
   IconHome,
   IconMail,
@@ -42,7 +42,7 @@ export default function RootLayout({
             <header className="sticky top-0 hidden h-screen w-20 flex-col justify-between px-2 py-4 sm:flex xl:w-2xs">
               <div className="flex flex-col items-center gap-4 xl:items-start">
                 <div className="w-min cursor-pointer rounded-full p-3 transition hover:bg-gray-100">
-                  <IconBrandX className="size-7" />
+                  <IconBrandTwitter className="size-7" />
                 </div>
 
                 <AuthGuard>
