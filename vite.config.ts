@@ -4,14 +4,14 @@ import { tanstackStart } from '@tanstack/react-start/plugin/vite'
 import viteReact from '@vitejs/plugin-react'
 import viteTsConfigPaths from 'vite-tsconfig-paths'
 import tailwindcss from '@tailwindcss/vite'
-import { fileURLToPath } from 'node:url'
 import { nitro } from 'nitro/vite'
 
 const config = defineConfig({
   plugins: [
     devtools(),
-    nitro(),
-    // this is the plugin that enables path aliases
+    nitro({
+      preset: "standard",
+    }),
     viteTsConfigPaths({
       projects: ['./tsconfig.json'],
     }),
@@ -23,11 +23,6 @@ const config = defineConfig({
       },
     }),
   ],
-  resolve: {
-		alias: {
-			"@": fileURLToPath(new URL("./src", import.meta.url)),
-	  },
-	},
 })
 
 export default config
