@@ -9,9 +9,7 @@ import { nitro } from 'nitro/vite'
 const config = defineConfig({
   plugins: [
     devtools(),
-    nitro({
-      preset: "standard",
-    }),
+    nitro(),
     viteTsConfigPaths({
       projects: ['./tsconfig.json'],
     }),
@@ -23,6 +21,9 @@ const config = defineConfig({
       },
     }),
   ],
+  ssr: {
+    noExternal: ["@tabler/icons-react"],
+  },
 })
 
 export default config
