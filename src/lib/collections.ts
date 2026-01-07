@@ -1,4 +1,4 @@
-import { snakeCamelMapper } from "@electric-sql/client";
+import { FetchError, snakeCamelMapper } from "@electric-sql/client";
 import { electricCollectionOptions } from "@tanstack/electric-db-collection";
 import { createCollection } from "@tanstack/react-db";
 import {
@@ -25,6 +25,7 @@ export const electricPostCollection = createCollection(
       parser: {
         timestamptz: (date: string) => new Date(date),
       },
+      liveSse: true,
     },
     schema: selectPostSchema,
     getKey: (item) => item.id,
@@ -40,6 +41,7 @@ export const electricFeedItemCollection = createCollection(
       parser: {
         timestamptz: (date: string) => new Date(date),
       },
+      liveSse: true,
     },
     schema: selectFeedItemSchema,
     getKey: (item) => `${item.creator_id}-${item.type}-${item.post_id}`,
@@ -56,6 +58,7 @@ export const electricUserCollection = createCollection(
       parser: {
         timestamp: (date: string) => new Date(date),
       },
+      liveSse: true,
     },
     schema: selectUserSchema,
     getKey: (item) => item.id,
@@ -69,6 +72,13 @@ export const electricLikeCollection = createCollection(
       url: `${baseUrl}/api/likes`,
       parser: {
         timestamptz: (date: string) => new Date(date),
+      },
+      liveSse: true,
+      onError: (error) => {
+        console.error("Error in electricLikeCollection:", error);
+        if (error instanceof FetchError) {
+          return;
+        }
       },
     },
     schema: selectLikeSchema,
@@ -84,6 +94,13 @@ export const electricRepostCollection = createCollection(
       parser: {
         timestamptz: (date: string) => new Date(date),
       },
+      liveSse: true,
+      onError: (error) => {
+        console.error("Error in electricRepostCollection:", error);
+        if (error instanceof FetchError) {
+          return;
+        }
+      },
     },
     schema: selectRepostSchema,
     getKey: (item) => `${item.creator_id}-${item.subject_id}`,
@@ -96,6 +113,10 @@ export const electricFollowCollection = createCollection(
     syncMode: "progressive",
     shapeOptions: {
       url: `${baseUrl}/api/follows`,
+      parser: {
+        timestamptz: (date: string) => new Date(date),
+      },
+      liveSse: true,
     },
     schema: selectFollowSchema,
     getKey: (item) => `${item.creator_id}-${item.subject_id}`,
@@ -111,6 +132,7 @@ export const electricNotificationCollection = createCollection(
       parser: {
         timestamptz: (date: string) => new Date(date),
       },
+      liveSse: true,
     },
     schema: selectNotificationSchema,
     getKey: (item) => `${item.id}`,

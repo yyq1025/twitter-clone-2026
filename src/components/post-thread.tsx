@@ -113,16 +113,19 @@ export function PostThread({ username, postId }: PostThreadProps) {
   }, [isMainLoading, mainPostData, username, router, postId]);
 
   useEffect(() => {
-    if (mainPostData && !mainPostData.post.reply_parent_id) {
+    if (
+      mainPostData?.post.id === postId &&
+      !mainPostData.post.reply_parent_id
+    ) {
       setParentsLoaded(true);
     }
-  }, [mainPostData]);
+  }, [mainPostData, postId]);
 
   useEffect(() => {
     if (ref.current && parentsLoaded && postId === mainPostData?.post.id) {
       ref.current.scrollIntoView();
     }
-  }, [parentsLoaded, postId, mainPostData]);
+  }, [parentsLoaded, postId, mainPostData?.post.id]);
 
   if (isMainLoading || isPending) {
     return <div className="p-4 text-sm">Loading thread...</div>;
