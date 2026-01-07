@@ -10,7 +10,7 @@ import {
 import { and, eq, useLiveQuery } from "@tanstack/react-db";
 import { useNavigate } from "@tanstack/react-router";
 import dayjs from "dayjs";
-import { useState } from "react";
+import { type ReactNode, useState } from "react";
 import { CreatePostDialog } from "@/components/create-post-dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Toggle } from "@/components/ui/toggle";
@@ -26,6 +26,7 @@ import type { SelectPost, SelectUser } from "@/lib/validators";
 type PostItemProps = {
   post: SelectPost;
   user: SelectUser;
+  feedReason?: ReactNode;
   isRoot?: boolean;
   isParent?: boolean;
   isChild?: boolean;
@@ -34,6 +35,7 @@ type PostItemProps = {
 export function PostItem({
   post,
   user,
+  feedReason,
   isRoot = false,
   isParent = false,
   isChild = false,
@@ -121,18 +123,15 @@ export function PostItem({
           });
         }}
       >
-        <div className="mb-1 flex items-center gap-2">
-          <div className="h-full w-10">
-            {isChild || isParent ? (
-              <div className="mx-auto h-2 w-0.5 bg-border" />
-            ) : (
-              <IconRepeat className="mt-2 ml-auto size-4 text-muted-foreground" />
+        {feedReason ? (
+          feedReason
+        ) : (
+          <div className="mb-1 h-2 w-10">
+            {(isChild || isParent) && (
+              <div className="mx-auto h-full w-0.5 bg-border" />
             )}
           </div>
-          <span className="pt-2 text-muted-foreground text-sm leading-4">
-            Reposted by XXX
-          </span>
-        </div>
+        )}
         <div className="flex gap-2">
           <div className="flex flex-col">
             <Avatar size="lg">
@@ -149,20 +148,16 @@ export function PostItem({
           </div>
 
           <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-1 text-muted-foreground">
-              <span className="font-bold text-foreground hover:underline">
+            <p className="flex items-center gap-1 pb-1 text-muted-foreground leading-tight">
+              <span className="font-semibold text-foreground hover:underline">
                 {user.name}
               </span>
               <span>@{user.username}</span>
-              {post.created_at ? (
-                <>
-                  <span>·</span>
-                  <span>{dayjs(post.created_at).format("MMM D")}</span>
-                </>
-              ) : null}
-            </div>
+              <span>·</span>
+              <span>{dayjs(post.created_at).format("MMM D")}</span>
+            </p>
 
-            <p className="wrap-break-word whitespace-pre-wrap leading-normal">
+            <p className="wrap-break-word whitespace-pre-wrap leading-tight">
               {post.content}
             </p>
             {post.media && post.media.length > 0 && (

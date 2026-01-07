@@ -117,23 +117,8 @@ export default function NotificationList() {
     isLoading,
     isError,
   } = useLiveInfiniteQuery(
-    (q) => {
-      if (!session?.user?.id) {
-        return q
-          .from({ notification: electricNotificationCollection })
-          .innerJoin(
-            { user: electricUserCollection },
-            ({ notification, user }) => eq(notification.creator_id, user.id),
-          )
-          .leftJoin(
-            { post: electricPostCollection },
-            ({ notification, post }) =>
-              eq(notification.reason_subject_id, post.id),
-          )
-          .where(({ notification }) => isUndefined(notification.recipient_id))
-          .orderBy(({ notification }) => notification.id, "desc");
-      }
-      return q
+    (q) =>
+      q
         .from({ notification: electricNotificationCollection })
         .where(({ notification }) =>
           eq(notification.recipient_id, session?.user?.id),
@@ -144,8 +129,7 @@ export default function NotificationList() {
         .leftJoin({ post: electricPostCollection }, ({ notification, post }) =>
           eq(notification.reason_subject_id, post.id),
         )
-        .orderBy(({ notification }) => notification.id, "desc");
-    },
+        .orderBy(({ notification }) => notification.id, "desc"),
     {
       pageSize,
       getNextPageParam: (lastPage, allPages) =>

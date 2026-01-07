@@ -1,3 +1,4 @@
+import { IconRepeat } from "@tabler/icons-react";
 import {
   and,
   createLiveQueryCollection,
@@ -39,6 +40,11 @@ export default function PostsFeed({ userId }: { userId: string }) {
       q
         .from({ feed_item: electricFeedItemCollection })
         .innerJoin(
+          { feed_creator: electricUserCollection },
+          ({ feed_item, feed_creator }) =>
+            eq(feed_item.creator_id, feed_creator.id),
+        )
+        .innerJoin(
           { postWithUser: postsWithUser },
           ({ feed_item, postWithUser }) =>
             eq(feed_item.post_id, postWithUser.post.id),
@@ -66,11 +72,13 @@ export default function PostsFeed({ userId }: { userId: string }) {
         .select(
           ({
             feed_item,
+            feed_creator,
             postWithUser: { post, user },
             reply_parent,
             reply_root,
           }) => ({
             feed_item,
+            feed_creator,
             post,
             user,
             reply_parent_post: reply_parent?.post,
@@ -92,6 +100,7 @@ export default function PostsFeed({ userId }: { userId: string }) {
     .map(
       ({
         feed_item,
+        feed_creator,
         post,
         user,
         reply_parent_post,
@@ -100,7 +109,7 @@ export default function PostsFeed({ userId }: { userId: string }) {
         reply_root_user,
       }) => {
         if (feed_item.type === "repost") {
-          return [{ feed_item, post, user }];
+          return [{ feed_item, feed_creator, post, user }];
         }
         const post_slice = [];
         if (
@@ -110,6 +119,7 @@ export default function PostsFeed({ userId }: { userId: string }) {
         ) {
           post_slice.push({
             feed_item,
+            feed_creator,
             post: reply_root_post,
             user: reply_root_user,
           });
@@ -122,6 +132,7 @@ export default function PostsFeed({ userId }: { userId: string }) {
         ) {
           post_slice.push({
             feed_item,
+            feed_creator,
             post: reply_parent_post,
             user: reply_parent_user,
           });
@@ -130,7 +141,7 @@ export default function PostsFeed({ userId }: { userId: string }) {
         if (seenPostIds.has(post.id)) {
           return [];
         }
-        post_slice.push({ feed_item, post, user });
+        post_slice.push({ feed_item, feed_creator, post, user });
         seenPostIds.add(post.id);
         return post_slice;
       },
@@ -150,11 +161,23 @@ export default function PostsFeed({ userId }: { userId: string }) {
         return `${feedItem.creator_id}-${feedItem.type}-${feedItem.post_id}`;
       }}
       renderItem={(item) =>
-        item.map(({ post, user }, idx) => (
+        item.map(({ post, user, feed_item, feed_creator }, idx) => (
           <PostItem
             key={post.id}
             post={post}
             user={user}
+            feedReason={
+              feed_item.type === "repost" && (
+                <div className="mt-2 mb-1 flex gap-2">
+                  <div className="w-10">
+                    <IconRepeat className="ml-auto size-4 text-muted-foreground" />
+                  </div>
+                  <span className="text-muted-foreground text-sm leading-none">
+                    Reposted by {feed_creator.name}
+                  </span>
+                </div>
+              )
+            }
             isRoot={idx === 0 && item.length > 1}
             isParent={idx > 0 && idx < item.length - 1}
             isChild={idx === item.length - 1 && item.length > 1}

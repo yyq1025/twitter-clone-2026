@@ -1,6 +1,5 @@
-import { generateReactHelpers } from "@uploadthing/react";
+import { genUploader } from "uploadthing/client";
 
 import type { UploadRouter } from "@/server/uploadthing";
 
-export const { useUploadThing, uploadFiles } =
-  generateReactHelpers<UploadRouter>();
+export const { uploadFiles } = genUploader<UploadRouter>();

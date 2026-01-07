@@ -1,6 +1,7 @@
 import { IconPhoto, IconX } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
 import { v7 as uuidv7 } from "uuid";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
   Carousel,
@@ -58,15 +59,14 @@ export function PostComposer({
 
   const onSubmit = async () => {
     if (!session?.user) return;
+
     if (!content.trim()) return;
 
     try {
       setSubmitting(true);
-      const uploadResponse = mediaFiles.length
-        ? await uploadFiles("imageUploader", {
-            files: mediaFiles.map((item) => item.file),
-          })
-        : [];
+      const uploadResponse = await uploadFiles("imageUploader", {
+        files: mediaFiles.map((item) => item.file),
+      });
 
       const postMedia = uploadResponse.map((upload) => ({
         url: upload.ufsUrl,
@@ -133,7 +133,15 @@ export function PostComposer({
         )}
 
         <div className="flex items-start gap-3">
-          <div className="size-10 rounded-full bg-gray-600" aria-hidden />
+          <Avatar>
+            <AvatarImage
+              src={session?.user?.image || undefined}
+              alt={session?.user?.name || "User"}
+            />
+            <AvatarFallback>
+              {session?.user?.name ? session.user.name[0].toUpperCase() : "U"}
+            </AvatarFallback>
+          </Avatar>
           <div className="flex-1 space-y-2">
             <Textarea
               rows={4}
@@ -195,11 +203,7 @@ export function PostComposer({
           </Button>
         </div>
 
-        <Button
-          className="rounded-full px-5 font-semibold"
-          disabled={!content.trim() || submitting}
-          onClick={onSubmit}
-        >
+        <Button disabled={!content.trim() || submitting} onClick={onSubmit}>
           {parentPost ? "Reply" : "Post"}
         </Button>
       </div>

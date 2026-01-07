@@ -8,6 +8,7 @@ import {
 } from "@/lib/collections";
 import { PostComposer } from "./post-composer";
 import { PostItem } from "./post-item";
+import { ThreadAnchor } from "./post-thread/thread-anchor";
 
 type ParentThreadProps = {
   postId: string;
@@ -42,15 +43,22 @@ function ParentThread({
     return null;
   }
 
+  const isRoot = !postData.post.reply_parent_id;
+
   return (
     <>
-      {postData.post.reply_parent_id ? (
+      {postData.post.reply_parent_id && (
         <ParentThread
           postId={postData.post.reply_parent_id}
           onParentLoaded={onParentLoaded}
         />
-      ) : null}
-      <PostItem post={postData.post} user={postData.user} />
+      )}
+      <PostItem
+        post={postData.post}
+        user={postData.user}
+        isRoot={isRoot}
+        isParent={!isRoot}
+      />
     </>
   );
 }
@@ -86,7 +94,7 @@ export function PostThread({ username, postId }: PostThreadProps) {
           eq(user.id, post.creator_id),
         )
         .where(({ post }) => eq(post.reply_parent_id, postId))
-        .orderBy(({ post }) => post.created_at, "desc"),
+        .orderBy(({ post }) => post.created_at, "asc"),
     [postId],
   );
 
@@ -112,7 +120,6 @@ export function PostThread({ username, postId }: PostThreadProps) {
 
   useEffect(() => {
     if (ref.current && parentsLoaded && postId === mainPostData?.post.id) {
-      console.log("Scrolling into view");
       ref.current.scrollIntoView();
     }
   }, [parentsLoaded, postId, mainPostData]);
@@ -139,16 +146,8 @@ export function PostThread({ username, postId }: PostThreadProps) {
       )}
 
       <div className="min-h-screen">
-        <div ref={ref} className="scroll-mt-15">
-          <PostItem post={mainPostData.post} user={mainPostData.user} />
-        </div>
-
-        <div className="border-gray-100 border-b">
-          <PostComposer
-            parentPost={mainPostData.post}
-            parentUser={mainPostData.user}
-          />
-        </div>
+        <div ref={ref} className="scroll-mt-15" />
+        <ThreadAnchor post={mainPostData.post} user={mainPostData.user} />
 
         {isRepliesLoading ? (
           <div className="p-4 text-sm">Loading replies...</div>
