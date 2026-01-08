@@ -12,6 +12,7 @@ import { useNavigate } from "@tanstack/react-router";
 import dayjs from "dayjs";
 import { type ReactNode, useState } from "react";
 import { CreatePostDialog } from "@/components/create-post-dialog";
+import ProfileHoverCard from "@/components/profile/profile-hover-card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Toggle } from "@/components/ui/toggle";
 import { mutateLike, mutateRepost } from "@/lib/actions";
@@ -134,12 +135,17 @@ export function PostItem({
         )}
         <div className="flex gap-2">
           <div className="flex flex-col">
-            <Avatar size="lg">
-              <AvatarImage src={user.image || undefined} alt={user.name} />
-              <AvatarFallback>
-                {user.name ? user.name[0].toUpperCase() : "U"}
-              </AvatarFallback>
-            </Avatar>
+            <ProfileHoverCard
+              trigger={
+                <Avatar size="lg">
+                  <AvatarImage src={user.image || undefined} alt={user.name} />
+                  <AvatarFallback>
+                    {user.name ? user.name[0].toUpperCase() : "U"}
+                  </AvatarFallback>
+                </Avatar>
+              }
+              user={user}
+            />
             <div className="mt-1 flex-1">
               {(isParent || isRoot) && (
                 <div className="mx-auto h-full w-0.5 bg-border" />
@@ -149,9 +155,14 @@ export function PostItem({
 
           <div className="min-w-0 flex-1">
             <p className="flex items-center gap-1 pb-1 text-muted-foreground leading-tight">
-              <span className="font-semibold text-foreground hover:underline">
-                {user.name}
-              </span>
+              <ProfileHoverCard
+                trigger={
+                  <span className="font-semibold text-foreground hover:underline">
+                    {user.name}
+                  </span>
+                }
+                user={user}
+              />
               <span>@{user.username}</span>
               <span>·</span>
               <span>{dayjs(post.created_at).format("MMM D")}</span>

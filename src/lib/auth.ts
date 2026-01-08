@@ -31,6 +31,10 @@ export const auth = betterAuth({
         type: "number",
         defaultValue: 0,
       },
+      bio: {
+        type: "string",
+        defaultValue: "",
+      },
     },
   },
   socialProviders: {

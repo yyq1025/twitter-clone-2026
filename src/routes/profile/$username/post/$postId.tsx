@@ -17,12 +17,12 @@ function RouteComponent() {
   const { username, postId } = Route.useParams();
   return (
     <>
-      <div className="sticky top-0 z-20 border-b bg-white/85 backdrop-blur-md">
-        <div className="flex items-center gap-3 px-4 py-3">
+      <div className="sticky top-0 z-20 flex h-14 items-center border-b bg-white/85 px-4 backdrop-blur-md">
+        <div className="flex min-w-14 items-center">
           <Button
             size="icon"
             variant="ghost"
-            className="rounded-full p-2 transition hover:bg-muted"
+            className="-m-2 rounded-full p-2"
             aria-label="Back"
             onClick={() => {
               if (canGoBack) {
@@ -34,8 +34,8 @@ function RouteComponent() {
           >
             <IconArrowLeft className="size-5" />
           </Button>
-          <span className="font-bold text-lg">Post</span>
         </div>
+        <span className="font-semibold text-lg">Post</span>
       </div>
       <PostThread username={username} postId={postId} />
     </>

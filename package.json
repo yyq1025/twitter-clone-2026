@@ -26,6 +26,7 @@
     "@tanstack/electric-db-collection": "^0.2.20",
     "@tanstack/react-db": "^0.1.60",
     "@tanstack/react-devtools": "^0.9.1",
+    "@tanstack/react-form": "^1.27.7",
     "@tanstack/react-router": "^1.145.7",
     "@tanstack/react-router-devtools": "^1.145.7",
     "@tanstack/react-router-ssr-query": "^1.145.7",

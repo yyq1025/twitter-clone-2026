@@ -10,6 +10,7 @@ import { and, eq, useLiveQuery } from "@tanstack/react-db";
 import dayjs from "dayjs";
 import { useState } from "react";
 import { CreatePostDialog } from "@/components/create-post-dialog";
+import ProfileHoverCard from "@/components/profile/profile-hover-card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Toggle } from "@/components/ui/toggle";
 import { mutateLike, mutateRepost } from "@/lib/actions";
@@ -88,17 +89,34 @@ export function ThreadAnchor({ post, user }: ThreadAnchorProps) {
           )}
         </div>
         <div className="flex items-center gap-2 pb-3">
-          <Avatar size="lg">
-            <AvatarImage src={user.image || undefined} alt={user.name} />
-            <AvatarFallback>
-              {user.name ? user.name[0].toUpperCase() : "U"}
-            </AvatarFallback>
-          </Avatar>
-          <div className="flex flex-1 flex-col">
-            <span className="font-semibold leading-tight">{user.name}</span>
-            <span className="text-muted-foreground leading-tight">
-              @{user.username}
-            </span>
+          <ProfileHoverCard
+            trigger={
+              <Avatar size="lg">
+                <AvatarImage src={user.image || undefined} alt={user.name} />
+                <AvatarFallback>
+                  {user.name ? user.name[0].toUpperCase() : "U"}
+                </AvatarFallback>
+              </Avatar>
+            }
+            user={user}
+          />
+          <div className="flex-1">
+            <ProfileHoverCard
+              trigger={
+                <p className="font-semibold leading-tight hover:underline">
+                  {user.name}
+                </p>
+              }
+              user={user}
+            />
+            <ProfileHoverCard
+              trigger={
+                <p className="text-muted-foreground leading-tight">
+                  @{user.username}
+                </p>
+              }
+              user={user}
+            />
           </div>
         </div>
         <p className="wrap-break-word whitespace-pre-wrap text-lg leading-tight">

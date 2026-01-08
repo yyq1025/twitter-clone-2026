@@ -1,14 +1,13 @@
 import { eq, useLiveQuery } from "@tanstack/react-db";
 import { useRouter } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
+import { PostItem } from "@/components/post-item";
+import { ThreadAnchor } from "@/components/post-thread/thread-anchor";
 import { authClient } from "@/lib/auth-client";
 import {
   electricPostCollection,
   electricUserCollection,
 } from "@/lib/collections";
-import { PostComposer } from "./post-composer";
-import { PostItem } from "./post-item";
-import { ThreadAnchor } from "./post-thread/thread-anchor";
 
 type ParentThreadProps = {
   postId: string;
@@ -149,7 +148,7 @@ export function PostThread({ username, postId }: PostThreadProps) {
       )}
 
       <div className="min-h-screen">
-        <div ref={ref} className="scroll-mt-15" />
+        <div ref={ref} className="scroll-mt-14" />
         <ThreadAnchor post={mainPostData.post} user={mainPostData.user} />
 
         {isRepliesLoading ? (

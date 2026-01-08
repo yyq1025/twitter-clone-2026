@@ -8,6 +8,7 @@ import {
 } from "@tanstack/react-router";
 import dayjs from "dayjs";
 import { Activity, use, useEffect, useState } from "react";
+import { EditProfileDialog } from "@/components/profile/edit-profile-dialog";
 import LikedPosts from "@/components/profile/liked-posts";
 import MediaFeed from "@/components/profile/media-feed";
 import PostsFeed from "@/components/profile/posts-feed";
@@ -42,6 +43,7 @@ function RouteComponent() {
   const router = useRouter();
   const canGoBack = useCanGoBack();
   const { data: session } = authClient.useSession();
+  const [editProfileOpen, setEditProfileOpen] = useState(false);
   const { data: user, isLoading: isUserLoading } = useLiveQuery(
     (q) =>
       q
@@ -88,12 +90,12 @@ function RouteComponent() {
 
   return (
     <>
-      <div className="sticky top-0 z-20 border-gray-100 border-b bg-white/85 backdrop-blur-md">
-        <div className="flex items-center gap-3 px-4 py-3">
+      <div className="sticky top-0 z-20 flex h-14 items-center border-b bg-white/85 px-4 backdrop-blur-md">
+        <div className="flex min-w-14 items-center">
           <Button
             size="icon"
             variant="ghost"
-            className="rounded-full p-2 transition hover:bg-muted"
+            className="-m-2 rounded-full p-2"
             aria-label="Back"
             onClick={() => {
               if (canGoBack) {
@@ -105,15 +107,16 @@ function RouteComponent() {
           >
             <IconArrowLeft className="size-5" />
           </Button>
-          <div>
-            <p className="font-semibold text-lg leading-tight">{displayName}</p>
-            <p className="text-muted-foreground text-sm">
-              {user.postsCount || 0} posts
-            </p>
-          </div>
+        </div>
+        <div>
+          <p className="font-semibold text-lg leading-tight">{displayName}</p>
+          <p className="text-muted-foreground text-sm leading-tight">
+            {user.postsCount || 0} posts
+          </p>
         </div>
       </div>
-      <div className="aspect-3/1 w-full bg-linear-to-r from-indigo-500 via-blue-500 to-sky-400" />
+
+      <div className="aspect-3/1 w-full bg-muted" />
 
       <div className="mb-4 px-4 pt-3">
         <div className="flex flex-wrap items-start justify-between">
@@ -129,6 +132,7 @@ function RouteComponent() {
             {session?.user?.id === user.id ? (
               <button
                 type="button"
+                onClick={() => setEditProfileOpen(true)}
                 className="rounded-full border border-gray-300 bg-white px-4 py-1.5 font-bold hover:bg-gray-100 focus-visible:bg-gray-100"
               >
                 Edit profile
@@ -174,10 +178,7 @@ function RouteComponent() {
             </div>
             <p className="text-muted-foreground">{handle}</p>
           </div>
-          <p>
-            Design lead at Polaris Labs. Sharing product sketches, build notes,
-            and photos from the coast.
-          </p>
+          <p>{user.bio}</p>
 
           <div className="flex flex-wrap gap-x-4 gap-y-2 text-muted-foreground">
             <span className="flex items-center gap-1">
@@ -250,6 +251,10 @@ function RouteComponent() {
           </Tabs.Panel>
         </Activity>
       </Tabs.Root>
+      <EditProfileDialog
+        open={editProfileOpen}
+        onOpenChange={setEditProfileOpen}
+      />
     </>
   );
 }

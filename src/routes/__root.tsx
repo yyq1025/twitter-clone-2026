@@ -117,7 +117,7 @@ function RootLayout() {
               <input
                 type="text"
                 placeholder="Search"
-                className="w-full rounded-full border border-transparent bg-gray-100 py-3 pr-4 pl-10 text-white transition focus:border-blue-500 focus:bg-black focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="w-full rounded-full border border-transparent bg-gray-100 py-3 pr-4 pl-10 transition focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
               />
             </div>
           </div>
@@ -161,7 +161,7 @@ function RootLayout() {
           </a>
         </div>
 
-        {/* <CreatePostDialog
+        <CreatePostDialog
           trigger={
             <Button
               size="icon-lg"
@@ -170,7 +170,7 @@ function RootLayout() {
               <IconFeatherFilled className="size-6" />
             </Button>
           }
-        /> */}
+        />
       </Activity>
     </VirtualizerContainer>
   );
