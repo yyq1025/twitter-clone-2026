@@ -163,7 +163,10 @@ export function PostItem({
                 }
                 user={user}
               />
-              <span>@{user.username}</span>
+              <ProfileHoverCard
+                trigger={<span>@{user.username}</span>}
+                user={user}
+              />
               <span>·</span>
               <span>{dayjs(post.created_at).format("MMM D")}</span>
             </p>
