@@ -59,7 +59,7 @@ export const Route = createFileRoute("/api/events")({
                 txid = await generateTxId(tx);
                 const [post] = await tx
                   .insert(posts)
-                  .values(event.payload)
+                  .values({ ...event.payload, creator_id: session.user.id })
                   .returning();
                 await tx.insert(feed_items).values({
                   type: "post",

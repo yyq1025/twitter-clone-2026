@@ -45,7 +45,6 @@ export function EditProfileDialog({
       onChange: formSchema,
     },
     onSubmit: async ({ value }) => {
-      console.log("Submitting", value);
       await authClient.updateUser({
         name: value.name,
         bio: value.bio,
