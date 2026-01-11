@@ -20,7 +20,9 @@ import { Route as ApiLikesRouteImport } from './routes/api/likes'
 import { Route as ApiFollowsRouteImport } from './routes/api/follows'
 import { Route as ApiFeedItemsRouteImport } from './routes/api/feed-items'
 import { Route as ApiEventsRouteImport } from './routes/api/events'
+import { Route as ApiBookmarksRouteImport } from './routes/api/bookmarks'
 import { Route as AuthenticatedNotificationsRouteImport } from './routes/_authenticated/notifications'
+import { Route as AuthenticatedBookmarksRouteImport } from './routes/_authenticated/bookmarks'
 import { Route as ProfileUsernameIndexRouteImport } from './routes/profile/$username/index'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as ProfileUsernamePostPostIdRouteImport } from './routes/profile/$username/post/$postId'
@@ -79,12 +81,22 @@ const ApiEventsRoute = ApiEventsRouteImport.update({
   path: '/api/events',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiBookmarksRoute = ApiBookmarksRouteImport.update({
+  id: '/api/bookmarks',
+  path: '/api/bookmarks',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedNotificationsRoute =
   AuthenticatedNotificationsRouteImport.update({
     id: '/notifications',
     path: '/notifications',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedBookmarksRoute = AuthenticatedBookmarksRouteImport.update({
+  id: '/bookmarks',
+  path: '/bookmarks',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const ProfileUsernameIndexRoute = ProfileUsernameIndexRouteImport.update({
   id: '/profile/$username/',
   path: '/profile/$username/',
@@ -104,7 +116,9 @@ const ProfileUsernamePostPostIdRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/bookmarks': typeof AuthenticatedBookmarksRoute
   '/notifications': typeof AuthenticatedNotificationsRoute
+  '/api/bookmarks': typeof ApiBookmarksRoute
   '/api/events': typeof ApiEventsRoute
   '/api/feed-items': typeof ApiFeedItemsRoute
   '/api/follows': typeof ApiFollowsRoute
@@ -120,7 +134,9 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/bookmarks': typeof AuthenticatedBookmarksRoute
   '/notifications': typeof AuthenticatedNotificationsRoute
+  '/api/bookmarks': typeof ApiBookmarksRoute
   '/api/events': typeof ApiEventsRoute
   '/api/feed-items': typeof ApiFeedItemsRoute
   '/api/follows': typeof ApiFollowsRoute
@@ -138,7 +154,9 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/_authenticated/bookmarks': typeof AuthenticatedBookmarksRoute
   '/_authenticated/notifications': typeof AuthenticatedNotificationsRoute
+  '/api/bookmarks': typeof ApiBookmarksRoute
   '/api/events': typeof ApiEventsRoute
   '/api/feed-items': typeof ApiFeedItemsRoute
   '/api/follows': typeof ApiFollowsRoute
@@ -156,7 +174,9 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/bookmarks'
     | '/notifications'
+    | '/api/bookmarks'
     | '/api/events'
     | '/api/feed-items'
     | '/api/follows'
@@ -172,7 +192,9 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/bookmarks'
     | '/notifications'
+    | '/api/bookmarks'
     | '/api/events'
     | '/api/feed-items'
     | '/api/follows'
@@ -189,7 +211,9 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/_authenticated'
+    | '/_authenticated/bookmarks'
     | '/_authenticated/notifications'
+    | '/api/bookmarks'
     | '/api/events'
     | '/api/feed-items'
     | '/api/follows'
@@ -207,6 +231,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  ApiBookmarksRoute: typeof ApiBookmarksRoute
   ApiEventsRoute: typeof ApiEventsRoute
   ApiFeedItemsRoute: typeof ApiFeedItemsRoute
   ApiFollowsRoute: typeof ApiFollowsRoute
@@ -300,11 +325,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiEventsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/bookmarks': {
+      id: '/api/bookmarks'
+      path: '/api/bookmarks'
+      fullPath: '/api/bookmarks'
+      preLoaderRoute: typeof ApiBookmarksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/notifications': {
       id: '/_authenticated/notifications'
       path: '/notifications'
       fullPath: '/notifications'
       preLoaderRoute: typeof AuthenticatedNotificationsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/bookmarks': {
+      id: '/_authenticated/bookmarks'
+      path: '/bookmarks'
+      fullPath: '/bookmarks'
+      preLoaderRoute: typeof AuthenticatedBookmarksRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/profile/$username/': {
@@ -332,10 +371,12 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedBookmarksRoute: typeof AuthenticatedBookmarksRoute
   AuthenticatedNotificationsRoute: typeof AuthenticatedNotificationsRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedBookmarksRoute: AuthenticatedBookmarksRoute,
   AuthenticatedNotificationsRoute: AuthenticatedNotificationsRoute,
 }
 
@@ -345,6 +386,7 @@ const AuthenticatedRouteRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  ApiBookmarksRoute: ApiBookmarksRoute,
   ApiEventsRoute: ApiEventsRoute,
   ApiFeedItemsRoute: ApiFeedItemsRoute,
   ApiFollowsRoute: ApiFollowsRoute,

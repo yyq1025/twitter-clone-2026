@@ -7,7 +7,7 @@ import {
   useRouter,
 } from "@tanstack/react-router";
 import dayjs from "dayjs";
-import { Activity, use, useEffect, useState } from "react";
+import { Activity, useState } from "react";
 import { EditProfileDialog } from "@/components/profile/edit-profile-dialog";
 import LikedPosts from "@/components/profile/liked-posts";
 import MediaFeed from "@/components/profile/media-feed";
@@ -18,6 +18,7 @@ import { Button } from "@/components/ui/button";
 import { mutateFollow } from "@/lib/actions";
 import { authClient } from "@/lib/auth-client";
 import {
+  electricBookmarkCollection,
   electricFollowCollection,
   electricLikeCollection,
   electricRepostCollection,
@@ -32,9 +33,10 @@ export const Route = createFileRoute("/profile/$username/")({
       await Promise.all([
         electricLikeCollection.preload(),
         electricRepostCollection.preload(),
+        electricBookmarkCollection.preload(),
       ]);
     }
-    return null;
+    return { user: session?.user };
   },
 });
 
@@ -42,9 +44,9 @@ function RouteComponent() {
   const { username } = Route.useParams();
   const router = useRouter();
   const canGoBack = useCanGoBack();
-  const { data: session } = authClient.useSession();
+  const { user: sessionUser } = Route.useLoaderData();
   const [editProfileOpen, setEditProfileOpen] = useState(false);
-  const { data: user, isLoading: isUserLoading } = useLiveQuery(
+  const { data: profileUser, isLoading: isProfileUserLoading } = useLiveQuery(
     (q) =>
       q
         .from({ user: electricUserCollection })
@@ -55,38 +57,35 @@ function RouteComponent() {
 
   const { data: userFollowing } = useLiveQuery(
     (q) => {
-      if (!session?.user?.id || !user?.id) {
+      if (!sessionUser?.id || !profileUser?.id) {
         return null;
       }
       return q
         .from({ follow: electricFollowCollection })
         .where(({ follow }) =>
           and(
-            eq(follow.creator_id, session.user.id),
-            eq(follow.subject_id, user.id),
+            eq(follow.creator_id, sessionUser.id),
+            eq(follow.subject_id, profileUser.id),
           ),
         )
         .findOne();
     },
-    [session?.user.id, user?.id],
+    [sessionUser?.id, profileUser?.id],
   );
 
-  if (isUserLoading) {
+  if (isProfileUserLoading) {
     return (
       <div className="p-4 text-center text-muted-foreground">Loading...</div>
     );
   }
 
-  if (!user) {
+  if (!profileUser) {
     return (
       <div className="p-4 text-center text-muted-foreground">
         User "{username}" not found.
       </div>
     );
   }
-
-  const handle = `@${username}`;
-  const displayName = user.name || "Unknown User";
 
   return (
     <>
@@ -109,9 +108,11 @@ function RouteComponent() {
           </Button>
         </div>
         <div>
-          <p className="font-semibold text-lg leading-tight">{displayName}</p>
+          <p className="font-semibold text-lg leading-tight">
+            {profileUser.name}
+          </p>
           <p className="text-muted-foreground text-sm leading-tight">
-            {user.postsCount || 0} posts
+            {profileUser.postsCount || 0} posts
           </p>
         </div>
       </div>
@@ -122,14 +123,17 @@ function RouteComponent() {
         <div className="flex flex-wrap items-start justify-between">
           <div className="-mt-[15%] mb-3 aspect-square w-1/4 min-w-12 rounded-full border-4 border-white">
             <Avatar className="size-full">
-              <AvatarImage src={user.image || undefined} alt={user.name} />
+              <AvatarImage
+                src={profileUser.image || undefined}
+                alt={profileUser.name}
+              />
               <AvatarFallback className="text-5xl">
-                {user.name ? user.name[0].toUpperCase() : "U"}
+                {profileUser.name ? profileUser.name[0].toUpperCase() : "U"}
               </AvatarFallback>
             </Avatar>
           </div>
           <div className="flex">
-            {session?.user?.id === user.id ? (
+            {sessionUser?.id === profileUser.id ? (
               <button
                 type="button"
                 onClick={() => setEditProfileOpen(true)}
@@ -141,10 +145,10 @@ function RouteComponent() {
               <button
                 type="button"
                 onClick={() => {
-                  if (!user || !session?.user) return;
+                  if (!profileUser || !sessionUser) return;
                   mutateFollow({
-                    userId: session.user.id,
-                    payload: { subject_id: user.id },
+                    userId: sessionUser.id,
+                    payload: { subject_id: profileUser.id },
                     type: "user.unfollow",
                   });
                 }}
@@ -152,14 +156,14 @@ function RouteComponent() {
               >
                 Following
               </button>
-            ) : (
+            ) : sessionUser ? (
               <button
                 type="button"
                 onClick={() => {
-                  if (!user || !session?.user) return;
+                  if (!profileUser || !sessionUser) return;
                   mutateFollow({
-                    userId: session.user.id,
-                    payload: { subject_id: user.id },
+                    userId: sessionUser.id,
+                    payload: { subject_id: profileUser.id },
                     type: "user.follow",
                   });
                 }}
@@ -167,33 +171,37 @@ function RouteComponent() {
               >
                 Follow
               </button>
-            )}
+            ) : null}
           </div>
         </div>
 
         <div className="mt-1 space-y-3">
           <div className="flex flex-col">
             <div className="flex items-center gap-2">
-              <h1 className="font-bold text-xl">{displayName}</h1>
+              <h1 className="font-bold text-xl">{profileUser.name}</h1>
             </div>
-            <p className="text-muted-foreground">{handle}</p>
+            <p className="text-muted-foreground">@{profileUser.username}</p>
           </div>
-          <p>{user.bio}</p>
+          <p>{profileUser.bio}</p>
 
           <div className="flex flex-wrap gap-x-4 gap-y-2 text-muted-foreground">
             <span className="flex items-center gap-1">
               <IconCalendar className="size-5" />
-              Joined {dayjs(user.createdAt).format("MMMM YYYY")}
+              Joined {dayjs(profileUser.createdAt).format("MMMM YYYY")}
             </span>
           </div>
 
           <div className="flex gap-4">
             <span>
-              <span className="font-semibold">{user.followsCount || 0}</span>{" "}
+              <span className="font-semibold">
+                {profileUser.followsCount || 0}
+              </span>{" "}
               <span className="text-muted-foreground">Following</span>
             </span>
             <span>
-              <span className="font-semibold">{user.followersCount || 0}</span>{" "}
+              <span className="font-semibold">
+                {profileUser.followersCount || 0}
+              </span>{" "}
               <span className="text-muted-foreground">Followers</span>
             </span>
           </div>
@@ -223,7 +231,9 @@ function RouteComponent() {
             <span>Media</span>
             <span className="absolute -bottom-px h-1 w-14 rounded-full bg-primary opacity-0 transition" />
           </Tabs.Tab>
-          <Activity mode={session?.user?.id === user.id ? "visible" : "hidden"}>
+          <Activity
+            mode={sessionUser?.id === profileUser.id ? "visible" : "hidden"}
+          >
             <Tabs.Tab
               value="likes"
               className="relative flex grow cursor-pointer justify-center py-4 text-center font-semibold text-muted-foreground outline-none transition hover:bg-gray-50 data-active:text-black data-active:*:opacity-100"
@@ -235,19 +245,21 @@ function RouteComponent() {
         </Tabs.List>
 
         <Tabs.Panel value="posts">
-          <PostsFeed userId={user.id} />
+          <PostsFeed userId={profileUser.id} />
         </Tabs.Panel>
 
         <Tabs.Panel value="replies">
-          <RepliesFeed userId={user.id} />
+          <RepliesFeed userId={profileUser.id} />
         </Tabs.Panel>
 
         <Tabs.Panel value="media">
-          <MediaFeed userId={user.id} />
+          <MediaFeed userId={profileUser.id} />
         </Tabs.Panel>
-        <Activity mode={session?.user?.id === user.id ? "visible" : "hidden"}>
+        <Activity
+          mode={sessionUser?.id === profileUser.id ? "visible" : "hidden"}
+        >
           <Tabs.Panel value="likes">
-            <LikedPosts userId={user.id} />
+            <LikedPosts userId={profileUser.id} />
           </Tabs.Panel>
         </Activity>
       </Tabs.Root>

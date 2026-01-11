@@ -5,6 +5,7 @@ import {
   use,
   useRef,
 } from "react";
+import { cn } from "@/lib/utils";
 
 type VirtualizerContextValue = {
   parentRef: RefObject<HTMLDivElement | null>;
@@ -12,12 +13,21 @@ type VirtualizerContextValue = {
 
 const VirtualizerContext = createContext<VirtualizerContextValue | null>(null);
 
-export const VirtualizerContainer = ({ children }: { children: ReactNode }) => {
+export const VirtualizerContainer = ({
+  children,
+  className,
+}: {
+  children: ReactNode;
+  className?: string;
+}) => {
   const parentRef = useRef<HTMLDivElement | null>(null);
 
   return (
     <VirtualizerContext.Provider value={{ parentRef: parentRef }}>
-      <div ref={parentRef} className="h-screen w-full overflow-auto">
+      <div
+        ref={parentRef}
+        className={cn("h-screen w-full overflow-auto", className)}
+      >
         {children}
       </div>
     </VirtualizerContext.Provider>

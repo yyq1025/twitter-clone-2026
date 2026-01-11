@@ -4,13 +4,14 @@ import { getRequestHeaders } from "@tanstack/react-start/server";
 import { and, eq, sql } from "drizzle-orm";
 import type { PgTransaction } from "drizzle-orm/pg-core";
 import { db } from "@/db";
-import { users } from "@/db/schema/auth-schema";
-import { feed_items } from "@/db/schema/feed-item-schema";
-import { follows } from "@/db/schema/follow-schema";
-import { likes } from "@/db/schema/like-schema";
-import { notifications } from "@/db/schema/notification-schema";
-import { posts } from "@/db/schema/post-shema";
-import { reposts } from "@/db/schema/repost-schema";
+import { users } from "@/db/schema/better-auth";
+import { bookmarks } from "@/db/schema/bookmark";
+import { feed_items } from "@/db/schema/feed-item";
+import { follows } from "@/db/schema/follow";
+import { likes } from "@/db/schema/like";
+import { notifications } from "@/db/schema/notification";
+import { posts } from "@/db/schema/post";
+import { reposts } from "@/db/schema/repost";
 import { auth } from "@/lib/auth";
 import { eventSchema } from "@/lib/validators";
 
@@ -237,6 +238,46 @@ export const Route = createFileRoute("/api/events")({
                       eq(notifications.reason_subject_id, repost.subject_id),
                     ),
                   );
+              });
+              break;
+            }
+            case "post.bookmark": {
+              await db.transaction(async (tx) => {
+                txid = await generateTxId(tx);
+                await tx.insert(bookmarks).values({
+                  creator_id: session.user.id,
+                  subject_id: event.payload.subject_id,
+                });
+                await tx
+                  .update(posts)
+                  .set({
+                    bookmark_count: sql`${posts.bookmark_count} + 1`,
+                  })
+                  .where(eq(posts.id, event.payload.subject_id));
+              });
+              break;
+            }
+            case "post.unbookmark": {
+              await db.transaction(async (tx) => {
+                txid = await generateTxId(tx);
+                const [bookmark] = await tx
+                  .delete(bookmarks)
+                  .where(
+                    and(
+                      eq(bookmarks.subject_id, event.payload.subject_id),
+                      eq(bookmarks.creator_id, session.user.id),
+                    ),
+                  )
+                  .returning();
+                if (!bookmark) {
+                  throw new Error("Bookmark not found");
+                }
+                await tx
+                  .update(posts)
+                  .set({
+                    bookmark_count: sql`${posts.bookmark_count} - 1`,
+                  })
+                  .where(eq(posts.id, bookmark.subject_id));
               });
               break;
             }

@@ -2,6 +2,7 @@ import {
   IconBell,
   IconBellFilled,
   IconBookmark,
+  IconBookmarkFilled,
   IconHome,
   IconHomeFilled,
   IconUser,
@@ -11,27 +12,41 @@ import { and, eq, gt, useLiveQuery } from "@tanstack/react-db";
 import { Link } from "@tanstack/react-router";
 import { Badge } from "@/components/ui/badge";
 import { authClient } from "@/lib/auth-client";
-import { electricNotificationCollection } from "@/lib/collections";
+import {
+  electricNotificationCollection,
+  electricUserCollection,
+} from "@/lib/collections";
 import { cn } from "@/lib/utils";
 
 export default function Navbar() {
   const { data: session } = authClient.useSession();
 
-  const { data: unreadNotifications } = useLiveQuery(
+  const { data: user } = useLiveQuery(
     (q) => {
       if (!session?.user?.id) return null;
+      return q
+        .from({ user: electricUserCollection })
+        .where(({ user }) => eq(user.id, session.user.id))
+        .findOne();
+    },
+    [session?.user?.id],
+  );
+
+  const { data: unreadNotifications } = useLiveQuery(
+    (q) => {
+      if (!user?.id) return null;
       return q
         .from({
           notification: electricNotificationCollection,
         })
         .where(({ notification }) =>
           and(
-            eq(notification.recipient_id, session?.user?.id),
-            gt(notification.id, session?.user?.lastSeenNotificationId || 0),
+            eq(notification.recipient_id, user.id),
+            gt(notification.id, user.lastSeenNotificationId || 0),
           ),
         );
     },
-    [session],
+    [user],
   );
 
   return (
@@ -82,13 +97,22 @@ export default function Navbar() {
           </>
         )}
       </Link>
-      <a
-        href="#"
+      <Link
+        to="/bookmarks"
+        activeProps={{ "aria-current": "page", className: "font-bold" }}
         className="flex w-max items-center gap-4 rounded-full p-3 transition hover:bg-muted"
       >
-        <IconBookmark className="size-7" />
-        <span className="hidden text-xl xl:block">Bookmarks</span>
-      </a>
+        {({ isActive }) => (
+          <>
+            {isActive ? (
+              <IconBookmarkFilled className="size-7" />
+            ) : (
+              <IconBookmark className="size-7" />
+            )}
+            <span className="hidden text-xl xl:block">Bookmarks</span>
+          </>
+        )}
+      </Link>
       {session?.user.username && (
         <Link
           to="/profile/$username"

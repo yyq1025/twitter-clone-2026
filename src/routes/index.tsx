@@ -1,10 +1,10 @@
 import { Tabs } from "@base-ui/react/tabs";
 import { createFileRoute } from "@tanstack/react-router";
-import { Activity, useEffect, useState } from "react";
 import FollowingFeed from "@/components/home/following-feed";
 import TimelineFeed from "@/components/home/timeline-feed";
 import { authClient } from "@/lib/auth-client";
 import {
+  electricBookmarkCollection,
   electricLikeCollection,
   electricRepostCollection,
 } from "@/lib/collections";
@@ -16,15 +16,17 @@ export const Route = createFileRoute("/")({
       await Promise.all([
         electricLikeCollection.preload(),
         electricRepostCollection.preload(),
+        electricBookmarkCollection.preload(),
       ]);
     }
 
-    return null;
+    return { user: session?.user };
   },
   component: App,
 });
 
 function App() {
+  const { user } = Route.useLoaderData();
   return (
     <Tabs.Root defaultValue="for-you">
       <Tabs.List className="sticky top-0 z-10 flex border-b bg-white/85 backdrop-blur-md">
@@ -49,7 +51,7 @@ function App() {
       </Tabs.Panel>
 
       <Tabs.Panel value="following">
-        <FollowingFeed />
+        {user && <FollowingFeed userId={user.id} />}
       </Tabs.Panel>
     </Tabs.Root>
   );

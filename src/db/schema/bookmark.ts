@@ -6,11 +6,11 @@ import {
   timestamp,
   uuid,
 } from "drizzle-orm/pg-core";
-import { users } from "./auth-schema";
-import { posts } from "./post-shema";
+import { users } from "./better-auth";
+import { posts } from "./post";
 
-export const reposts = pgTable(
-  "reposts",
+export const bookmarks = pgTable(
+  "bookmarks",
   {
     creator_id: text()
       .notNull()

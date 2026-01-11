@@ -15,9 +15,10 @@ import { CreatePostDialog } from "@/components/create-post-dialog";
 import ProfileHoverCard from "@/components/profile/profile-hover-card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Toggle } from "@/components/ui/toggle";
-import { mutateLike, mutateRepost } from "@/lib/actions";
+import { mutateBookmark, mutateLike, mutateRepost } from "@/lib/actions";
 import { authClient } from "@/lib/auth-client";
 import {
+  electricBookmarkCollection,
   electricLikeCollection,
   electricRepostCollection,
 } from "@/lib/collections";
@@ -76,6 +77,22 @@ export function PostItem({
     [session?.user?.id, post.id],
   );
 
+  const { data: userBookmarked } = useLiveQuery(
+    (q) => {
+      if (!session?.user?.id) return null;
+      return q
+        .from({ bookmark: electricBookmarkCollection })
+        .where(({ bookmark }) =>
+          and(
+            eq(bookmark.subject_id, post.id),
+            eq(bookmark.creator_id, session.user.id),
+          ),
+        )
+        .findOne();
+    },
+    [session?.user?.id, post.id],
+  );
+
   const handleLikeMutate = () => {
     if (!session?.user?.id) return;
     mutateLike({
@@ -89,6 +106,15 @@ export function PostItem({
     if (!session?.user?.id) return;
     mutateRepost({
       type: userReposted ? "post.unrepost" : "post.repost",
+      payload: { subject_id: post.id },
+      userId: session.user.id,
+    });
+  };
+
+  const handleBookmarkMutate = () => {
+    if (!session?.user?.id) return;
+    mutateBookmark({
+      type: userBookmarked ? "post.unbookmark" : "post.bookmark",
       payload: { subject_id: post.id },
       userId: session.user.id,
     });
@@ -248,9 +274,14 @@ export function PostItem({
                   <span className="text-sm">{post.like_count}</span>
                 </Toggle>
               </div>
-              <Toggle className="group mr-2 flex cursor-pointer items-center gap-2 text-muted-foreground hover:bg-transparent hover:text-blue-600 aria-pressed:bg-transparent">
+              <Toggle
+                className="group mr-2 flex cursor-pointer items-center gap-2 text-muted-foreground hover:bg-transparent hover:text-blue-600 aria-pressed:bg-transparent"
+                onClick={(e) => e.stopPropagation()}
+                onPressedChange={handleBookmarkMutate}
+                pressed={!!userBookmarked}
+              >
                 <span className="-m-2 rounded-full p-2 group-hover:bg-blue-600/10">
-                  <IconBookmark className="size-5" />
+                  <IconBookmark className="size-5 group-aria-pressed:fill-blue-600 group-aria-pressed:stroke-blue-600" />
                 </span>
               </Toggle>
               <Button className="group flex cursor-pointer items-center gap-2 text-muted-foreground hover:text-blue-600">

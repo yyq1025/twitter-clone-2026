@@ -2,6 +2,7 @@ import { FetchError, snakeCamelMapper } from "@electric-sql/client";
 import { electricCollectionOptions } from "@tanstack/electric-db-collection";
 import { createCollection } from "@tanstack/react-db";
 import {
+  selectBookmarkSchema,
   selectFeedItemSchema,
   selectFollowSchema,
   selectLikeSchema,
@@ -103,6 +104,21 @@ export const electricRepostCollection = createCollection(
       },
     },
     schema: selectRepostSchema,
+    getKey: (item) => `${item.creator_id}-${item.subject_id}`,
+  }),
+);
+
+export const electricBookmarkCollection = createCollection(
+  electricCollectionOptions({
+    id: "bookmarks",
+    shapeOptions: {
+      url: `${baseUrl}/api/bookmarks`,
+      parser: {
+        timestamptz: (date: string) => new Date(date),
+      },
+      liveSse: true,
+    },
+    schema: selectBookmarkSchema,
     getKey: (item) => `${item.creator_id}-${item.subject_id}`,
   }),
 );

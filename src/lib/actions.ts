@@ -1,5 +1,6 @@
 import { createOptimisticAction } from "@tanstack/react-db";
 import {
+  electricBookmarkCollection,
   electricFeedItemCollection,
   electricFollowCollection,
   electricLikeCollection,
@@ -22,6 +23,7 @@ export const createPost = createOptimisticAction<{
       created_at: new Date(),
       like_count: 0,
       repost_count: 0,
+      bookmark_count: 0,
       reply_count: 0,
       reply_root_id: payload.reply_root_id || null,
       reply_parent_id: payload.reply_parent_id || null,
@@ -171,6 +173,57 @@ export const mutateRepost = createOptimisticAction<{
       electricRepostCollection.utils.awaitTxId(txid),
       electricPostCollection.utils.awaitTxId(txid),
       electricFeedItemCollection.utils.awaitTxId(txid),
+    ]);
+  },
+});
+
+export const mutateBookmark = createOptimisticAction<{
+  type: "post.bookmark" | "post.unbookmark";
+  payload: { subject_id: string };
+  userId: string;
+}>({
+  onMutate: ({ type, payload, userId }) => {
+    if (type === "post.bookmark") {
+      electricBookmarkCollection.insert({
+        creator_id: userId,
+        subject_id: payload.subject_id,
+        created_at: new Date(),
+      });
+
+      electricPostCollection.update(payload.subject_id, (draft) => {
+        draft.bookmark_count += 1;
+      });
+    } else if (type === "post.unbookmark") {
+      electricBookmarkCollection.delete(`${userId}-${payload.subject_id}`);
+
+      electricPostCollection.update(payload.subject_id, (draft) => {
+        draft.bookmark_count -= 1;
+      });
+    }
+  },
+  mutationFn: async ({ type, payload }) => {
+    const response = await fetch(`/api/events`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        type,
+        payload,
+      }),
+    });
+    if (!response.ok) {
+      throw new Error(
+        `Failed to ${
+          type === "post.bookmark" ? "bookmark" : "unbookmark"
+        } post`,
+      );
+    }
+    const { txid } = await response.json();
+
+    await Promise.all([
+      electricBookmarkCollection.utils.awaitTxId(txid),
+      electricPostCollection.utils.awaitTxId(txid),
     ]);
   },
 });

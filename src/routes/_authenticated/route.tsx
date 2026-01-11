@@ -10,6 +10,7 @@ export const Route = createFileRoute("/_authenticated")({
         replace: true,
       });
     }
+    return { user: session.user };
   },
   component: () => <Outlet />,
 });

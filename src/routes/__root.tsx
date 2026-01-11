@@ -79,13 +79,13 @@ function RootLayout() {
   return (
     <VirtualizerContainer>
       <div className="mx-auto flex max-w-7xl justify-center">
-        <header className="sticky top-0 hidden h-screen w-20 flex-col justify-between px-2 py-4 sm:flex xl:w-2xs">
+        <header className="sticky top-0 hidden h-screen w-20 flex-col justify-between gap-4 overflow-auto px-2 py-4 sm:flex xl:w-2xs">
           <div className="flex flex-col items-center gap-4 xl:items-start">
             <div className="w-min cursor-pointer rounded-full p-3 transition hover:bg-gray-100">
               <IconBrandTwitter className="size-7" />
             </div>
 
-            <Activity mode={session?.user && !isPending ? "visible" : "hidden"}>
+            <Activity mode={!isPending && session?.user ? "visible" : "hidden"}>
               <Navbar />
 
               <CreatePostDialog

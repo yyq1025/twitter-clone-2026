@@ -7,7 +7,7 @@ import {
   timestamp,
   uuid,
 } from "drizzle-orm/pg-core";
-import { users } from "./auth-schema";
+import { users } from "./better-auth";
 
 interface PostMedia {
   url: string;
@@ -36,6 +36,7 @@ export const posts = pgTable("posts", {
   repost_count: integer().default(0).notNull(),
   reply_count: integer().default(0).notNull(),
   like_count: integer().default(0).notNull(),
+  bookmark_count: integer().default(0).notNull(),
 
   created_at: timestamp({ withTimezone: true }).defaultNow().notNull(),
 });

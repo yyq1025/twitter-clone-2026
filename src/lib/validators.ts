@@ -1,12 +1,13 @@
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import * as z from "zod";
-import { users } from "@/db/schema/auth-schema";
-import { feed_items } from "@/db/schema/feed-item-schema";
-import { follows } from "@/db/schema/follow-schema";
-import { likes } from "@/db/schema/like-schema";
-import { notifications } from "@/db/schema/notification-schema";
-import { posts } from "@/db/schema/post-shema";
-import { reposts } from "@/db/schema/repost-schema";
+import { users } from "@/db/schema/better-auth";
+import { bookmarks } from "@/db/schema/bookmark";
+import { feed_items } from "@/db/schema/feed-item";
+import { follows } from "@/db/schema/follow";
+import { likes } from "@/db/schema/like";
+import { notifications } from "@/db/schema/notification";
+import { posts } from "@/db/schema/post";
+import { reposts } from "@/db/schema/repost";
 
 export const selectUserSchema = createSelectSchema(users);
 export type SelectUser = z.infer<typeof selectUserSchema>;
@@ -19,15 +20,16 @@ export type SelectPost = z.infer<typeof selectPostSchema>;
 export const insertPostSchema = createInsertSchema(posts, {
   content: (schema) => schema.min(1, "Content is required").max(280),
 });
+
 export type InsertPost = z.infer<typeof insertPostSchema>;
 
 export const selectLikeSchema = createSelectSchema(likes);
 
 export const selectRepostSchema = createSelectSchema(reposts);
 
+export const selectBookmarkSchema = createSelectSchema(bookmarks);
+
 export const selectFollowSchema = createSelectSchema(follows);
-export const insertFollowSchema = createInsertSchema(follows);
-export type InsertFollow = z.infer<typeof insertFollowSchema>;
 
 const postCreateEventSchema = z.object({
   type: z.literal("post.create"),
@@ -41,6 +43,8 @@ const postActionEventSchema = z.object({
     "post.unlike",
     "post.repost",
     "post.unrepost",
+    "post.bookmark",
+    "post.unbookmark",
   ]),
   payload: z.object({
     subject_id: selectPostSchema.shape.id,

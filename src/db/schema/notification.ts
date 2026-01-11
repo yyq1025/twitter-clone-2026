@@ -1,6 +1,6 @@
 import { pgTable, serial, text, timestamp, uuid } from "drizzle-orm/pg-core";
-import { users } from "./auth-schema";
-import { posts } from "./post-shema";
+import { users } from "./better-auth";
+import { posts } from "./post";
 
 export const notifications = pgTable("notifications", {
   id: serial().primaryKey(),

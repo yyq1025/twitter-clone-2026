@@ -1,5 +1,10 @@
 import { IconHeartFilled, IconRepeat, IconUserPlus } from "@tabler/icons-react";
-import { eq, isUndefined, useLiveInfiniteQuery } from "@tanstack/react-db";
+import {
+  eq,
+  isUndefined,
+  useLiveInfiniteQuery,
+  useLiveQuery,
+} from "@tanstack/react-db";
 import dayjs from "dayjs";
 import { useEffect, useState } from "react";
 import { PostItem } from "@/components/post-item";
@@ -106,9 +111,18 @@ function NotificationItem({
 
 const pageSize = 50;
 
-export default function NotificationList() {
-  const { data: session } = authClient.useSession();
+export default function NotificationList({ userId }: { userId: string }) {
   const [updating, setUpdating] = useState(false);
+
+  const { data: user } = useLiveQuery(
+    (q) =>
+      q
+        .from({ user: electricUserCollection })
+        .where(({ user }) => eq(user.id, userId))
+        .findOne(),
+    [userId],
+  );
+
   const {
     data,
     hasNextPage,
@@ -120,9 +134,7 @@ export default function NotificationList() {
     (q) =>
       q
         .from({ notification: electricNotificationCollection })
-        .where(({ notification }) =>
-          eq(notification.recipient_id, session?.user?.id),
-        )
+        .where(({ notification }) => eq(notification.recipient_id, userId))
         .innerJoin({ user: electricUserCollection }, ({ notification, user }) =>
           eq(notification.creator_id, user.id),
         )
@@ -135,15 +147,16 @@ export default function NotificationList() {
       getNextPageParam: (lastPage, allPages) =>
         lastPage.length === pageSize ? allPages.length : undefined,
     },
-    [session?.user?.id],
+    [userId],
   );
 
   useEffect(() => {
+    let mounted = true;
     if (
       data?.length &&
-      session &&
+      user &&
       !updating &&
-      data[0].notification.id > (session.user.lastSeenNotificationId || 0)
+      data[0].notification.id > (user?.lastSeenNotificationId || 0)
     ) {
       setUpdating(true);
       authClient
@@ -151,10 +164,13 @@ export default function NotificationList() {
           lastSeenNotificationId: data[0].notification.id,
         })
         .finally(() => {
-          setUpdating(false);
+          if (mounted) setUpdating(false);
         });
     }
-  }, [data, session, updating]);
+    return () => {
+      mounted = false;
+    };
+  }, [data, user, updating]);
 
   const groupedNotifications: {
     notification: SelectNotification;

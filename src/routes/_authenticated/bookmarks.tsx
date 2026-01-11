@@ -4,7 +4,7 @@ import {
   useCanGoBack,
   useRouter,
 } from "@tanstack/react-router";
-import NotificationList from "@/components/notifications/notification-list";
+import BookmarkList from "@/components/bookmarks/bookmark-list";
 import { Button } from "@/components/ui/button";
 import {
   electricBookmarkCollection,
@@ -12,11 +12,11 @@ import {
   electricRepostCollection,
 } from "@/lib/collections";
 
-export const Route = createFileRoute("/_authenticated/notifications")({
+export const Route = createFileRoute("/_authenticated/bookmarks")({
   loader: async ({ context }) => {
     await Promise.all([
-      electricBookmarkCollection.preload(),
       electricLikeCollection.preload(),
+      electricBookmarkCollection.preload(),
       electricRepostCollection.preload(),
     ]);
     return context;
@@ -47,10 +47,10 @@ function RouteComponent() {
           >
             <IconArrowLeft className="size-5" />
           </Button>
-          <span className="font-semibold text-lg">Notifications</span>
+          <span className="font-semibold text-lg">Bookmarks</span>
         </div>
       </div>
-      <NotificationList userId={user.id} />
+      <BookmarkList userId={user.id} />
     </>
   );
 }

@@ -1,5 +1,5 @@
 import { pgTable, primaryKey, text, timestamp } from "drizzle-orm/pg-core";
-import { users } from "./auth-schema";
+import { users } from "./better-auth";
 
 export const follows = pgTable(
   "follows",

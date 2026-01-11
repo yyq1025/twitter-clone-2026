@@ -4,7 +4,7 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { anonymous, username } from "better-auth/plugins";
 import { tanstackStartCookies } from "better-auth/tanstack-start";
 import { db } from "@/db";
-import * as authSchema from "@/db/schema/auth-schema";
+import * as authSchema from "@/db/schema/better-auth";
 
 export const auth = betterAuth({
   baseURL: process.env.BETTER_AUTH_URL,

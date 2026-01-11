@@ -1,4 +1,5 @@
 import { IconDots } from "@tabler/icons-react";
+import { useRouter } from "@tanstack/react-router";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -9,17 +10,19 @@ import {
 import { authClient } from "@/lib/auth-client";
 
 export function UserDropdown() {
+  const router = useRouter();
   const { data: session } = authClient.useSession();
 
   if (!session?.user) {
     return null;
   }
 
-  const displayName = session.user.name ?? "User Name";
+  const displayName = session.user.name;
   const username = session.user.username ?? "username";
 
   const handleLogout = async () => {
     await authClient.signOut();
+    await router.invalidate();
   };
 
   return (

@@ -1,8 +1,8 @@
 import { IconRepeat } from "@tabler/icons-react";
-import { and, eq, isNull, useLiveInfiniteQuery } from "@tanstack/react-db";
+import { eq, isNull, useLiveInfiniteQuery } from "@tanstack/react-db";
 import { PostItem } from "@/components/post-item";
 import VirtualInfiniteList from "@/components/virtual-infinite-list";
-import { authClient } from "@/lib/auth-client";
+
 import {
   electricFeedItemCollection,
   electricFollowCollection,
@@ -12,8 +12,7 @@ import {
 
 const pageSize = 20;
 
-export default function FollowingFeed() {
-  const { data: session } = authClient.useSession();
+export default function FollowingFeed({ userId }: { userId: string }) {
   const {
     data,
     hasNextPage,
@@ -25,7 +24,7 @@ export default function FollowingFeed() {
     (q) =>
       q
         .from({ follow: electricFollowCollection })
-        .where(({ follow }) => eq(follow.creator_id, session?.user?.id))
+        .where(({ follow }) => eq(follow.creator_id, userId))
         .innerJoin(
           { feed_item: electricFeedItemCollection },
           ({ follow, feed_item }) =>
@@ -55,7 +54,7 @@ export default function FollowingFeed() {
       getNextPageParam: (lastPage, allPages) =>
         lastPage.length === pageSize ? allPages.length : undefined,
     },
-    [session?.user?.id],
+    [userId],
   );
 
   return (
