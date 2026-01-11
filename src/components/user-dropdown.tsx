@@ -36,10 +36,10 @@ export function UserDropdown() {
             <Avatar>
               <AvatarImage
                 src={session.user.image || undefined}
-                alt={session.user.name || "User"}
+                alt={session.user.name}
               />
               <AvatarFallback>
-                {session.user.name ? session.user.name[0].toUpperCase() : "U"}
+                {session.user.name[0].toUpperCase()}
               </AvatarFallback>
             </Avatar>
             <div className="hidden text-left xl:block">

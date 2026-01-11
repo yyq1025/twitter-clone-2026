@@ -1,5 +1,5 @@
+import { useLocation } from "@tanstack/react-router";
 import { type ReactElement, useState } from "react";
-
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -28,13 +28,19 @@ type SignInDrawerDialogProps = {
 export function SignInDrawerDialog({
   trigger,
 }: Readonly<SignInDrawerDialogProps>) {
+  const location = useLocation();
   const isDesktop = useMediaQuery("(min-width: 768px)");
+  const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState<"google" | "anonymous" | null>(null);
 
   const handleGoogleSignIn = async () => {
     setLoading("google");
     try {
-      await authClient.signIn.social({ provider: "google" });
+      await authClient.signIn.social({
+        provider: "google",
+        callbackURL: location.href,
+      });
+      setOpen(false);
     } finally {
       setLoading(null);
     }
@@ -44,6 +50,7 @@ export function SignInDrawerDialog({
     setLoading("anonymous");
     try {
       await authClient.signIn.anonymous();
+      setOpen(false);
     } finally {
       setLoading(null);
     }
@@ -75,7 +82,7 @@ export function SignInDrawerDialog({
 
   if (isDesktop) {
     return (
-      <Dialog>
+      <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger
           render={
             trigger ?? (
@@ -98,7 +105,7 @@ export function SignInDrawerDialog({
   }
 
   return (
-    <Drawer>
+    <Drawer open={open} onOpenChange={setOpen}>
       <DrawerTrigger asChild>
         {trigger ?? <Button className="rounded-full font-bold">Sign in</Button>}
       </DrawerTrigger>

@@ -239,6 +239,7 @@ export function PostItem({
                   className="group flex cursor-pointer items-center gap-1 text-muted-foreground hover:text-blue-600"
                   onClick={(e) => {
                     e.stopPropagation();
+                    if (!session?.user) return;
                     setDialogOpen(true);
                   }}
                 >
@@ -284,7 +285,10 @@ export function PostItem({
                   <IconBookmark className="size-5 group-aria-pressed:fill-blue-600 group-aria-pressed:stroke-blue-600" />
                 </span>
               </Toggle>
-              <Button className="group flex cursor-pointer items-center gap-2 text-muted-foreground hover:text-blue-600">
+              <Button
+                className="group flex cursor-pointer items-center gap-2 text-muted-foreground hover:text-blue-600"
+                onClick={(e) => e.stopPropagation()}
+              >
                 <span className="-m-2 rounded-full p-2 group-hover:bg-blue-600/10">
                   <IconShare2 className="size-5" />
                 </span>

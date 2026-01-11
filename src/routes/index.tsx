@@ -2,7 +2,6 @@ import { Tabs } from "@base-ui/react/tabs";
 import { createFileRoute } from "@tanstack/react-router";
 import FollowingFeed from "@/components/home/following-feed";
 import TimelineFeed from "@/components/home/timeline-feed";
-import { authClient } from "@/lib/auth-client";
 import {
   electricBookmarkCollection,
   electricLikeCollection,
@@ -10,9 +9,8 @@ import {
 } from "@/lib/collections";
 
 export const Route = createFileRoute("/")({
-  loader: async () => {
-    const { data: session } = await authClient.getSession();
-    if (session?.user) {
+  loader: async ({ context }) => {
+    if (context.user) {
       await Promise.all([
         electricLikeCollection.preload(),
         electricRepostCollection.preload(),
@@ -20,7 +18,7 @@ export const Route = createFileRoute("/")({
       ]);
     }
 
-    return { user: session?.user };
+    return context;
   },
   component: App,
 });

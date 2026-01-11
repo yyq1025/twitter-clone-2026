@@ -10,6 +10,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { useControllableState } from "@/hooks/use-controllable-state";
+import { authClient } from "@/lib/auth-client";
 import type { SelectPost, SelectUser } from "@/lib/validators";
 
 type CreatePostDialogProps = {
@@ -27,11 +28,16 @@ export function CreatePostDialog({
   parentPost,
   parentUser,
 }: CreatePostDialogProps) {
+  const { data: session } = authClient.useSession();
   const [dialogOpen, setDialogOpen] = useControllableState({
     value: open,
     defaultValue: false,
     onChange: onOpenChange,
   });
+
+  if (!session?.user) {
+    return null;
+  }
 
   return (
     <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>

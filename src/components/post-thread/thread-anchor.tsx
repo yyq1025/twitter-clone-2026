@@ -119,9 +119,7 @@ export function ThreadAnchor({ post, user }: ThreadAnchorProps) {
             trigger={
               <Avatar size="lg">
                 <AvatarImage src={user.image || undefined} alt={user.name} />
-                <AvatarFallback>
-                  {user.name ? user.name[0].toUpperCase() : "U"}
-                </AvatarFallback>
+                <AvatarFallback>{user.name[0].toUpperCase()}</AvatarFallback>
               </Avatar>
             }
             user={user}
@@ -244,23 +242,25 @@ export function ThreadAnchor({ post, user }: ThreadAnchorProps) {
           </Button>
         </div>
       </div>
-      <div className="border-b">
-        <Button
-          className="flex size-full items-center gap-2 px-4 py-3 hover:bg-muted"
-          onClick={() => setDialogOpen(true)}
-        >
-          <Avatar size="sm">
-            <AvatarImage
-              src={session?.user?.image || undefined}
-              alt={session?.user?.name || "User"}
-            />
-            <AvatarFallback>
-              {session?.user?.name ? session.user.name[0].toUpperCase() : "U"}
-            </AvatarFallback>
-          </Avatar>
-          <span className="text-muted-foreground">Write your reply</span>
-        </Button>
-      </div>
+      {session?.user && (
+        <div className="border-b">
+          <Button
+            className="flex size-full items-center gap-2 px-4 py-3 hover:bg-muted"
+            onClick={() => setDialogOpen(true)}
+          >
+            <Avatar size="sm">
+              <AvatarImage
+                src={session.user.image || undefined}
+                alt={session.user.name || "User"}
+              />
+              <AvatarFallback>
+                {session.user.name[0].toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+            <span className="text-muted-foreground">Write your reply</span>
+          </Button>
+        </div>
+      )}
       <CreatePostDialog
         open={dialogOpen}
         onOpenChange={setDialogOpen}

@@ -27,16 +27,15 @@ import {
 
 export const Route = createFileRoute("/profile/$username/")({
   component: RouteComponent,
-  loader: async () => {
-    const { data: session } = await authClient.getSession();
-    if (session?.user) {
+  loader: async ({ context }) => {
+    if (context.user) {
       await Promise.all([
         electricLikeCollection.preload(),
         electricRepostCollection.preload(),
         electricBookmarkCollection.preload(),
       ]);
     }
-    return { user: session?.user };
+    return context;
   },
 });
 

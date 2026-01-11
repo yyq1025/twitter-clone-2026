@@ -45,6 +45,10 @@ export const Route = createRootRoute({
       },
     ],
   }),
+  beforeLoad: async () => {
+    const { data: session } = await authClient.getSession();
+    return { user: session?.user };
+  },
   component: RootLayout,
   shellComponent: RootDocument,
 });
