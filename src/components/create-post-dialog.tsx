@@ -1,4 +1,8 @@
 import { IconPhoto, IconX } from "@tabler/icons-react";
+import { Placeholder } from "@tiptap/extensions";
+import { EditorContent, useEditor, useEditorState } from "@tiptap/react";
+import StarterKit from "@tiptap/starter-kit";
+import dayjs from "dayjs";
 import type { ReactElement } from "react";
 import { useEffect, useState } from "react";
 import { v7 as uuidv7 } from "uuid";
@@ -11,36 +15,18 @@ import {
 } from "@/components/ui/carousel";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Textarea } from "@/components/ui/textarea";
 import { useControllableState } from "@/hooks/use-controllable-state";
 import { usePostMedia } from "@/hooks/use-post-media";
 import { createPost } from "@/lib/actions";
 import { authClient } from "@/lib/auth-client";
 import type { SelectPost, SelectUser } from "@/lib/validators";
 import { uploadFiles } from "@/utils/uploadthing";
-
-const PLACEHOLDER_NAME = "Demo User";
-const PLACEHOLDER_HANDLE = "demo_user";
-
-function formatPostTime(value: Date | string | number | null | undefined) {
-  if (!value) {
-    return "";
-  }
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) {
-    return "";
-  }
-
-  return new Intl.DateTimeFormat("en-US", {
-    month: "short",
-    day: "numeric",
-  }).format(date);
-}
 
 type CreatePostDialogProps = {
   open?: boolean;
@@ -58,12 +44,32 @@ export function CreatePostDialog({
   parentUser,
 }: CreatePostDialogProps) {
   const { data: session } = authClient.useSession();
+  const editor = useEditor({
+    extensions: [
+      StarterKit.configure(),
+      Placeholder.configure({
+        placeholder: parentPost ? "Post your reply" : "What's happening?",
+      }),
+    ],
+    editorProps: {
+      attributes: {
+        class: "text-base leading-tight min-h-24 focus:outline-none",
+      },
+    },
+  });
+  const editorText = useEditorState({
+    editor,
+    selector: ({ editor }) => {
+      if (!editor) return null;
+
+      return editor.getText();
+    },
+  });
   const [dialogOpen, setDialogOpen] = useControllableState({
     value: open,
     defaultValue: false,
     onChange: onOpenChange,
   });
-  const [content, setContent] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const {
     mediaFiles,
@@ -75,8 +81,7 @@ export function CreatePostDialog({
 
   const onSubmit = async () => {
     if (!session?.user) return;
-
-    if (!content.trim()) return;
+    if (!editorText?.trim()) return;
 
     try {
       setSubmitting(true);
@@ -93,7 +98,7 @@ export function CreatePostDialog({
         payload: {
           id: uuidv7(),
           creator_id: session.user.id,
-          content: content.trim(),
+          content: editorText.trim(),
           reply_root_id: parentPost?.reply_root_id || parentPost?.id,
           reply_parent_id: parentPost?.id,
           media: postMedia,
@@ -101,7 +106,7 @@ export function CreatePostDialog({
         },
         userId: session.user.id,
       });
-      setContent("");
+      editor?.commands.clearContent();
       cleanupMedia();
       setDialogOpen(false);
     } catch (error) {
@@ -125,59 +130,73 @@ export function CreatePostDialog({
     <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
       {trigger && <DialogTrigger render={trigger} />}
       <DialogContent
-        className="gap-0 p-0 sm:max-w-xl"
+        className="max-h-[90vh] gap-0 overflow-auto p-0 sm:max-w-xl"
         showCloseButton={false}
         onClick={(e) => e.stopPropagation()}
       >
-        <DialogHeader className="p-2">
+        <DialogHeader className="flex h-14 flex-row items-center gap-0 px-4">
+          <div className="flex min-w-14 items-center">
+            <DialogClose
+              render={
+                <Button
+                  type="reset"
+                  size="icon"
+                  variant="ghost"
+                  className="-m-2 rounded-full"
+                >
+                  <IconX className="size-5" />
+                </Button>
+              }
+            />
+          </div>
+          <div className="flex-1" />
           <Button
-            variant="ghost"
-            size="icon"
-            className="rounded-full"
-            onClick={() => setDialogOpen(false)}
+            disabled={!editorText?.trim() || submitting}
+            onClick={onSubmit}
           >
-            <IconX className="size-5" />
+            {parentPost ? "Reply" : "Post"}
           </Button>
           <DialogTitle className="sr-only">
             {parentPost ? "Reply" : "Create Post"}
           </DialogTitle>
         </DialogHeader>
 
-        <div className="flex w-full flex-col gap-4 py-3">
-          <div className="max-h-[60vh] flex-1 overflow-y-auto px-4">
+        <div className="flex w-full flex-col gap-4 px-4 py-1">
+          <div className="flex-1">
             {parentPost && parentUser && (
-              <div className="mb-4 rounded-xl border border-gray-100 bg-gray-50 p-3">
-                <div className="flex gap-3">
-                  <div
-                    className="size-10 rounded-full bg-gray-600"
-                    aria-hidden
-                  />
-                  <div className="space-y-1 text-sm">
-                    <div className="flex items-center gap-1 text-sm">
-                      <span className="font-bold text-foreground hover:underline">
-                        {parentUser.name || PLACEHOLDER_NAME}
-                      </span>
-                      <span>@{parentUser.username || PLACEHOLDER_HANDLE}</span>
-                      {parentPost.created_at ? (
-                        <>
-                          <span>·</span>
-                          <span>{formatPostTime(parentPost.created_at)}</span>
-                        </>
-                      ) : null}
-                    </div>
-                    <p className="wrap-break-word whitespace-pre-wrap leading-normal">
-                      {parentPost.content}
-                    </p>
+              <div className="mb-2 flex gap-2">
+                <div className="flex flex-col">
+                  <Avatar size="lg">
+                    <AvatarImage
+                      src={parentUser.image || undefined}
+                      alt={parentUser.name}
+                    />
+                    <AvatarFallback>
+                      {parentUser.name[0].toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="mt-1 flex-1">
+                    <div className="mx-auto h-full w-0.5 bg-border" />
                   </div>
                 </div>
-                <p className="mt-3 text-blue-500 text-sm">{`Replying to ${
-                  parentUser.name || PLACEHOLDER_NAME
-                }`}</p>
+                <div className="min-w-0 flex-1 pb-6 text-base">
+                  <p className="flex items-center gap-1 pb-1 text-muted-foreground leading-tight">
+                    <span className="font-bold text-foreground">
+                      {parentUser.name}
+                    </span>
+                    <span>@{parentUser.username}</span>
+                    <span>·</span>
+                    <span>{dayjs(parentPost.created_at).format("MMM D")}</span>
+                  </p>
+                  <p className="wrap-break-word whitespace-pre-wrap leading-tight">
+                    {parentPost.content}
+                  </p>
+                </div>
               </div>
             )}
 
-            <div className="flex items-start gap-3">
-              <Avatar>
+            <div className="flex items-start gap-2">
+              <Avatar size="lg">
                 <AvatarImage
                   src={session?.user?.image || undefined}
                   alt={session?.user?.name || "User"}
@@ -189,18 +208,7 @@ export function CreatePostDialog({
                 </AvatarFallback>
               </Avatar>
               <div className="flex-1 space-y-2">
-                <Textarea
-                  rows={4}
-                  value={content}
-                  onChange={(event) => setContent(event.target.value)}
-                  placeholder={
-                    parentPost ? "Post your reply" : "What's happening?"
-                  }
-                  aria-label={
-                    parentPost ? "Post your reply" : "What's happening?"
-                  }
-                  maxLength={280}
-                />
+                <EditorContent editor={editor} />
                 {!!mediaFiles.length && (
                   <Carousel opts={{ loop: false, align: "start" }}>
                     <CarouselContent className="-ml-2">
@@ -232,7 +240,7 @@ export function CreatePostDialog({
               </div>
             </div>
           </div>
-          <div className="flex items-center justify-between px-4">
+          <div className="flex items-center">
             <div className="flex flex-1 items-center gap-2">
               <input
                 ref={fileInputRef}
@@ -252,10 +260,6 @@ export function CreatePostDialog({
                 <IconPhoto className="size-4" />
               </Button>
             </div>
-
-            <Button disabled={!content.trim() || submitting} onClick={onSubmit}>
-              {parentPost ? "Reply" : "Post"}
-            </Button>
           </div>
         </div>
       </DialogContent>
