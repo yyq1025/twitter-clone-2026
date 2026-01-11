@@ -13,13 +13,13 @@ import {
 } from "@/lib/collections";
 
 export const Route = createFileRoute("/_authenticated/notifications")({
-  loader: async ({ context }) => {
+  loader: async () => {
     await Promise.all([
       electricBookmarkCollection.preload(),
       electricLikeCollection.preload(),
       electricRepostCollection.preload(),
     ]);
-    return context;
+    return null;
   },
   component: RouteComponent,
 });
@@ -27,7 +27,7 @@ export const Route = createFileRoute("/_authenticated/notifications")({
 function RouteComponent() {
   const router = useRouter();
   const canGoBack = useCanGoBack();
-  const { user } = Route.useLoaderData();
+  const { user } = Route.useRouteContext();
   return (
     <>
       <div className="sticky top-0 z-20 border-b bg-white/85 backdrop-blur-md">

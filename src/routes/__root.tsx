@@ -1,15 +1,22 @@
 import {
   IconBell,
+  IconBellFilled,
+  IconBookmark,
+  IconBookmarkFilled,
   IconBrandTwitter,
   IconFeatherFilled,
   IconHome,
+  IconHomeFilled,
   IconMail,
   IconSearch,
+  IconUser,
+  IconUserFilled,
 } from "@tabler/icons-react";
 import { TanStackDevtools } from "@tanstack/react-devtools";
 import {
   createRootRoute,
   HeadContent,
+  Link,
   Outlet,
   Scripts,
 } from "@tanstack/react-router";
@@ -79,17 +86,17 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 }
 
 function RootLayout() {
-  const { data: session, isPending } = authClient.useSession();
+  const { user } = Route.useRouteContext();
   return (
-    <VirtualizerContainer>
-      <div className="mx-auto flex max-w-7xl justify-center">
+    <VirtualizerContainer className="flex flex-col">
+      <div className="mx-auto flex w-full max-w-7xl flex-1 justify-center">
         <header className="sticky top-0 hidden h-screen w-20 flex-col justify-between gap-4 overflow-auto px-2 py-4 sm:flex xl:w-2xs">
           <div className="flex flex-col items-center gap-4 xl:items-start">
             <div className="w-min cursor-pointer rounded-full p-3 transition hover:bg-gray-100">
               <IconBrandTwitter className="size-7" />
             </div>
 
-            <Activity mode={!isPending && session?.user ? "visible" : "hidden"}>
+            <Activity mode={user ? "visible" : "hidden"}>
               <Navbar />
 
               <CreatePostDialog
@@ -127,7 +134,7 @@ function RootLayout() {
           </div>
         </aside>
       </div>
-      <Activity mode={isPending || session?.user ? "hidden" : "visible"}>
+      <Activity mode={user ? "hidden" : "visible"}>
         <div className="fixed bottom-0 z-30 w-full bg-blue-500 text-white">
           <div className="mx-auto flex max-w-7xl flex-col items-start justify-between gap-3 p-4 sm:flex-row sm:items-center">
             <div>
@@ -149,20 +156,70 @@ function RootLayout() {
           </div>
         </div>
       </Activity>
-      <Activity mode={session?.user ? "visible" : "hidden"}>
+      <Activity mode={user ? "visible" : "hidden"}>
         <div className="sticky bottom-0 z-50 flex w-full justify-around border-gray-100 border-t bg-white/85 p-3 backdrop-blur-md sm:hidden">
-          <a href="#" className="p-2">
-            <IconHome className="size-6" />
-          </a>
-          <a href="#" className="p-2">
-            <IconSearch className="size-6" />
-          </a>
-          <a href="#" className="p-2">
-            <IconBell className="size-6" />
-          </a>
-          <a href="#" className="p-2">
-            <IconMail className="size-6" />
-          </a>
+          <Link
+            to="/"
+            className="p-2"
+            activeProps={{
+              "aria-current": "page",
+            }}
+          >
+            {({ isActive }) =>
+              isActive ? (
+                <IconHomeFilled className="size-6" />
+              ) : (
+                <IconHome className="size-6" />
+              )
+            }
+          </Link>
+          <Link
+            to="/notifications"
+            className="p-2"
+            activeProps={{
+              "aria-current": "page",
+            }}
+          >
+            {({ isActive }) =>
+              isActive ? (
+                <IconBellFilled className="size-6" />
+              ) : (
+                <IconBell className="size-6" />
+              )
+            }
+          </Link>
+          <Link
+            to="/bookmarks"
+            className="p-2"
+            activeProps={{
+              "aria-current": "page",
+            }}
+          >
+            {({ isActive }) =>
+              isActive ? (
+                <IconBookmarkFilled className="size-6" />
+              ) : (
+                <IconBookmark className="size-6" />
+              )
+            }
+          </Link>
+          {user?.username && (
+            <Link
+              to="/profile/$username"
+              params={{ username: user.username }}
+              activeProps={{ "aria-current": "page" }}
+              activeOptions={{ exact: true }}
+              className="p-2"
+            >
+              {({ isActive }) =>
+                isActive ? (
+                  <IconUserFilled className="size-6" />
+                ) : (
+                  <IconUser className="size-6" />
+                )
+              }
+            </Link>
+          )}
         </div>
 
         <CreatePostDialog
