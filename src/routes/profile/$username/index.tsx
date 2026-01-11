@@ -16,7 +16,6 @@ import RepliesFeed from "@/components/profile/replies-feed";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { mutateFollow } from "@/lib/actions";
-import { authClient } from "@/lib/auth-client";
 import {
   electricBookmarkCollection,
   electricFollowCollection,
@@ -132,44 +131,44 @@ function RouteComponent() {
             </Avatar>
           </div>
           <div className="flex">
-            {sessionUser?.id === profileUser.id ? (
-              <button
-                type="button"
-                onClick={() => setEditProfileOpen(true)}
-                className="rounded-full border border-gray-300 bg-white px-4 py-1.5 font-bold hover:bg-gray-100 focus-visible:bg-gray-100"
-              >
-                Edit profile
-              </button>
-            ) : userFollowing ? (
-              <button
-                type="button"
-                onClick={() => {
-                  if (!profileUser || !sessionUser) return;
-                  mutateFollow({
-                    userId: sessionUser.id,
-                    payload: { subject_id: profileUser.id },
-                    type: "user.unfollow",
-                  });
-                }}
-                className="rounded-full border border-gray-300 bg-white px-4 py-1.5 font-bold hover:bg-gray-100 focus-visible:bg-gray-100"
-              >
-                Following
-              </button>
-            ) : sessionUser ? (
-              <button
-                type="button"
-                onClick={() => {
-                  if (!profileUser || !sessionUser) return;
-                  mutateFollow({
-                    userId: sessionUser.id,
-                    payload: { subject_id: profileUser.id },
-                    type: "user.follow",
-                  });
-                }}
-                className="rounded-full bg-primary px-4 py-1.5 font-bold text-white hover:bg-primary/90 focus-visible:bg-primary/90"
-              >
-                Follow
-              </button>
+            {sessionUser ? (
+              sessionUser?.id === profileUser.id ? (
+                <button
+                  type="button"
+                  onClick={() => setEditProfileOpen(true)}
+                  className="rounded-full border border-gray-300 bg-white px-4 py-1.5 font-bold hover:bg-gray-100 focus-visible:bg-gray-100"
+                >
+                  Edit profile
+                </button>
+              ) : userFollowing ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    mutateFollow({
+                      userId: sessionUser.id,
+                      payload: { subject_id: profileUser.id },
+                      type: "user.unfollow",
+                    });
+                  }}
+                  className="rounded-full border border-gray-300 bg-white px-4 py-1.5 font-bold hover:bg-gray-100 focus-visible:bg-gray-100"
+                >
+                  Following
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => {
+                    mutateFollow({
+                      userId: sessionUser.id,
+                      payload: { subject_id: profileUser.id },
+                      type: "user.follow",
+                    });
+                  }}
+                  className="rounded-full bg-primary px-4 py-1.5 font-bold text-white hover:bg-primary/90 focus-visible:bg-primary/90"
+                >
+                  Follow
+                </button>
+              )
             ) : null}
           </div>
         </div>
@@ -262,10 +261,14 @@ function RouteComponent() {
           </Tabs.Panel>
         </Activity>
       </Tabs.Root>
-      <EditProfileDialog
-        open={editProfileOpen}
-        onOpenChange={setEditProfileOpen}
-      />
+      <Activity
+        mode={sessionUser?.id === profileUser.id ? "visible" : "hidden"}
+      >
+        <EditProfileDialog
+          open={editProfileOpen}
+          onOpenChange={setEditProfileOpen}
+        />
+      </Activity>
     </>
   );
 }

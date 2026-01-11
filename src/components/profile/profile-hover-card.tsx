@@ -1,3 +1,4 @@
+import { and, eq, useLiveQuery } from "@tanstack/react-db";
 import { Link } from "@tanstack/react-router";
 import type { ReactElement } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -7,6 +8,9 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
+import { mutateFollow } from "@/lib/actions";
+import { authClient } from "@/lib/auth-client";
+import { electricFollowCollection } from "@/lib/collections";
 import type { SelectUser } from "@/lib/validators";
 
 interface ProfileHoverCardProps {
@@ -18,6 +22,26 @@ export default function ProfileHoverCard({
   trigger,
   user,
 }: ProfileHoverCardProps) {
+  const { data: session } = authClient.useSession();
+
+  const { data: userFollowing } = useLiveQuery(
+    (q) => {
+      if (!session?.user?.id || !user?.id) {
+        return null;
+      }
+      return q
+        .from({ follow: electricFollowCollection })
+        .where(({ follow }) =>
+          and(
+            eq(follow.creator_id, session.user.id),
+            eq(follow.subject_id, user.id),
+          ),
+        )
+        .findOne();
+    },
+    [session?.user?.id, user.id],
+  );
+
   return (
     <HoverCard>
       <HoverCardTrigger
@@ -47,7 +71,42 @@ export default function ProfileHoverCard({
               </AvatarFallback>
             </Avatar>
           </Link>
-          <Button size="sm">Follow</Button>
+          {session?.user ? (
+            userFollowing ? (
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() =>
+                  mutateFollow({
+                    type: "user.unfollow",
+                    payload: {
+                      subject_id: user.id,
+                    },
+                    userId: session.user.id,
+                  })
+                }
+              >
+                Following
+              </Button>
+            ) : (
+              session.user.id !== user.id && (
+                <Button
+                  size="sm"
+                  onClick={() =>
+                    mutateFollow({
+                      type: "user.follow",
+                      payload: {
+                        subject_id: user.id,
+                      },
+                      userId: session.user.id,
+                    })
+                  }
+                >
+                  Follow
+                </Button>
+              )
+            )
+          ) : null}
         </div>
         <Link
           to="/profile/$username"

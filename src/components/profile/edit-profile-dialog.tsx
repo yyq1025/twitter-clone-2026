@@ -1,4 +1,5 @@
 import { IconX } from "@tabler/icons-react";
+import { eq, useLiveQuery } from "@tanstack/react-db";
 import { useForm } from "@tanstack/react-form";
 import { useEffect } from "react";
 import * as z from "zod";
@@ -20,6 +21,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { authClient } from "@/lib/auth-client";
+import { electricUserCollection } from "@/lib/collections";
 
 const formSchema = z.object({
   name: z.string().min(1, "Name is required").max(50, "Name is too long"),
@@ -36,10 +38,23 @@ export function EditProfileDialog({
   onOpenChange,
 }: EditProfileDialogProps) {
   const { data: session } = authClient.useSession();
+  const { data: user } = useLiveQuery(
+    (q) => {
+      if (!session?.user?.id) {
+        return null;
+      }
+      return q
+        .from({ user: electricUserCollection })
+        .where(({ user }) => eq(user.id, session.user.id))
+        .findOne();
+    },
+    [session?.user?.id],
+  );
+
   const form = useForm({
     defaultValues: {
-      name: session?.user?.name || "",
-      bio: session?.user?.bio || "",
+      name: user?.name || "",
+      bio: user?.bio || "",
     },
     validators: {
       onChange: formSchema,
@@ -52,6 +67,15 @@ export function EditProfileDialog({
       onOpenChange(false);
     },
   });
+
+  useEffect(() => {
+    if (user) {
+      form.reset({
+        name: user.name,
+        bio: user.bio || "",
+      });
+    }
+  }, [user, form]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

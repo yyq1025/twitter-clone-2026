@@ -10,7 +10,7 @@ import {
 import { and, eq, useLiveQuery } from "@tanstack/react-db";
 import { useNavigate } from "@tanstack/react-router";
 import dayjs from "dayjs";
-import { type ReactNode, useState } from "react";
+import { Activity, type ReactNode, useState } from "react";
 import { CreatePostDialog } from "@/components/create-post-dialog";
 import ProfileHoverCard from "@/components/profile/profile-hover-card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -297,12 +297,14 @@ export function PostItem({
           </div>
         </div>
       </article>
-      <CreatePostDialog
-        open={dialogOpen}
-        onOpenChange={setDialogOpen}
-        parentPost={post}
-        parentUser={user}
-      />
+      <Activity mode={session?.user ? "visible" : "hidden"}>
+        <CreatePostDialog
+          open={dialogOpen}
+          onOpenChange={setDialogOpen}
+          parentPost={post}
+          parentUser={user}
+        />
+      </Activity>
     </>
   );
 }

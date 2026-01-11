@@ -8,7 +8,7 @@ import {
 } from "@tabler/icons-react";
 import { and, eq, useLiveQuery } from "@tanstack/react-db";
 import dayjs from "dayjs";
-import { useState } from "react";
+import { Activity, useState } from "react";
 import { CreatePostDialog } from "@/components/create-post-dialog";
 import ProfileHoverCard from "@/components/profile/profile-hover-card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -124,23 +124,25 @@ export function ThreadAnchor({ post, user }: ThreadAnchorProps) {
             }
             user={user}
           />
-          <div className="flex-1">
-            <ProfileHoverCard
-              trigger={
-                <p className="font-semibold leading-tight hover:underline">
-                  {user.name}
-                </p>
-              }
-              user={user}
-            />
-            <ProfileHoverCard
-              trigger={
-                <p className="text-muted-foreground leading-tight">
-                  @{user.username}
-                </p>
-              }
-              user={user}
-            />
+          <div className="flex flex-1 items-center">
+            <div>
+              <ProfileHoverCard
+                trigger={
+                  <p className="font-semibold leading-tight hover:underline">
+                    {user.name}
+                  </p>
+                }
+                user={user}
+              />
+              <ProfileHoverCard
+                trigger={
+                  <p className="text-muted-foreground leading-tight">
+                    @{user.username}
+                  </p>
+                }
+                user={user}
+              />
+            </div>
           </div>
         </div>
         <p className="wrap-break-word whitespace-pre-wrap text-lg leading-tight">
@@ -261,12 +263,14 @@ export function ThreadAnchor({ post, user }: ThreadAnchorProps) {
           </Button>
         </div>
       )}
-      <CreatePostDialog
-        open={dialogOpen}
-        onOpenChange={setDialogOpen}
-        parentPost={post}
-        parentUser={user}
-      />
+      <Activity mode={session?.user ? "visible" : "hidden"}>
+        <CreatePostDialog
+          open={dialogOpen}
+          onOpenChange={setDialogOpen}
+          parentPost={post}
+          parentUser={user}
+        />
+      </Activity>
     </>
   );
 }
