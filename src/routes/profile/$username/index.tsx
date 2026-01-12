@@ -190,18 +190,18 @@ function RouteComponent() {
           </div>
 
           <div className="flex gap-4">
-            <span>
+            <div className="flex gap-1">
               <span className="font-semibold">
                 {profileUser.followsCount || 0}
-              </span>{" "}
-              <span className="text-muted-foreground">Following</span>
-            </span>
-            <span>
+              </span>
+              <span className="text-muted-foreground">following</span>
+            </div>
+            <div className="flex gap-1">
               <span className="font-semibold">
                 {profileUser.followersCount || 0}
-              </span>{" "}
-              <span className="text-muted-foreground">Followers</span>
-            </span>
+              </span>
+              <span className="text-muted-foreground">followers</span>
+            </div>
           </div>
         </div>
       </div>

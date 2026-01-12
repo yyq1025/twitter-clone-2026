@@ -56,7 +56,7 @@ export default function ProfileHoverCard({
         }
       />
       <HoverCardContent
-        className="w-72 p-4"
+        className="grid w-72 gap-3 p-4"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-start justify-between">
@@ -66,7 +66,7 @@ export default function ProfileHoverCard({
           >
             <Avatar className="size-14">
               <AvatarImage src={user.image || undefined} alt={user.name} />
-              <AvatarFallback className="text-4xl">
+              <AvatarFallback className="text-xl">
                 {user.name ? user.name[0].toUpperCase() : "U"}
               </AvatarFallback>
             </Avatar>
@@ -108,23 +108,35 @@ export default function ProfileHoverCard({
             )
           ) : null}
         </div>
-        <Link
-          to="/profile/$username"
-          params={{ username: user.username || "" }}
-        >
-          <p className="mt-2 font-semibold text-base leading-tight hover:underline">
-            {user.name}
-          </p>
-        </Link>
-        <Link
-          to="/profile/$username"
-          params={{ username: user.username || "" }}
-        >
-          <p className="text-muted-foreground leading-tight">
-            @{user.username}
-          </p>
-        </Link>
-        {user.bio && <p className="mt-2 leading-tight">{user.bio}</p>}
+        <div>
+          <Link
+            to="/profile/$username"
+            params={{ username: user.username || "" }}
+          >
+            <p className="font-semibold text-base leading-tight hover:underline">
+              {user.name}
+            </p>
+          </Link>
+          <Link
+            to="/profile/$username"
+            params={{ username: user.username || "" }}
+          >
+            <p className="text-muted-foreground leading-tight">
+              @{user.username}
+            </p>
+          </Link>
+        </div>
+        {user.bio && <p className="leading-tight">{user.bio}</p>}
+        <div className="flex gap-3">
+          <div className="flex gap-1">
+            <span className="font-semibold">{user.followsCount || 0}</span>
+            <span className="text-muted-foreground">following</span>
+          </div>
+          <div className="flex gap-1">
+            <span className="font-semibold">{user.followersCount || 0}</span>
+            <span className="text-muted-foreground">followers</span>
+          </div>
+        </div>
       </HoverCardContent>
     </HoverCard>
   );
