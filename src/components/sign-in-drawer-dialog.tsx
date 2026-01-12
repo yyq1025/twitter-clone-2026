@@ -1,4 +1,4 @@
-import { useLocation } from "@tanstack/react-router";
+import { useLocation, useRouter } from "@tanstack/react-router";
 import { type ReactElement, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -28,6 +28,7 @@ type SignInDrawerDialogProps = {
 export function SignInDrawerDialog({
   trigger,
 }: Readonly<SignInDrawerDialogProps>) {
+  const router = useRouter();
   const location = useLocation();
   const isDesktop = useMediaQuery("(min-width: 768px)");
   const [open, setOpen] = useState(false);
@@ -41,6 +42,7 @@ export function SignInDrawerDialog({
         callbackURL: location.href,
       });
       setOpen(false);
+      await router.invalidate();
     } finally {
       setLoading(null);
     }
@@ -51,6 +53,7 @@ export function SignInDrawerDialog({
     try {
       await authClient.signIn.anonymous();
       setOpen(false);
+      await router.invalidate();
     } finally {
       setLoading(null);
     }
