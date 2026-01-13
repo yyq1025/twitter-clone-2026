@@ -6,9 +6,24 @@ import {
 } from "@tanstack/react-router";
 import { PostThread } from "@/components/post-thread";
 import { Button } from "@/components/ui/button";
+import {
+  electricBookmarkCollection,
+  electricLikeCollection,
+  electricRepostCollection,
+} from "@/lib/collections";
 
 export const Route = createFileRoute("/profile/$username/post/$postId")({
   component: RouteComponent,
+  loader: async ({ context }) => {
+    if (context.user) {
+      await Promise.all([
+        electricLikeCollection.preload(),
+        electricRepostCollection.preload(),
+        electricBookmarkCollection.preload(),
+      ]);
+    }
+    return context;
+  },
 });
 
 function RouteComponent() {
