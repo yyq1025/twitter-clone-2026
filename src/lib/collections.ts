@@ -26,7 +26,6 @@ export const electricPostCollection = createCollection(
       parser: {
         timestamptz: (date: string) => new Date(date),
       },
-      liveSse: true,
     },
     schema: selectPostSchema,
     getKey: (item) => item.id,
@@ -42,7 +41,6 @@ export const electricFeedItemCollection = createCollection(
       parser: {
         timestamptz: (date: string) => new Date(date),
       },
-      liveSse: true,
     },
     schema: selectFeedItemSchema,
     getKey: (item) => `${item.creator_id}-${item.type}-${item.post_id}`,
@@ -59,7 +57,6 @@ export const electricUserCollection = createCollection(
       parser: {
         timestamp: (date: string) => new Date(date),
       },
-      liveSse: true,
     },
     schema: selectUserSchema,
     getKey: (item) => item.id,
@@ -74,7 +71,6 @@ export const electricLikeCollection = createCollection(
       parser: {
         timestamptz: (date: string) => new Date(date),
       },
-      liveSse: true,
       onError: (error) => {
         console.error("Error in electricLikeCollection:", error);
         if (error instanceof FetchError) {
@@ -95,7 +91,6 @@ export const electricRepostCollection = createCollection(
       parser: {
         timestamptz: (date: string) => new Date(date),
       },
-      liveSse: true,
       onError: (error) => {
         console.error("Error in electricRepostCollection:", error);
         if (error instanceof FetchError) {
@@ -116,7 +111,6 @@ export const electricBookmarkCollection = createCollection(
       parser: {
         timestamptz: (date: string) => new Date(date),
       },
-      liveSse: true,
     },
     schema: selectBookmarkSchema,
     getKey: (item) => `${item.creator_id}-${item.subject_id}`,
@@ -132,7 +126,6 @@ export const electricFollowCollection = createCollection(
       parser: {
         timestamptz: (date: string) => new Date(date),
       },
-      liveSse: true,
     },
     schema: selectFollowSchema,
     getKey: (item) => `${item.creator_id}-${item.subject_id}`,
@@ -148,7 +141,6 @@ export const electricNotificationCollection = createCollection(
       parser: {
         timestamptz: (date: string) => new Date(date),
       },
-      liveSse: true,
     },
     schema: selectNotificationSchema,
     getKey: (item) => `${item.id}`,
