@@ -1,10 +1,5 @@
 import { IconHeartFilled, IconRepeat, IconUserPlus } from "@tabler/icons-react";
-import {
-  eq,
-  isUndefined,
-  useLiveInfiniteQuery,
-  useLiveQuery,
-} from "@tanstack/react-db";
+import { eq, useLiveInfiniteQuery, useLiveQuery } from "@tanstack/react-db";
 import dayjs from "dayjs";
 import { useEffect, useState } from "react";
 import { PostItem } from "@/components/post-item";
@@ -25,6 +20,7 @@ import type {
 interface NotificationItemProps {
   notification: SelectNotification;
   user: SelectUser;
+  reason_post?: SelectPost;
   post?: SelectPost;
   additionalUsers: SelectUser[];
 }
@@ -32,6 +28,7 @@ interface NotificationItemProps {
 function NotificationItem({
   notification,
   user,
+  reason_post,
   post,
   additionalUsers,
 }: NotificationItemProps) {
@@ -101,8 +98,10 @@ function NotificationItem({
             </span>
           </span>
         </div>
-        {post && (
-          <p className="pt-0.5 text-muted-foreground text-sm">{post.content}</p>
+        {reason_post && (
+          <p className="pt-0.5 text-muted-foreground text-sm">
+            {reason_post.content}
+          </p>
         )}
       </div>
     </div>
@@ -138,8 +137,13 @@ export default function NotificationList({ userId }: { userId: string }) {
         .innerJoin({ user: electricUserCollection }, ({ notification, user }) =>
           eq(notification.creator_id, user.id),
         )
+        .leftJoin(
+          { reason_post: electricPostCollection },
+          ({ notification, reason_post }) =>
+            eq(notification.reason_subject_id, reason_post.id),
+        )
         .leftJoin({ post: electricPostCollection }, ({ notification, post }) =>
-          eq(notification.reason_subject_id, post.id),
+          eq(notification.post_id, post.id),
         )
         .orderBy(({ notification }) => notification.id, "desc"),
     {
@@ -171,11 +175,12 @@ export default function NotificationList({ userId }: { userId: string }) {
   const groupedNotifications: {
     notification: SelectNotification;
     user: SelectUser;
+    reason_post?: SelectPost;
     post?: SelectPost;
     additionalUsers: SelectUser[];
   }[] = [];
 
-  data.forEach(({ notification, user, post }) => {
+  data.forEach(({ notification, user, reason_post, post }) => {
     for (const group of groupedNotifications) {
       if (
         ["like", "repost"].includes(notification.reason) &&
@@ -194,6 +199,7 @@ export default function NotificationList({ userId }: { userId: string }) {
     groupedNotifications.push({
       notification,
       user,
+      reason_post,
       post,
       additionalUsers: [],
     });
@@ -212,6 +218,7 @@ export default function NotificationList({ userId }: { userId: string }) {
         <NotificationItem
           notification={item.notification}
           user={item.user}
+          reason_post={item.reason_post}
           post={item.post}
           additionalUsers={item.additionalUsers}
         />

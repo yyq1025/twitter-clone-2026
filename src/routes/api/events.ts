@@ -89,6 +89,7 @@ export const Route = createFileRoute("/api/events")({
                       .insert(notifications)
                       .values({
                         creator_id: session.user.id,
+                        post_id: post.id,
                         recipient_id: replyParent.creator_id,
                         reason: "reply",
                         reason_subject_id: replyParent.id,
