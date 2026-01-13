@@ -151,9 +151,8 @@ export default function NotificationList({ userId }: { userId: string }) {
   );
 
   useEffect(() => {
-    console.log("data", data[0].notification.id);
     if (
-      data?.[0].notification.id &&
+      data[0]?.notification.id &&
       user &&
       !updating &&
       data[0].notification.id > (user?.lastSeenNotificationId || 0)
@@ -167,7 +166,7 @@ export default function NotificationList({ userId }: { userId: string }) {
           setUpdating(false);
         });
     }
-  }, [data[0].notification.id, user, updating]);
+  }, [data[0]?.notification.id, user, updating]);
 
   const groupedNotifications: {
     notification: SelectNotification;
