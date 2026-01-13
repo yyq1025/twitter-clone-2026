@@ -151,9 +151,9 @@ export default function NotificationList({ userId }: { userId: string }) {
   );
 
   useEffect(() => {
-    let mounted = true;
+    console.log("data", data[0].notification.id);
     if (
-      data?.length &&
+      data?.[0].notification.id &&
       user &&
       !updating &&
       data[0].notification.id > (user?.lastSeenNotificationId || 0)
@@ -164,13 +164,10 @@ export default function NotificationList({ userId }: { userId: string }) {
           lastSeenNotificationId: data[0].notification.id,
         })
         .finally(() => {
-          if (mounted) setUpdating(false);
+          setUpdating(false);
         });
     }
-    return () => {
-      mounted = false;
-    };
-  }, [data, user, updating]);
+  }, [data[0].notification.id, user, updating]);
 
   const groupedNotifications: {
     notification: SelectNotification;

@@ -134,7 +134,7 @@ function RootLayout() {
           </div>
         </aside>
       </div>
-      <Activity mode={user ? "hidden" : "visible"}>
+      {!user && (
         <div className="fixed bottom-0 z-30 w-full bg-blue-500 text-white">
           <div className="mx-auto flex max-w-7xl flex-col items-start justify-between gap-3 p-4 sm:flex-row sm:items-center">
             <div>
@@ -155,7 +155,7 @@ function RootLayout() {
             />
           </div>
         </div>
-      </Activity>
+      )}
       <Activity mode={user ? "visible" : "hidden"}>
         <div className="sticky bottom-0 z-50 flex w-full justify-around border-gray-100 border-t bg-white/85 p-3 backdrop-blur-md sm:hidden">
           <Link
