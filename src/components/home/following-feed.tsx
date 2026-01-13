@@ -65,7 +65,9 @@ export default function FollowingFeed({ userId }: { userId: string }) {
       isFetchingNextPage={isFetchingNextPage}
       isError={isError}
       isLoading={isLoading}
-      getKey={(item) => item.post.id}
+      getKey={(item) =>
+        `${item.feed_item.creator_id}-${item.feed_item.type}-${item.feed_item.post_id}`
+      }
       renderItem={(item) => (
         <PostItem
           feedReason={
