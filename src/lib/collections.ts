@@ -1,5 +1,8 @@
 import { FetchError, snakeCamelMapper } from "@electric-sql/client";
-import { electricCollectionOptions } from "@tanstack/electric-db-collection";
+import {
+  type ElectricCollectionUtils,
+  electricCollectionOptions,
+} from "@tanstack/electric-db-collection";
 import { createCollection } from "@tanstack/react-db";
 import {
   selectBookmarkSchema,
@@ -17,7 +20,11 @@ const baseUrl =
     ? window.location.origin
     : "http://localhost:3000";
 
-export const electricPostCollection = createCollection(
+export const electricPostCollection = createCollection<
+  typeof selectPostSchema,
+  string | number,
+  ElectricCollectionUtils
+>(
   electricCollectionOptions({
     id: "posts",
     syncMode: "progressive",
@@ -32,7 +39,11 @@ export const electricPostCollection = createCollection(
   }),
 );
 
-export const electricFeedItemCollection = createCollection(
+export const electricFeedItemCollection = createCollection<
+  typeof selectFeedItemSchema,
+  string | number,
+  ElectricCollectionUtils
+>(
   electricCollectionOptions({
     id: "feed_items",
     syncMode: "progressive",
@@ -47,7 +58,11 @@ export const electricFeedItemCollection = createCollection(
   }),
 );
 
-export const electricUserCollection = createCollection(
+export const electricUserCollection = createCollection<
+  typeof selectUserSchema,
+  string | number,
+  ElectricCollectionUtils
+>(
   electricCollectionOptions({
     id: "users",
     syncMode: "progressive",
@@ -63,7 +78,11 @@ export const electricUserCollection = createCollection(
   }),
 );
 
-export const electricLikeCollection = createCollection(
+export const electricLikeCollection = createCollection<
+  typeof selectLikeSchema,
+  string | number,
+  ElectricCollectionUtils
+>(
   electricCollectionOptions({
     id: "likes",
     shapeOptions: {
@@ -83,7 +102,11 @@ export const electricLikeCollection = createCollection(
   }),
 );
 
-export const electricRepostCollection = createCollection(
+export const electricRepostCollection = createCollection<
+  typeof selectRepostSchema,
+  string | number,
+  ElectricCollectionUtils
+>(
   electricCollectionOptions({
     id: "reposts",
     shapeOptions: {
@@ -103,7 +126,11 @@ export const electricRepostCollection = createCollection(
   }),
 );
 
-export const electricBookmarkCollection = createCollection(
+export const electricBookmarkCollection = createCollection<
+  typeof selectBookmarkSchema,
+  string | number,
+  ElectricCollectionUtils
+>(
   electricCollectionOptions({
     id: "bookmarks",
     shapeOptions: {
@@ -117,7 +144,11 @@ export const electricBookmarkCollection = createCollection(
   }),
 );
 
-export const electricFollowCollection = createCollection(
+export const electricFollowCollection = createCollection<
+  typeof selectFollowSchema,
+  string | number,
+  ElectricCollectionUtils
+>(
   electricCollectionOptions({
     id: "follows",
     syncMode: "progressive",
@@ -132,7 +163,11 @@ export const electricFollowCollection = createCollection(
   }),
 );
 
-export const electricNotificationCollection = createCollection(
+export const electricNotificationCollection = createCollection<
+  typeof selectNotificationSchema,
+  string | number,
+  ElectricCollectionUtils
+>(
   electricCollectionOptions({
     id: "notifications",
     syncMode: "progressive",

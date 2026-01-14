@@ -9,14 +9,21 @@ import {
   electricUserCollection,
 } from "@/lib/collections";
 import type { InsertPost } from "@/lib/validators";
+import {
+  safeAwaitTxId,
+  safeDelete,
+  safeInsert,
+  safeSingleUpdate,
+} from "@/utils/collection";
 
 export const createPost = createOptimisticAction<{
   payload: InsertPost;
   userId: string;
 }>({
   onMutate: ({ payload, userId }) => {
-    electricPostCollection.insert({
+    safeInsert(electricPostCollection, {
       ...payload,
+      id: payload.id,
       creator_id: userId,
       media: payload.media || [],
       media_length: payload.media?.length || 0,
@@ -29,19 +36,26 @@ export const createPost = createOptimisticAction<{
       reply_parent_id: payload.reply_parent_id || null,
       quote_id: payload.quote_id || null,
     });
-    electricFeedItemCollection.insert({
+
+    safeInsert(electricFeedItemCollection, {
       type: "post",
       creator_id: userId,
       post_id: payload.id,
       created_at: new Date(),
     });
-    electricUserCollection.update(userId, (draft) => {
+
+    safeSingleUpdate(electricUserCollection, userId, (draft) => {
       draft.postsCount = (draft.postsCount || 0) + 1;
     });
+
     if (payload.reply_parent_id) {
-      electricPostCollection.update(payload.reply_parent_id, (draft) => {
-        draft.reply_count += 1;
-      });
+      safeSingleUpdate(
+        electricPostCollection,
+        payload.reply_parent_id,
+        (draft) => {
+          draft.reply_count += 1;
+        },
+      );
     }
   },
   mutationFn: async ({ payload }) => {
@@ -61,8 +75,8 @@ export const createPost = createOptimisticAction<{
     const { txid } = await response.json();
 
     await Promise.all([
-      electricPostCollection.utils.awaitTxId(txid),
-      electricFeedItemCollection.utils.awaitTxId(txid),
+      safeAwaitTxId(electricPostCollection, txid),
+      safeAwaitTxId(electricFeedItemCollection, txid),
     ]);
   },
 });
@@ -74,19 +88,19 @@ export const mutateLike = createOptimisticAction<{
 }>({
   onMutate: ({ type, payload, userId }) => {
     if (type === "post.like") {
-      electricLikeCollection.insert({
+      safeInsert(electricLikeCollection, {
         creator_id: userId,
         subject_id: payload.subject_id,
         created_at: new Date(),
       });
 
-      electricPostCollection.update(payload.subject_id, (draft) => {
+      safeSingleUpdate(electricPostCollection, payload.subject_id, (draft) => {
         draft.like_count += 1;
       });
     } else if (type === "post.unlike") {
-      electricLikeCollection.delete(`${userId}-${payload.subject_id}`);
+      safeDelete(electricLikeCollection, `${userId}-${payload.subject_id}`);
 
-      electricPostCollection.update(payload.subject_id, (draft) => {
+      safeSingleUpdate(electricPostCollection, payload.subject_id, (draft) => {
         draft.like_count -= 1;
       });
     }
@@ -110,8 +124,8 @@ export const mutateLike = createOptimisticAction<{
     const { txid } = await response.json();
 
     await Promise.all([
-      electricLikeCollection.utils.awaitTxId(txid),
-      electricPostCollection.utils.awaitTxId(txid),
+      safeAwaitTxId(electricLikeCollection, txid),
+      safeAwaitTxId(electricPostCollection, txid),
     ]);
   },
 });
@@ -123,30 +137,31 @@ export const mutateRepost = createOptimisticAction<{
 }>({
   onMutate: ({ type, payload, userId }) => {
     if (type === "post.repost") {
-      electricRepostCollection.insert({
+      safeInsert(electricRepostCollection, {
         creator_id: userId,
         subject_id: payload.subject_id,
         created_at: new Date(),
       });
 
-      electricPostCollection.update(payload.subject_id, (draft) => {
+      safeSingleUpdate(electricPostCollection, payload.subject_id, (draft) => {
         draft.repost_count += 1;
       });
 
-      electricFeedItemCollection.insert({
+      safeInsert(electricFeedItemCollection, {
         type: "repost",
         creator_id: userId,
         post_id: payload.subject_id,
         created_at: new Date(),
       });
     } else if (type === "post.unrepost") {
-      electricRepostCollection.delete(`${userId}-${payload.subject_id}`);
+      safeDelete(electricRepostCollection, `${userId}-${payload.subject_id}`);
 
-      electricPostCollection.update(payload.subject_id, (draft) => {
+      safeSingleUpdate(electricPostCollection, payload.subject_id, (draft) => {
         draft.repost_count -= 1;
       });
 
-      electricFeedItemCollection.delete(
+      safeDelete(
+        electricFeedItemCollection,
         `${userId}-repost-${payload.subject_id}`,
       );
     }
@@ -170,9 +185,9 @@ export const mutateRepost = createOptimisticAction<{
     const { txid } = await response.json();
 
     await Promise.all([
-      electricRepostCollection.utils.awaitTxId(txid),
-      electricPostCollection.utils.awaitTxId(txid),
-      electricFeedItemCollection.utils.awaitTxId(txid),
+      safeAwaitTxId(electricRepostCollection, txid),
+      safeAwaitTxId(electricPostCollection, txid),
+      safeAwaitTxId(electricFeedItemCollection, txid),
     ]);
   },
 });
@@ -184,19 +199,19 @@ export const mutateBookmark = createOptimisticAction<{
 }>({
   onMutate: ({ type, payload, userId }) => {
     if (type === "post.bookmark") {
-      electricBookmarkCollection.insert({
+      safeInsert(electricBookmarkCollection, {
         creator_id: userId,
         subject_id: payload.subject_id,
         created_at: new Date(),
       });
 
-      electricPostCollection.update(payload.subject_id, (draft) => {
+      safeSingleUpdate(electricPostCollection, payload.subject_id, (draft) => {
         draft.bookmark_count += 1;
       });
     } else if (type === "post.unbookmark") {
-      electricBookmarkCollection.delete(`${userId}-${payload.subject_id}`);
+      safeDelete(electricBookmarkCollection, `${userId}-${payload.subject_id}`);
 
-      electricPostCollection.update(payload.subject_id, (draft) => {
+      safeSingleUpdate(electricPostCollection, payload.subject_id, (draft) => {
         draft.bookmark_count -= 1;
       });
     }
@@ -222,8 +237,8 @@ export const mutateBookmark = createOptimisticAction<{
     const { txid } = await response.json();
 
     await Promise.all([
-      electricBookmarkCollection.utils.awaitTxId(txid),
-      electricPostCollection.utils.awaitTxId(txid),
+      safeAwaitTxId(electricBookmarkCollection, txid),
+      safeAwaitTxId(electricPostCollection, txid),
     ]);
   },
 });
@@ -235,25 +250,26 @@ export const mutateFollow = createOptimisticAction<{
 }>({
   onMutate: ({ type, payload, userId }) => {
     if (type === "user.follow") {
-      electricFollowCollection.insert({
+      safeInsert(electricFollowCollection, {
         creator_id: userId,
         subject_id: payload.subject_id,
         created_at: new Date(),
       });
-      electricUserCollection.update(payload.subject_id, (draft) => {
+
+      safeSingleUpdate(electricUserCollection, payload.subject_id, (draft) => {
         draft.followersCount = (draft.followersCount || 0) + 1;
       });
-      electricUserCollection.update(userId, (draft) => {
+      safeSingleUpdate(electricUserCollection, userId, (draft) => {
         draft.followsCount = (draft.followsCount || 0) + 1;
       });
     } else if (type === "user.unfollow") {
-      electricFollowCollection.delete(`${userId}-${payload.subject_id}`);
+      safeDelete(electricFollowCollection, `${userId}-${payload.subject_id}`);
 
-      electricUserCollection.update(payload.subject_id, (draft) => {
+      safeSingleUpdate(electricUserCollection, payload.subject_id, (draft) => {
         draft.followersCount = (draft.followersCount || 1) - 1;
       });
 
-      electricUserCollection.update(userId, (draft) => {
+      safeSingleUpdate(electricUserCollection, userId, (draft) => {
         draft.followsCount = (draft.followsCount || 1) - 1;
       });
     }
@@ -277,8 +293,8 @@ export const mutateFollow = createOptimisticAction<{
     const { txid } = await response.json();
 
     await Promise.all([
-      electricFollowCollection.utils.awaitTxId(txid),
-      electricUserCollection.utils.awaitTxId(txid),
+      safeAwaitTxId(electricFollowCollection, txid),
+      safeAwaitTxId(electricUserCollection, txid),
     ]);
   },
 });
