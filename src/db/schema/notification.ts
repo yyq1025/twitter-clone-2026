@@ -10,9 +10,8 @@ export const notifications = pgTable("notifications", {
   recipient_id: text()
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
-  post_id: uuid().references(() => posts.id, { onDelete: "cascade" }),
   reason: text().notNull(),
-  reason_subject_id: uuid().references(() => posts.id, {
+  reason_post_id: uuid().references(() => posts.id, {
     onDelete: "cascade",
   }),
   created_at: timestamp({ withTimezone: true }).defaultNow().notNull(),

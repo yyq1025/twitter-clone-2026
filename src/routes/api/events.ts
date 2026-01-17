@@ -89,10 +89,9 @@ export const Route = createFileRoute("/api/events")({
                       .insert(notifications)
                       .values({
                         creator_id: session.user.id,
-                        post_id: post.id,
                         recipient_id: replyParent.creator_id,
                         reason: "reply",
-                        reason_subject_id: replyParent.id,
+                        reason_post_id: post.id,
                       })
                       .onConflictDoNothing();
                   }
@@ -124,7 +123,7 @@ export const Route = createFileRoute("/api/events")({
                       creator_id: session.user.id,
                       recipient_id: post.creator_id,
                       reason: "like",
-                      reason_subject_id: post.id,
+                      reason_post_id: post.id,
                     })
                     .onConflictDoNothing();
                 }
@@ -158,7 +157,7 @@ export const Route = createFileRoute("/api/events")({
                     and(
                       eq(notifications.creator_id, like.creator_id),
                       eq(notifications.reason, "like"),
-                      eq(notifications.reason_subject_id, like.subject_id),
+                      eq(notifications.reason_post_id, like.subject_id),
                     ),
                   );
               });
@@ -193,7 +192,7 @@ export const Route = createFileRoute("/api/events")({
                       creator_id: session.user.id,
                       recipient_id: post.creator_id,
                       reason: "repost",
-                      reason_subject_id: post.id,
+                      reason_post_id: post.id,
                     })
                     .onConflictDoNothing();
                 }
@@ -236,7 +235,7 @@ export const Route = createFileRoute("/api/events")({
                     and(
                       eq(notifications.creator_id, repost.creator_id),
                       eq(notifications.reason, "repost"),
-                      eq(notifications.reason_subject_id, repost.subject_id),
+                      eq(notifications.reason_post_id, repost.subject_id),
                     ),
                   );
               });

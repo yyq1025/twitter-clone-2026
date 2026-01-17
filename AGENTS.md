@@ -109,3 +109,22 @@
 - TypeScript config: `tsconfig.json`
 - Biome config: `biome.json`
 - Drizzle config: `drizzle.config.ts`
+
+## Context7 + GitHub MCP Mappings
+- Prefer official MCP tools first (if available), then Context7 MCP, then GitHub MCP.
+- Frameworks
+  - `react`: Context7 `/reactjs/react.dev`; GitHub `facebook/react`
+  - `@tanstack/react-router`: Context7 `/tanstack/router`; GitHub `TanStack/router`
+  - `@tanstack/react-start`: Context7 `/websites/tanstack_start`; GitHub `TanStack/router`
+- UI + UX
+  - `tailwindcss`: Context7 `/tailwindlabs/tailwindcss.com`; GitHub `tailwindlabs/tailwindcss`
+  - `@tanstack/react-form`: Context7 `/tanstack/form`; GitHub `TanStack/form`
+  - `@tanstack/react-virtual`: Context7 `/websites/tanstack_virtual`; GitHub `TanStack/virtual`
+- Data Layer
+  - `drizzle-orm`: Context7 `/drizzle-team/drizzle-orm-docs`; GitHub `drizzle-team/drizzle-orm`
+  - `@tanstack/react-db`: Context7 `/tanstack/db`; GitHub `TanStack/db`
+  - `@electric-sql/client`: Context7 `/electric-sql/electric`; GitHub `electric-sql/electric`
+- Tooling
+  - `vite`: Context7 `/vitejs/vite`; GitHub `vitejs/vite`
+  - `vitest`: Context7 `/vitest-dev/vitest`; GitHub `vitest-dev/vitest`
+  - `@biomejs/biome`: Context7 `/biomejs/biome`; GitHub `biomejs/biome`

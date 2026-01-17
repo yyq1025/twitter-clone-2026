@@ -21,7 +21,6 @@ interface NotificationItemProps {
   notification: SelectNotification;
   user: SelectUser;
   reason_post?: SelectPost;
-  post?: SelectPost;
   additionalUsers: SelectUser[];
 }
 
@@ -29,11 +28,10 @@ function NotificationItem({
   notification,
   user,
   reason_post,
-  post,
   additionalUsers,
 }: NotificationItemProps) {
-  if (notification.reason === "reply" && post) {
-    return <PostItem post={post} user={user} />;
+  if (notification.reason === "reply" && reason_post) {
+    return <PostItem post={reason_post} user={user} />;
   }
 
   const icon =
@@ -54,15 +52,13 @@ function NotificationItem({
         <div className="flex items-center gap-1">
           <Avatar className="size-9">
             <AvatarImage src={user.image || undefined} alt={user.name} />
-            <AvatarFallback>
-              {user.name ? user.name[0].toUpperCase() : "U"}
-            </AvatarFallback>
+            <AvatarFallback>{user.name[0].toUpperCase()}</AvatarFallback>
           </Avatar>
           {additionalUsers.slice(0, 4).map((u) => (
             <Avatar key={u.id} className="size-9">
               <AvatarImage src={u.image || undefined} alt={u.name} />
               <AvatarFallback>
-                {u.name ? u.name[0].toUpperCase() : "U"}
+                {u.name[0].toUpperCase()}
               </AvatarFallback>
             </Avatar>
           ))}
@@ -140,10 +136,7 @@ export default function NotificationList({ userId }: { userId: string }) {
         .leftJoin(
           { reason_post: electricPostCollection },
           ({ notification, reason_post }) =>
-            eq(notification.reason_subject_id, reason_post.id),
-        )
-        .leftJoin({ post: electricPostCollection }, ({ notification, post }) =>
-          eq(notification.post_id, post.id),
+            eq(notification.reason_post_id, reason_post.id),
         )
         .orderBy(({ notification }) => notification.id, "desc"),
     {
@@ -176,17 +169,15 @@ export default function NotificationList({ userId }: { userId: string }) {
     notification: SelectNotification;
     user: SelectUser;
     reason_post?: SelectPost;
-    post?: SelectPost;
     additionalUsers: SelectUser[];
   }[] = [];
 
-  data.forEach(({ notification, user, reason_post, post }) => {
+  data.forEach(({ notification, user, reason_post }) => {
     for (const group of groupedNotifications) {
       if (
         ["like", "repost"].includes(notification.reason) &&
         group.notification.reason === notification.reason &&
-        group.notification.reason_subject_id ===
-          notification.reason_subject_id &&
+        group.notification.reason_post_id === notification.reason_post_id &&
         dayjs(group.notification.created_at).diff(
           dayjs(notification.created_at),
           "hour",
@@ -200,7 +191,6 @@ export default function NotificationList({ userId }: { userId: string }) {
       notification,
       user,
       reason_post,
-      post,
       additionalUsers: [],
     });
   });
@@ -219,7 +209,6 @@ export default function NotificationList({ userId }: { userId: string }) {
           notification={item.notification}
           user={item.user}
           reason_post={item.reason_post}
-          post={item.post}
           additionalUsers={item.additionalUsers}
         />
       )}
