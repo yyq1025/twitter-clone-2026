@@ -11,6 +11,12 @@ importers:
       '@base-ui/react':
         specifier: ^1.1.0
         version: 1.1.0(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+      '@better-upload/client':
+        specifier: ^3.0.12
+        version: 3.0.12(react@19.2.3)
+      '@better-upload/server':
+        specifier: ^3.0.12
+        version: 3.0.12
       '@electric-sql/client':
         specifier: ^1.4.1
         version: 1.4.1
@@ -68,9 +74,6 @@ importers:
       '@tiptap/starter-kit':
         specifier: ^3.15.3
         version: 3.15.3
-      '@uploadthing/react':
-        specifier: ^7.3.3
-        version: 7.3.3(react@19.2.3)(uploadthing@7.7.4(express@5.2.1)(tailwindcss@4.1.18))
       better-auth:
         specifier: ^1.4.14
         version: 1.4.14(@tanstack/react-start-server@1.150.0(crossws@0.4.1(srvx@0.9.8))(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(drizzle-kit@0.31.8)(drizzle-orm@0.45.1(@types/pg@8.16.0)(kysely@0.28.9)(pg@8.17.1))(pg@8.17.1)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(solid-js@1.9.10)(vitest@4.0.17(@types/node@25.0.9)(jiti@2.6.1)(jsdom@27.4.0)(lightningcss@1.30.2)(msw@2.12.7(@types/node@25.0.9)(typescript@5.9.3))(tsx@4.21.0))
@@ -97,7 +100,7 @@ importers:
         version: 8.6.0(react@19.2.3)
       nitro:
         specifier: 3.0.1-alpha.1
-        version: 3.0.1-alpha.1(drizzle-orm@0.45.1(@types/pg@8.16.0)(kysely@0.28.9)(pg@8.17.1))(lru-cache@11.2.4)(rollup@4.55.1)(uploadthing@7.7.4(express@5.2.1)(tailwindcss@4.1.18))(vite@7.3.1(@types/node@25.0.9)(jiti@2.6.1)(lightningcss@1.30.2)(tsx@4.21.0))
+        version: 3.0.1-alpha.1(aws4fetch@1.0.20)(drizzle-orm@0.45.1(@types/pg@8.16.0)(kysely@0.28.9)(pg@8.17.1))(lru-cache@11.2.4)(rollup@4.55.1)(uploadthing@7.7.4(express@5.2.1)(tailwindcss@4.1.18))(vite@7.3.1(@types/node@25.0.9)(jiti@2.6.1)(lightningcss@1.30.2)(tsx@4.21.0))
       pg:
         specifier: ^8.17.1
         version: 8.17.1
@@ -119,9 +122,6 @@ importers:
       tw-animate-css:
         specifier: ^1.4.0
         version: 1.4.0
-      uploadthing:
-        specifier: ^7.7.4
-        version: 7.7.4(express@5.2.1)(tailwindcss@4.1.18)
       uuid:
         specifier: ^13.0.0
         version: 13.0.0
@@ -398,6 +398,14 @@ packages:
 
   '@better-fetch/fetch@1.1.21':
     resolution: {integrity: sha512-/ImESw0sskqlVR94jB+5+Pxjf+xBwDZF/N5+y2/q4EqD7IARUTSpPfIo8uf39SYpCxyOCtbyYpUrZ3F/k0zT4A==}
+
+  '@better-upload/client@3.0.12':
+    resolution: {integrity: sha512-MnYMJ690hxZYsN8tV7bJBSj3vCAdNH18XxvOYHcKF+9HbARsXIIOnjviK+lAdPmXvYFFMN+8beMl+RopKaBu0g==}
+    peerDependencies:
+      react: '*'
+
+  '@better-upload/server@3.0.12':
+    resolution: {integrity: sha512-okXKhRTD43AwT6sXk5ZG7np2zdnJAppxgW5r46yek6HiHHwCGWcqsviLJ26sR0VisWlPk6ZC0mK85M7xDnn55w==}
 
   '@biomejs/biome@2.3.11':
     resolution: {integrity: sha512-/zt+6qazBWguPG6+eWmiELqO+9jRsMZ/DBU3lfuU2ngtIQYzymocHhKiZRyrbra4aCOoyTg/BmY+6WH5mv9xmQ==}
@@ -2270,16 +2278,6 @@ packages:
   '@uploadthing/mime-types@0.3.6':
     resolution: {integrity: sha512-t3tTzgwFV9+1D7lNDYc7Lr7kBwotHaX0ZsvoCGe7xGnXKo9z0jG2Sjl/msll12FeoLj77nyhsxevXyGpQDBvLg==}
 
-  '@uploadthing/react@7.3.3':
-    resolution: {integrity: sha512-GhKbK42jL2Qs7OhRd2Z6j0zTLsnJTRJH31nR7RZnUYVoRh2aS/NabMAnHBNqfunIAGXVaA717Pvzq7vtxuPTmQ==}
-    peerDependencies:
-      next: '*'
-      react: ^17.0.2 || ^18.0.0 || ^19.0.0
-      uploadthing: ^7.2.0
-    peerDependenciesMeta:
-      next:
-        optional: true
-
   '@uploadthing/shared@7.1.10':
     resolution: {integrity: sha512-R/XSA3SfCVnLIzFpXyGaKPfbwlYlWYSTuGjTFHuJhdAomuBuhopAHLh2Ois5fJibAHzi02uP1QCKbgTAdmArqg==}
 
@@ -2383,6 +2381,9 @@ packages:
   ast-types@0.16.1:
     resolution: {integrity: sha512-6t10qk83GOG8p0vKmaCr8eiilZwO171AvbROMtvvNiwrTly62t+7XkA8RdIIVbpMhCASAsxgAzdRSwh6nw/5Dg==}
     engines: {node: '>=4'}
+
+  aws4fetch@1.0.20:
+    resolution: {integrity: sha512-/djoAN709iY65ETD6LKCtyyEI04XIBP5xVvfmNxsEP0uJB5tyaGBztSryRr4HqMStr9R06PisQE7m9zDTXKu6g==}
 
   babel-dead-code-elimination@1.0.12:
     resolution: {integrity: sha512-GERT7L2TiYcYDtYk1IpD+ASAYXjKbLTDPhBtYj7X1NuRMDTMtAx9kyBenub1Ev41lo91OHCKdmP+egTDmfQ7Ig==}
@@ -3039,6 +3040,10 @@ packages:
   fast-uri@3.1.0:
     resolution: {integrity: sha512-iPeeDKJSWf4IEOasVVrknXpaBV0IApz/gp7S2bb7Z4Lljbl2MGJRqInZiUrQwV16cpzw/D3S5j5Julj/gT52AA==}
 
+  fast-xml-parser@5.3.3:
+    resolution: {integrity: sha512-2O3dkPAAC6JavuMm8+4+pgTk+5hoAs+CjZ+sWcQLkX9+/tHRuTkQh/Oaifr8qDmZ8iEHb771Ea6G8CdwkrgvYA==}
+    hasBin: true
+
   fastq@1.20.1:
     resolution: {integrity: sha512-GGToxJ/w1x32s/D2EKND7kTil4n8OVk/9mycTc4VDza13lOvpUZTGX3mFSCtV9ksdGBVzvsyAVLM6mHFThxXxw==}
 
@@ -3058,10 +3063,6 @@ packages:
   figures@6.1.0:
     resolution: {integrity: sha512-d+l3qxjSesT4V7v2fh+QnmFnUWv9lSpjarhShNTgBOfA0ttejbQUAlHLitbjkoRiDulW0OPoQPYIGhIC8ohejg==}
     engines: {node: '>=18'}
-
-  file-selector@0.6.0:
-    resolution: {integrity: sha512-QlZ5yJC0VxHxQQsQhXvBaC7VRJ2uaxTf+Tfpu4Z/OcVQJVpZO+DGU0rkoVW5ce2SccxugvpBJoMvUs59iILYdw==}
-    engines: {node: '>= 12'}
 
   fill-range@7.1.1:
     resolution: {integrity: sha512-YsGpe3WHLK8ZYi4tWDg2Jy3ebRz2rXowDxnld4bkQB00cc/1Zw9AWnC0i9ztDJitivtQvaI9KaLyKrc+hBW0yg==}
@@ -4228,6 +4229,9 @@ packages:
     resolution: {integrity: sha512-aulFJcD6YK8V1G7iRB5tigAP4TsHBZZrOV8pjV++zdUwmeV8uzbY7yn6h9MswN62adStNZFuCIx4haBnRuMDaw==}
     engines: {node: '>=18'}
 
+  strnum@2.1.2:
+    resolution: {integrity: sha512-l63NF9y/cLROq/yqKXSLtcMeeyOfnSQlfMSlzFt/K73oIaD8DGaQWd7Z34X9GPiKqP5rbSh84Hl4bOlLcjiSrQ==}
+
   symbol-tree@3.2.4:
     resolution: {integrity: sha512-9QNk5KwDF+Bvz+PyObkmSYjI5ksVUYtjW7AU22r2NKcfLJcXp96hkDWU3+XndOsUb+AQ9QhfzfCT2O+CNWT5Tw==}
 
@@ -5009,6 +5013,16 @@ snapshots:
 
   '@better-fetch/fetch@1.1.21': {}
 
+  '@better-upload/client@3.0.12(react@19.2.3)':
+    dependencies:
+      react: 19.2.3
+
+  '@better-upload/server@3.0.12':
+    dependencies:
+      aws4fetch: 1.0.20
+      fast-xml-parser: 5.3.3
+      zod: 4.3.5
+
   '@biomejs/biome@2.3.11':
     optionalDependencies:
       '@biomejs/cli-darwin-arm64': 2.3.11
@@ -5091,6 +5105,7 @@ snapshots:
       find-my-way-ts: 0.1.6
       msgpackr: 1.11.8
       multipasta: 0.2.7
+    optional: true
 
   '@electric-sql/client@1.4.1':
     dependencies:
@@ -5536,7 +5551,8 @@ snapshots:
 
   '@open-draft/until@2.1.0': {}
 
-  '@opentelemetry/semantic-conventions@1.39.0': {}
+  '@opentelemetry/semantic-conventions@1.39.0':
+    optional: true
 
   '@oxc-minify/binding-android-arm64@0.96.0':
     optional: true
@@ -5894,7 +5910,8 @@ snapshots:
     dependencies:
       solid-js: 1.9.10
 
-  '@standard-schema/spec@1.0.0-beta.4': {}
+  '@standard-schema/spec@1.0.0-beta.4':
+    optional: true
 
   '@standard-schema/spec@1.1.0': {}
 
@@ -6601,20 +6618,15 @@ snapshots:
 
   '@types/validate-npm-package-name@4.0.2': {}
 
-  '@uploadthing/mime-types@0.3.6': {}
-
-  '@uploadthing/react@7.3.3(react@19.2.3)(uploadthing@7.7.4(express@5.2.1)(tailwindcss@4.1.18))':
-    dependencies:
-      '@uploadthing/shared': 7.1.10
-      file-selector: 0.6.0
-      react: 19.2.3
-      uploadthing: 7.7.4(express@5.2.1)(tailwindcss@4.1.18)
+  '@uploadthing/mime-types@0.3.6':
+    optional: true
 
   '@uploadthing/shared@7.1.10':
     dependencies:
       '@uploadthing/mime-types': 0.3.6
       effect: 3.17.7
       sqids: 0.3.0
+    optional: true
 
   '@vitejs/plugin-react@5.1.2(vite@7.3.1(@types/node@25.0.9)(jiti@2.6.1)(lightningcss@1.30.2)(tsx@4.21.0))':
     dependencies:
@@ -6720,6 +6732,8 @@ snapshots:
   ast-types@0.16.1:
     dependencies:
       tslib: 2.8.1
+
+  aws4fetch@1.0.20: {}
 
   babel-dead-code-elimination@1.0.12:
     dependencies:
@@ -7069,6 +7083,7 @@ snapshots:
     dependencies:
       '@standard-schema/spec': 1.1.0
       fast-check: 3.23.2
+    optional: true
 
   electron-to-chromium@1.5.267: {}
 
@@ -7301,6 +7316,7 @@ snapshots:
   fast-check@3.23.2:
     dependencies:
       pure-rand: 6.1.0
+    optional: true
 
   fast-deep-equal@3.1.3: {}
 
@@ -7315,6 +7331,10 @@ snapshots:
       micromatch: 4.0.8
 
   fast-uri@3.1.0: {}
+
+  fast-xml-parser@5.3.3:
+    dependencies:
+      strnum: 2.1.2
 
   fastq@1.20.1:
     dependencies:
@@ -7333,10 +7353,6 @@ snapshots:
     dependencies:
       is-unicode-supported: 2.1.0
 
-  file-selector@0.6.0:
-    dependencies:
-      tslib: 2.8.1
-
   fill-range@7.1.1:
     dependencies:
       to-regex-range: 5.0.1
@@ -7352,7 +7368,8 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  find-my-way-ts@0.1.6: {}
+  find-my-way-ts@0.1.6:
+    optional: true
 
   formdata-polyfill@4.0.10:
     dependencies:
@@ -7772,6 +7789,7 @@ snapshots:
   msgpackr@1.11.8:
     optionalDependencies:
       msgpackr-extract: 3.0.3
+    optional: true
 
   msw@2.12.7(@types/node@25.0.9)(typescript@5.9.3):
     dependencies:
@@ -7798,7 +7816,8 @@ snapshots:
     transitivePeerDependencies:
       - '@types/node'
 
-  multipasta@0.2.7: {}
+  multipasta@0.2.7:
+    optional: true
 
   mute-stream@2.0.0: {}
 
@@ -7810,7 +7829,7 @@ snapshots:
 
   nf3@0.1.12: {}
 
-  nitro@3.0.1-alpha.1(drizzle-orm@0.45.1(@types/pg@8.16.0)(kysely@0.28.9)(pg@8.17.1))(lru-cache@11.2.4)(rollup@4.55.1)(uploadthing@7.7.4(express@5.2.1)(tailwindcss@4.1.18))(vite@7.3.1(@types/node@25.0.9)(jiti@2.6.1)(lightningcss@1.30.2)(tsx@4.21.0)):
+  nitro@3.0.1-alpha.1(aws4fetch@1.0.20)(drizzle-orm@0.45.1(@types/pg@8.16.0)(kysely@0.28.9)(pg@8.17.1))(lru-cache@11.2.4)(rollup@4.55.1)(uploadthing@7.7.4(express@5.2.1)(tailwindcss@4.1.18))(vite@7.3.1(@types/node@25.0.9)(jiti@2.6.1)(lightningcss@1.30.2)(tsx@4.21.0)):
     dependencies:
       consola: 3.4.2
       crossws: 0.4.1(srvx@0.9.8)
@@ -7825,7 +7844,7 @@ snapshots:
       srvx: 0.9.8
       undici: 7.18.2
       unenv: 2.0.0-rc.24
-      unstorage: 2.0.0-alpha.5(db0@0.3.4(drizzle-orm@0.45.1(@types/pg@8.16.0)(kysely@0.28.9)(pg@8.17.1)))(lru-cache@11.2.4)(ofetch@2.0.0-alpha.3)(uploadthing@7.7.4(express@5.2.1)(tailwindcss@4.1.18))
+      unstorage: 2.0.0-alpha.5(aws4fetch@1.0.20)(db0@0.3.4(drizzle-orm@0.45.1(@types/pg@8.16.0)(kysely@0.28.9)(pg@8.17.1)))(lru-cache@11.2.4)(ofetch@2.0.0-alpha.3)(uploadthing@7.7.4(express@5.2.1)(tailwindcss@4.1.18))
     optionalDependencies:
       rollup: 4.55.1
       vite: 7.3.1(@types/node@25.0.9)(jiti@2.6.1)(lightningcss@1.30.2)(tsx@4.21.0)
@@ -8218,7 +8237,8 @@ snapshots:
 
   punycode@2.3.1: {}
 
-  pure-rand@6.1.0: {}
+  pure-rand@6.1.0:
+    optional: true
 
   qs@6.14.1:
     dependencies:
@@ -8515,7 +8535,8 @@ snapshots:
 
   split2@4.2.0: {}
 
-  sqids@0.3.0: {}
+  sqids@0.3.0:
+    optional: true
 
   srvx@0.10.0: {}
 
@@ -8562,6 +8583,8 @@ snapshots:
   strip-final-newline@2.0.0: {}
 
   strip-final-newline@4.0.0: {}
+
+  strnum@2.1.2: {}
 
   symbol-tree@3.2.4: {}
 
@@ -8673,8 +8696,9 @@ snapshots:
       picomatch: 4.0.3
       webpack-virtual-modules: 0.6.2
 
-  unstorage@2.0.0-alpha.5(db0@0.3.4(drizzle-orm@0.45.1(@types/pg@8.16.0)(kysely@0.28.9)(pg@8.17.1)))(lru-cache@11.2.4)(ofetch@2.0.0-alpha.3)(uploadthing@7.7.4(express@5.2.1)(tailwindcss@4.1.18)):
+  unstorage@2.0.0-alpha.5(aws4fetch@1.0.20)(db0@0.3.4(drizzle-orm@0.45.1(@types/pg@8.16.0)(kysely@0.28.9)(pg@8.17.1)))(lru-cache@11.2.4)(ofetch@2.0.0-alpha.3)(uploadthing@7.7.4(express@5.2.1)(tailwindcss@4.1.18)):
     optionalDependencies:
+      aws4fetch: 1.0.20
       db0: 0.3.4(drizzle-orm@0.45.1(@types/pg@8.16.0)(kysely@0.28.9)(pg@8.17.1))
       lru-cache: 11.2.4
       ofetch: 2.0.0-alpha.3
@@ -8698,6 +8722,7 @@ snapshots:
     optionalDependencies:
       express: 5.2.1
       tailwindcss: 4.1.18
+    optional: true
 
   use-callback-ref@1.3.3(@types/react@19.2.8)(react@19.2.3):
     dependencies:

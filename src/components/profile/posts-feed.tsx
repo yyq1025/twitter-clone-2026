@@ -7,7 +7,9 @@ import {
   or,
   useLiveInfiniteQuery,
 } from "@tanstack/react-db";
+import { Fragment } from "react";
 import { PostItem } from "@/components/post-item";
+import { ViewFullThread } from "@/components/view-full-thread";
 import VirtualInfiniteList from "@/components/virtual-infinite-list";
 import {
   electricFeedItemCollection,
@@ -162,26 +164,32 @@ export default function PostsFeed({ userId }: { userId: string }) {
       }}
       renderItem={(item) =>
         item.map(({ post, user, feed_item, feed_creator }, idx) => (
-          <PostItem
-            key={post.id}
-            post={post}
-            user={user}
-            feedReason={
-              feed_item.type === "repost" && (
-                <div className="mt-2 mb-1 flex gap-2">
-                  <div className="w-10">
-                    <IconRepeat className="ml-auto size-4 text-muted-foreground" />
+          <Fragment key={post.id}>
+            {idx > 0 &&
+              idx < item.length - 1 &&
+              post.reply_parent_id !== post.reply_root_id && (
+                <ViewFullThread post={post} user={user} />
+              )}
+            <PostItem
+              post={post}
+              user={user}
+              feedReason={
+                feed_item.type === "repost" && (
+                  <div className="mt-2 mb-1 flex gap-2">
+                    <div className="w-10">
+                      <IconRepeat className="ml-auto size-4 text-muted-foreground" />
+                    </div>
+                    <span className="text-muted-foreground text-sm leading-none">
+                      Reposted by {feed_creator.name}
+                    </span>
                   </div>
-                  <span className="text-muted-foreground text-sm leading-none">
-                    Reposted by {feed_creator.name}
-                  </span>
-                </div>
-              )
-            }
-            isRoot={idx === 0 && item.length > 1}
-            isParent={idx > 0 && idx < item.length - 1}
-            isChild={idx === item.length - 1 && item.length > 1}
-          />
+                )
+              }
+              isRoot={idx === 0 && item.length > 1}
+              isParent={idx > 0 && idx < item.length - 1}
+              isChild={idx === item.length - 1 && item.length > 1}
+            />
+          </Fragment>
         ))
       }
     />

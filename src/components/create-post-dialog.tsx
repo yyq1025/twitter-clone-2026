@@ -1,3 +1,4 @@
+import { useUploadFiles } from "@better-upload/client";
 import { IconPhoto, IconX } from "@tabler/icons-react";
 import { Placeholder } from "@tiptap/extensions";
 import { EditorContent, useEditor, useEditorState } from "@tiptap/react";
@@ -26,7 +27,6 @@ import { usePostMedia } from "@/hooks/use-post-media";
 import { createPost } from "@/lib/actions";
 import { authClient } from "@/lib/auth-client";
 import type { SelectPost, SelectUser } from "@/lib/validators";
-import { uploadFiles } from "@/utils/uploadthing";
 
 type CreatePostDialogProps = {
   open?: boolean;
@@ -44,6 +44,7 @@ export function CreatePostDialog({
   parentUser,
 }: CreatePostDialogProps) {
   const { data: session } = authClient.useSession();
+  const { uploadAsync } = useUploadFiles({ route: "images" });
   const editor = useEditor({
     extensions: [
       StarterKit.configure(),
@@ -85,13 +86,25 @@ export function CreatePostDialog({
 
     try {
       setSubmitting(true);
-      const uploadResponse = await uploadFiles("imageUploader", {
-        files: mediaFiles.map((item) => item.file),
-      });
+      const renamedFiles = mediaFiles.map(
+        ({ file }, index) =>
+          new File([file], `${index}-${file.name}`, {
+            type: file.type,
+            lastModified: file.lastModified,
+          }),
+      );
 
-      const postMedia = uploadResponse.map((upload) => ({
-        url: upload.ufsUrl,
-        type: "image",
+      const { files, failedFiles } = await uploadAsync(renamedFiles);
+
+      if (failedFiles.length > 0) {
+        console.error("Some files failed to upload:", failedFiles);
+        return;
+      }
+
+      const postMedia = files.map((file) => ({
+        key: file.objectInfo.key,
+        type: file.type,
+        name: file.name,
       }));
 
       createPost({

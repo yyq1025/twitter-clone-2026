@@ -25,14 +25,14 @@ import {
 import { cn } from "@/lib/utils";
 import type { SelectPost, SelectUser } from "@/lib/validators";
 
-type PostItemProps = {
+interface PostItemProps {
   post: SelectPost;
   user: SelectUser;
   feedReason?: ReactNode;
   isRoot?: boolean;
   isParent?: boolean;
   isChild?: boolean;
-};
+}
 
 export function PostItem({
   post,
@@ -122,22 +122,6 @@ export function PostItem({
 
   return (
     <>
-      {isParent && post.reply_parent_id !== post.reply_root_id && (
-        <div
-          className="flex cursor-pointer items-center gap-2 px-4 py-1.5 transition hover:bg-gray-50"
-          onClick={() => {
-            navigate({
-              to: "/profile/$username/post/$postId",
-              params: { username: user.username, postId: post.reply_parent_id },
-            });
-          }}
-        >
-          <div className="w-10">
-            <IconDotsVertical className="mx-auto text-border" />
-          </div>
-          <span className="text-primary">View full thread</span>
-        </div>
-      )}
       <article
         className={cn(
           "cursor-pointer px-4 transition hover:bg-gray-50",
@@ -146,7 +130,7 @@ export function PostItem({
         onClick={() => {
           navigate({
             to: "/profile/$username/post/$postId",
-            params: { username: user.username, postId: post.id },
+            params: { username: user.username!, postId: post.id },
           });
         }}
       >
@@ -211,7 +195,7 @@ export function PostItem({
                   (media, idx) =>
                     post.media && (
                       <div
-                        key={media.url}
+                        key={media.key}
                         className={cn(
                           "h-full w-full",
                           post.media.length + idx <= 3 && "row-span-2",
@@ -219,7 +203,10 @@ export function PostItem({
                         )}
                       >
                         <img
-                          src={media.url}
+                          src={new URL(
+                            media.key,
+                            import.meta.env.VITE_TIGRIS_ENDPOINT,
+                          ).toString()}
                           alt="Post media"
                           className={cn(
                             post.media.length > 1

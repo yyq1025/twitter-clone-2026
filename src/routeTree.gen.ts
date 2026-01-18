@@ -12,7 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiUsersRouteImport } from './routes/api/users'
-import { Route as ApiUploadthingRouteImport } from './routes/api/uploadthing'
+import { Route as ApiUploadRouteImport } from './routes/api/upload'
 import { Route as ApiRepostsRouteImport } from './routes/api/reposts'
 import { Route as ApiPostsRouteImport } from './routes/api/posts'
 import { Route as ApiNotificationsRouteImport } from './routes/api/notifications'
@@ -41,9 +41,9 @@ const ApiUsersRoute = ApiUsersRouteImport.update({
   path: '/api/users',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiUploadthingRoute = ApiUploadthingRouteImport.update({
-  id: '/api/uploadthing',
-  path: '/api/uploadthing',
+const ApiUploadRoute = ApiUploadRouteImport.update({
+  id: '/api/upload',
+  path: '/api/upload',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiRepostsRoute = ApiRepostsRouteImport.update({
@@ -126,7 +126,7 @@ export interface FileRoutesByFullPath {
   '/api/notifications': typeof ApiNotificationsRoute
   '/api/posts': typeof ApiPostsRoute
   '/api/reposts': typeof ApiRepostsRoute
-  '/api/uploadthing': typeof ApiUploadthingRoute
+  '/api/upload': typeof ApiUploadRoute
   '/api/users': typeof ApiUsersRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/profile/$username': typeof ProfileUsernameIndexRoute
@@ -144,7 +144,7 @@ export interface FileRoutesByTo {
   '/api/notifications': typeof ApiNotificationsRoute
   '/api/posts': typeof ApiPostsRoute
   '/api/reposts': typeof ApiRepostsRoute
-  '/api/uploadthing': typeof ApiUploadthingRoute
+  '/api/upload': typeof ApiUploadRoute
   '/api/users': typeof ApiUsersRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/profile/$username': typeof ProfileUsernameIndexRoute
@@ -164,7 +164,7 @@ export interface FileRoutesById {
   '/api/notifications': typeof ApiNotificationsRoute
   '/api/posts': typeof ApiPostsRoute
   '/api/reposts': typeof ApiRepostsRoute
-  '/api/uploadthing': typeof ApiUploadthingRoute
+  '/api/upload': typeof ApiUploadRoute
   '/api/users': typeof ApiUsersRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/profile/$username/': typeof ProfileUsernameIndexRoute
@@ -184,7 +184,7 @@ export interface FileRouteTypes {
     | '/api/notifications'
     | '/api/posts'
     | '/api/reposts'
-    | '/api/uploadthing'
+    | '/api/upload'
     | '/api/users'
     | '/api/auth/$'
     | '/profile/$username'
@@ -202,7 +202,7 @@ export interface FileRouteTypes {
     | '/api/notifications'
     | '/api/posts'
     | '/api/reposts'
-    | '/api/uploadthing'
+    | '/api/upload'
     | '/api/users'
     | '/api/auth/$'
     | '/profile/$username'
@@ -221,7 +221,7 @@ export interface FileRouteTypes {
     | '/api/notifications'
     | '/api/posts'
     | '/api/reposts'
-    | '/api/uploadthing'
+    | '/api/upload'
     | '/api/users'
     | '/api/auth/$'
     | '/profile/$username/'
@@ -239,7 +239,7 @@ export interface RootRouteChildren {
   ApiNotificationsRoute: typeof ApiNotificationsRoute
   ApiPostsRoute: typeof ApiPostsRoute
   ApiRepostsRoute: typeof ApiRepostsRoute
-  ApiUploadthingRoute: typeof ApiUploadthingRoute
+  ApiUploadRoute: typeof ApiUploadRoute
   ApiUsersRoute: typeof ApiUsersRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ProfileUsernameIndexRoute: typeof ProfileUsernameIndexRoute
@@ -269,11 +269,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiUsersRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/uploadthing': {
-      id: '/api/uploadthing'
-      path: '/api/uploadthing'
-      fullPath: '/api/uploadthing'
-      preLoaderRoute: typeof ApiUploadthingRouteImport
+    '/api/upload': {
+      id: '/api/upload'
+      path: '/api/upload'
+      fullPath: '/api/upload'
+      preLoaderRoute: typeof ApiUploadRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/reposts': {
@@ -394,7 +394,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiNotificationsRoute: ApiNotificationsRoute,
   ApiPostsRoute: ApiPostsRoute,
   ApiRepostsRoute: ApiRepostsRoute,
-  ApiUploadthingRoute: ApiUploadthingRoute,
+  ApiUploadRoute: ApiUploadRoute,
   ApiUsersRoute: ApiUsersRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ProfileUsernameIndexRoute: ProfileUsernameIndexRoute,

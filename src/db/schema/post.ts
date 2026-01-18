@@ -10,8 +10,9 @@ import {
 import { users } from "./better-auth";
 
 interface PostMedia {
-  url: string;
+  key: string;
   type: string;
+  name: string;
 }
 
 export const posts = pgTable("posts", {

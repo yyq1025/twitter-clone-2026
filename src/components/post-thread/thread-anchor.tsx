@@ -159,7 +159,7 @@ export function ThreadAnchor({ post, user }: ThreadAnchorProps) {
               (media, idx) =>
                 post.media && (
                   <div
-                    key={media.url}
+                    key={media.key}
                     className={cn(
                       "h-full w-full",
                       post.media.length + idx <= 3 && "row-span-2",
@@ -167,7 +167,10 @@ export function ThreadAnchor({ post, user }: ThreadAnchorProps) {
                     )}
                   >
                     <img
-                      src={media.url}
+                      src={new URL(
+                        media.key,
+                        import.meta.env.VITE_TIGRIS_ENDPOINT,
+                      ).toString()}
                       alt="Post media"
                       className={cn(
                         post.media.length > 1

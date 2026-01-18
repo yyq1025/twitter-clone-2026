@@ -3,7 +3,9 @@ import {
   eq,
   useLiveInfiniteQuery,
 } from "@tanstack/react-db";
+import { Fragment } from "react";
 import { PostItem } from "@/components/post-item";
+import { ViewFullThread } from "@/components/view-full-thread";
 import VirtualInfiniteList from "@/components/virtual-infinite-list";
 import {
   electricLikeCollection,
@@ -123,14 +125,20 @@ export default function LikedPosts({ userId }: { userId: string }) {
       getKey={(item) => `${userId}-${item[item.length - 1].post.id}`}
       renderItem={(item) =>
         item.map(({ post, user }, idx) => (
-          <PostItem
-            key={post.id}
-            post={post}
-            user={user}
-            isRoot={idx === 0 && item.length > 1}
-            isParent={idx > 0 && idx < item.length - 1}
-            isChild={idx === item.length - 1 && item.length > 1}
-          />
+          <Fragment key={post.id}>
+            {idx > 0 &&
+              idx < item.length - 1 &&
+              post.reply_parent_id !== post.reply_root_id && (
+                <ViewFullThread post={post} user={user} />
+              )}
+            <PostItem
+              post={post}
+              user={user}
+              isRoot={idx === 0 && item.length > 1}
+              isParent={idx > 0 && idx < item.length - 1}
+              isChild={idx === item.length - 1 && item.length > 1}
+            />
+          </Fragment>
         ))
       }
     />

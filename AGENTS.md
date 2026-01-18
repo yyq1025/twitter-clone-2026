@@ -38,7 +38,7 @@
 ## Environment + Secrets
 - Local env file: `.env.local` (contains credentials).
 - Never commit or log secrets; avoid copying `.env.local`.
-- Required vars include: `DATABASE_URL`, `BETTER_AUTH_*`, `ELECTRIC_*`, `UPLOADTHING_TOKEN`.
+- Required vars include: `DATABASE_URL`, `BETTER_AUTH_*`, `ELECTRIC_*`.
 
 ## Code Style (General)
 - Format with Biome; do not hand-format.
