@@ -36,12 +36,8 @@ jobs:
     - name: Start docker compose
       run: docker compose up -d --wait --wait-timeout 90
 
-    - name: Kill any running Caddy instance
-      run: |
-        pkill -f caddy || true
-
-    - name: Start Caddy
-      run: caddy start --config caddyfile --adapter caddyfile
+    - name: Run Caddy
+      run: caddy run --config caddyfile --adapter caddyfile &
 
     - name: Run Playwright tests
       run: pnpm exec playwright test
@@ -57,5 +53,4 @@ jobs:
       if: ${{ always() }}
       continue-on-error: true
       run: |
-        caddy stop || true
         docker compose down --volumes --remove-orphans || true
