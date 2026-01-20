@@ -86,26 +86,30 @@ export function CreatePostDialog({
 
     try {
       setSubmitting(true);
-      const renamedFiles = mediaFiles.map(
-        ({ file }, index) =>
-          new File([file], `${index}-${file.name}`, {
-            type: file.type,
-            lastModified: file.lastModified,
-          }),
-      );
+      let postMedia: { key: string; type: string; name: string }[] = [];
 
-      const { files, failedFiles } = await uploadAsync(renamedFiles);
+      if (mediaFiles.length > 0) {
+        const renamedFiles = mediaFiles.map(
+          ({ file }, index) =>
+            new File([file], `${index}-${file.name}`, {
+              type: file.type,
+              lastModified: file.lastModified,
+            }),
+        );
 
-      if (failedFiles.length > 0) {
-        console.error("Some files failed to upload:", failedFiles);
-        return;
+        const { files, failedFiles } = await uploadAsync(renamedFiles);
+
+        if (failedFiles.length > 0) {
+          console.error("Some files failed to upload:", failedFiles);
+          return;
+        }
+
+        postMedia = files.map((file) => ({
+          key: file.objectInfo.key,
+          type: file.type,
+          name: file.name,
+        }));
       }
-
-      const postMedia = files.map((file) => ({
-        key: file.objectInfo.key,
-        type: file.type,
-        name: file.name,
-      }));
 
       createPost({
         payload: {

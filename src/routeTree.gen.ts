@@ -129,7 +129,7 @@ export interface FileRoutesByFullPath {
   '/api/upload': typeof ApiUploadRoute
   '/api/users': typeof ApiUsersRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
-  '/profile/$username': typeof ProfileUsernameIndexRoute
+  '/profile/$username/': typeof ProfileUsernameIndexRoute
   '/profile/$username/post/$postId': typeof ProfileUsernamePostPostIdRoute
 }
 export interface FileRoutesByTo {
@@ -187,7 +187,7 @@ export interface FileRouteTypes {
     | '/api/upload'
     | '/api/users'
     | '/api/auth/$'
-    | '/profile/$username'
+    | '/profile/$username/'
     | '/profile/$username/post/$postId'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -251,7 +251,7 @@ declare module '@tanstack/react-router' {
     '/_authenticated': {
       id: '/_authenticated'
       path: ''
-      fullPath: ''
+      fullPath: '/'
       preLoaderRoute: typeof AuthenticatedRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
@@ -349,7 +349,7 @@ declare module '@tanstack/react-router' {
     '/profile/$username/': {
       id: '/profile/$username/'
       path: '/profile/$username'
-      fullPath: '/profile/$username'
+      fullPath: '/profile/$username/'
       preLoaderRoute: typeof ProfileUsernameIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
