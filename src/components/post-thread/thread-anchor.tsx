@@ -167,10 +167,7 @@ export function ThreadAnchor({ post, user }: ThreadAnchorProps) {
                     )}
                   >
                     <img
-                      src={new URL(
-                        media.key,
-                        import.meta.env.VITE_TIGRIS_ENDPOINT,
-                      ).toString()}
+                      src={`${import.meta.env.VITE_AWS_ENDPOINT}/${media.key}`}
                       alt="Post media"
                       className={cn(
                         post.media.length > 1

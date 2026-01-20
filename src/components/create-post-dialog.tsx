@@ -224,7 +224,7 @@ export function CreatePostDialog({
                     : "U"}
                 </AvatarFallback>
               </Avatar>
-              <div className="flex-1 space-y-2">
+              <div data-testid="editor" className="flex-1 space-y-2">
                 <EditorContent editor={editor} />
                 {!!mediaFiles.length && (
                   <Carousel opts={{ loop: false, align: "start" }}>

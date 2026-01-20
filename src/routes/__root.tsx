@@ -227,6 +227,7 @@ function RootLayout() {
             <Button
               size="icon-lg"
               className="fixed right-4 bottom-20 z-50 size-fit rounded-full p-3 text-white sm:hidden"
+              aria-label="Create post"
             >
               <IconFeatherFilled className="size-6" />
             </Button>

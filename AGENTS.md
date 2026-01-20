@@ -1,106 +1,118 @@
 # AGENTS.md
 
-## Project Overview
-- Vite + TanStack Start + React 19 app.
-- TypeScript-first, strict compiler options enabled.
-- Styling is Tailwind CSS v4 with utility-first classes.
-- Data layer uses Drizzle ORM, ElectricSQL, and Postgres.
-- Uses Biome for formatting + linting.
+## Project Snapshot
+- Vite + TanStack Start + React 19 application.
+- TypeScript strict mode with bundler module resolution.
+- Tailwind CSS v4; class sorting enforced by Biome.
+- Data layer: Drizzle ORM + ElectricSQL + Postgres.
+- Auth: better-auth with client/server helpers.
 
-## Tooling + Package Manager
+## Package Manager + Runtime
 - Package manager: `pnpm` (lockfile: `pnpm-lock.yaml`).
-- Node is assumed to support ES modules (`"type": "module"`).
+- Node runs in ES module mode (`"type": "module"`).
 
 ## Build / Run Commands
 - Install deps: `pnpm install`
-- Dev server: `pnpm dev` (runs Vite on port 3000)
+- Dev server: `pnpm dev` (Vite on port 3000)
 - Production build: `pnpm build`
 - Preview build: `pnpm preview`
 
 ## Lint / Format Commands
 - Lint only: `pnpm lint` (Biome lint)
 - Format only: `pnpm format` (Biome format)
-- Lint + format + code checks: `pnpm check` (Biome check)
+- Full check: `pnpm check` (Biome check)
 
-## Test Commands (Vitest)
+## Unit / Component Tests (Vitest)
 - Run all tests: `pnpm test`
-- Run a single test file: `pnpm test -- path/to/file.test.ts`
-- Run tests by name: `pnpm test -- -t "test name"`
-- Watch mode (if needed): `pnpm vitest` (not in scripts; use directly)
+- Run a single file: `pnpm test -- path/to/file.test.ts`
+- Run by test name: `pnpm test -- -t "test name"`
+- Watch mode: `pnpm vitest`
+
+## E2E Tests (Playwright)
+- Run all E2E tests: `pnpm exec playwright test`
+- Run a single spec: `pnpm exec playwright test tests/example.spec.ts`
+- Run by test name: `pnpm exec playwright test -g "has title"`
+- UI mode: `pnpm exec playwright test --ui`
 
 ## Database / Drizzle Commands
 - Generate migrations: `pnpm db:generate`
 - Run migrations: `pnpm db:migrate`
 - Push schema: `pnpm db:push`
 - Pull schema: `pnpm db:pull`
-- DB studio UI: `pnpm db:studio`
+- Studio UI: `pnpm db:studio`
 
 ## Environment + Secrets
 - Local env file: `.env.local` (contains credentials).
-- Never commit or log secrets; avoid copying `.env.local`.
-- Required vars include: `DATABASE_URL`, `BETTER_AUTH_*`, `ELECTRIC_*`.
+- Never commit or log secrets; avoid copying `.env.local` content.
+- Expected vars include `DATABASE_URL`, `BETTER_AUTH_*`, `ELECTRIC_*`.
 
 ## Code Style (General)
-- Format with Biome; do not hand-format.
+- Format with Biome; avoid manual formatting.
 - Indentation: spaces (Biome default).
-- Strings: double quotes in JS/TS (Biome config).
-- Prefer `const` and `readonly` where possible.
-- Use `type` imports for type-only symbols (e.g., `import type { Foo }`)
-- Avoid one-letter variable names; prefer descriptive names.
-- Keep functions focused; avoid deep nesting.
+- Quotes: double quotes for JS/TS (Biome config).
+- Prefer `const`; use `let` only when reassigned.
+- Keep functions focused; use early returns for invalid state.
+- Avoid deep nesting; extract helpers when complexity grows.
+- Use `type` imports for type-only symbols.
+
+## Naming + Files
+- Components: PascalCase function components.
+- Hooks: `useSomething` and live in `src/hooks`.
+- Route files: export `Route` from TanStack router.
+- File names: kebab-case for components and routes.
+- Zod schemas: `selectFooSchema`, `insertFooSchema` patterns.
 
 ## Imports
-- Use path aliases from `tsconfig` (`@/` for `src/`).
-- Group imports by source: external, internal (`@/`), then relative.
+- Order imports: external, internal (`@/`), then relative.
+- Use the `@/` alias for `src/` paths.
 - Let Biome organize imports; avoid manual sorting.
-- Prefer named exports over default unless pattern demands.
+- Prefer named exports; default exports only when established.
 
 ## React + UI Conventions
-- Components are written as function components.
-- Prefer hooks for state (`useState`, `useEffect`, `useLiveQuery`).
-- Use `Activity` for conditional visibility behavior where shown.
-- For class names, use `cn()` helper from `src/lib/utils.ts`.
-- Tailwind classes should be sorted; Biome warns on unsorted classes.
-- Keep JSX readable; split long props onto new lines.
+- Function components + hooks only.
+- Use `Activity` for conditional visibility where established.
+- Tailwind class merging via `cn()` from `src/lib/utils.ts`.
+- Tailwind classes should stay sorted (Biome warns otherwise).
+- Keep JSX readable; split long prop lists across lines.
 
 ## TypeScript Guidelines
-- `strict` mode is enabled; no `any` unless unavoidable.
+- `strict` is enabled; avoid `any`.
 - Handle nullable values explicitly (e.g., `session?.user`).
-- Avoid `!` non-null assertions unless config/infra guarantees.
-- Prefer explicit return types for exported helpers where useful.
+- Avoid non-null assertions unless config guarantees them.
+- Prefer explicit return types for exported helpers.
 
 ## Routing + Server Handlers
-- File-based routes live under `src/routes` (TanStack Router).
-- API routes live under `src/routes/api`.
-- Server handlers should return `Response` objects.
-- Avoid leaking secrets to the client.
+- File routes in `src/routes`; API routes in `src/routes/api`.
+- Server handlers return `Response` objects.
+- Preserve status/headers when proxying responses.
+- Never expose secrets to the client.
 
 ## Data + Validation
-- Drizzle schemas under `src/db/schema`.
-- Validators in `src/lib/validators` (Zod/Drizzle Zod).
-- Prefer Zod validation at boundaries (API, forms).
+- Drizzle schemas live in `src/db/schema`.
+- Zod schemas in `src/lib/validators.ts`.
+- Validate at boundaries (API handlers, forms).
 
 ## Error Handling
-- Use early returns for invalid state.
+- Use early returns for invalid inputs.
 - Bubble errors to callers when possible.
-- For fetch proxy handlers, preserve status/headers.
-- Avoid swallowing exceptions; add context when rethrowing.
+- Add context when rethrowing; avoid silent failures.
 
 ## Testing Notes
-- No test files currently found in repo.
-- When adding tests, colocate with feature or use `src/**/__tests__`.
-- Prefer Testing Library (`@testing-library/react`).
+- Vitest is the unit/component runner; prefer Testing Library.
+- Playwright tests live under `tests/`.
+- Keep E2E specs independent and deterministic.
 
-## File/Generated Assets
-- `src/routeTree.gen.ts` is generated; avoid manual edits.
-- `src/styles.css` is excluded from Biome format rules.
+## Generated / Special Files
+- `src/routeTree.gen.ts` is generated; do not edit manually.
+- `src/styles.css` is excluded from Biome formatting.
 
 ## Cursor / Copilot Rules
-- No `.cursor/rules`, `.cursorrules`, or Copilot rules found.
+- No `.cursor/rules`, `.cursorrules`, or Copilot instructions found.
 - If added later, mirror them here.
 
 ## Suggested Agent Workflow
-- Start with `pnpm lint` and `pnpm test` for verification.
+- Pull latest changes before starting work.
+- Run `pnpm lint` and targeted tests for touched areas.
 - Use `pnpm check` before final review.
 - Keep changes minimal and scoped to the task.
 
@@ -109,9 +121,10 @@
 - TypeScript config: `tsconfig.json`
 - Biome config: `biome.json`
 - Drizzle config: `drizzle.config.ts`
+- Playwright config: `playwright.config.ts`
 
 ## Context7 + GitHub MCP Mappings
-- Prefer official MCP tools first (if available), then Context7 MCP, then GitHub MCP.
+- Prefer official MCP tools first, then Context7, then GitHub MCP.
 - Frameworks
   - `react`: Context7 `/reactjs/react.dev`; GitHub `facebook/react`
   - `@tanstack/react-router`: Context7 `/tanstack/router`; GitHub `TanStack/router`

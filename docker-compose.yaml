@@ -37,3 +37,11 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+
+  s3mock:
+    image: docker.io/adobe/s3mock:latest
+    environment:
+      COM_ADOBE_TESTING_S3MOCK_STORE_INITIAL_BUCKETS: default
+    ports:
+      - "9090:9090"
+      - "9191:9191"
