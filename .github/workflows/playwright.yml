@@ -13,10 +13,13 @@ jobs:
     - uses: actions/setup-node@v4
       with:
         node-version: lts/*
+
     - name: Install dependencies
       run: npm install -g pnpm && pnpm install
+
     - name: Install Playwright Browsers
       run: pnpm exec playwright install --with-deps
+
     - name: Install Caddy (apt)
       run: |
         sudo apt-get update
@@ -26,17 +29,33 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y caddy
         caddy version
+
     - name: Build app
       run: pnpm build
+
     - name: Start docker compose
       run: docker compose up -d --wait --wait-timeout 90
+
+    - name: Kill any running Caddy instance
+      run: |
+        pkill -f caddy || true
+
     - name: Start Caddy
       run: caddy start --config caddyfile --adapter caddyfile
+
     - name: Run Playwright tests
       run: pnpm exec playwright test
+
     - uses: actions/upload-artifact@v4
       if: ${{ !cancelled() }}
       with:
         name: playwright-report
         path: playwright-report/
         retention-days: 30
+
+    - name: Teardown (Caddy + Docker)
+      if: ${{ always() }}
+      continue-on-error: true
+      run: |
+        caddy stop || true
+        docker compose down --volumes --remove-orphans || true

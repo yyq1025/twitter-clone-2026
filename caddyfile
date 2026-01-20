@@ -1,15 +1,15 @@
 localhost:3001 {
-  tls internal
-  reverse_proxy localhost:3000
-  encode {
-    gzip
-  }
+	tls internal
+	reverse_proxy localhost:3000
+	encode {
+		gzip
+	}
 }
 
 localhost:9443 {
-  tls internal
-  reverse_proxy localhost:9090
-  encode {
-    gzip
-  }
+	tls internal
+	reverse_proxy localhost:9090
+	encode {
+		gzip
+	}
 }

@@ -1,4 +1,4 @@
-name: 'electric-postgres'
+name: 'services'
 
 services:
   postgres:
