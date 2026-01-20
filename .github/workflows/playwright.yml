@@ -1,4 +1,16 @@
 name: Playwright Tests
+env:
+  NODE_ENV: test
+  DATABASE_URL: postgresql://postgres:password@localhost:54321/electric?sslmode=disable
+  BETTER_AUTH_URL: https://localhost:3001
+  BETTER_AUTH_SECRET: BETTER_AUTH_SECRET
+  AWS_ACCESS_KEY_ID: AWS_ACCESS_KEY_ID
+  AWS_SECRET_ACCESS_KEY: AWS_SECRET_ACCESS_KEY
+  AWS_REGION: us-east-1
+  AWS_BUCKET_NAME: default
+  AWS_ENDPOINT: https://localhost:9443
+  VITE_AWS_ENDPOINT: https://localhost:9443/default
+  FORCE_PATH_STYLE: 1
 on:
   push:
     branches: [ main, master ]
