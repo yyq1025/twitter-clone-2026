@@ -7,7 +7,6 @@ import {
   IconFeatherFilled,
   IconHome,
   IconHomeFilled,
-  IconMail,
   IconSearch,
   IconUser,
   IconUserFilled,
@@ -104,6 +103,7 @@ function RootLayout() {
                   <Button
                     size="lg"
                     className="h-fit w-min rounded-full p-4 xl:w-[90%]"
+                    data-testid="desktop-post-trigger"
                   >
                     <span className="hidden font-bold text-lg xl:block">
                       Post
@@ -157,7 +157,10 @@ function RootLayout() {
         </div>
       )}
       <Activity mode={user ? "visible" : "hidden"}>
-        <div className="sticky bottom-0 z-50 flex w-full justify-around border-gray-100 border-t bg-white/85 p-3 backdrop-blur-md sm:hidden">
+        <div
+          className="sticky bottom-0 z-50 flex w-full justify-around border-gray-100 border-t bg-white/85 p-3 backdrop-blur-md sm:hidden"
+          data-testid="mobile-bottom-nav"
+        >
           <Link
             to="/"
             className="p-2"
@@ -227,7 +230,7 @@ function RootLayout() {
             <Button
               size="icon-lg"
               className="fixed right-4 bottom-20 z-50 size-fit rounded-full p-3 text-white sm:hidden"
-              aria-label="Create post"
+              data-testid="mobile-post-trigger"
             >
               <IconFeatherFilled className="size-6" />
             </Button>

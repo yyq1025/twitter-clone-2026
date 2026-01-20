@@ -150,6 +150,7 @@ export function CreatePostDialog({
         className="max-h-[90vh] gap-0 overflow-auto p-0 sm:max-w-xl"
         showCloseButton={false}
         onClick={(e) => e.stopPropagation()}
+        data-testid="create-post-dialog"
       >
         <DialogHeader className="flex h-14 flex-row items-center gap-0 px-4">
           <div className="flex min-w-14 items-center">

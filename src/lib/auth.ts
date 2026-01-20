@@ -8,6 +8,9 @@ import * as authSchema from "@/db/schema/better-auth";
 
 export const auth = betterAuth({
   baseURL: process.env.BETTER_AUTH_URL,
+  rateLimit: {
+    enabled: process.env.BETTER_AUTH_DISABLE_RATE_LIMIT !== "1",
+  },
   database: drizzleAdapter(db, {
     provider: "pg",
     usePlural: true,
