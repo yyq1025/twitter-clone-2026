@@ -31,7 +31,7 @@ jobs:
     - name: Start docker compose
       run: docker compose up -d --wait --wait-timeout 90
     - name: Start Caddy
-      run: caddy start --config Caddyfile --adapter caddyfile
+      run: caddy start --config caddyfile --adapter caddyfile
     - name: Run Playwright tests
       run: pnpm exec playwright test
     - uses: actions/upload-artifact@v4
