@@ -31,7 +31,7 @@ jobs:
       run: npm install -g pnpm && pnpm install
 
     - name: Install Playwright Browsers
-      run: pnpm exec playwright install
+      run: pnpm exec playwright install --with-deps
 
     - name: Install Caddy (apt)
       run: |
