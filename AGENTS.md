@@ -30,7 +30,7 @@
 
 ## E2E Tests (Playwright)
 - Run all E2E tests: `pnpm exec playwright test`
-- Run a single spec: `pnpm exec playwright test tests/example.spec.ts`
+- Run a single spec: `pnpm exec playwright test e2e/example.spec.ts`
 - Run by test name: `pnpm exec playwright test -g "has title"`
 - UI mode: `pnpm exec playwright test --ui`
 
@@ -99,7 +99,7 @@
 
 ## Testing Notes
 - Vitest is the unit/component runner; prefer Testing Library.
-- Playwright tests live under `tests/`.
+- Playwright tests live under `e2e/`.
 - Keep E2E specs independent and deterministic.
 
 ## Generated / Special Files

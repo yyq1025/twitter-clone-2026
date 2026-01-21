@@ -49,7 +49,7 @@ test("create post with image", async ({ page }) => {
 
   const dialog = page.getByTestId("create-post-dialog");
   const postContent = `e2e image post ${Date.now()}`;
-  const imagePath = resolve("tests/fixtures/600x400.png");
+  const imagePath = resolve("e2e/fixtures/600x400.png");
 
   await expect(dialog).toBeVisible();
   const editor = dialog.locator('[data-testid="editor"] .ProseMirror');
