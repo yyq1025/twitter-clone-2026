@@ -1,6 +1,5 @@
 name: Playwright Tests
 env:
-  NODE_ENV: test
   DATABASE_URL: postgresql://postgres:password@localhost:54321/electric?sslmode=disable
   BETTER_AUTH_URL: https://localhost:3001
   BETTER_AUTH_SECRET: BETTER_AUTH_SECRET
@@ -53,6 +52,8 @@ jobs:
       run: caddy run --config caddyfile --adapter caddyfile &
 
     - name: Run Playwright tests
+      env:
+        NODE_ENV: test
       run: pnpm exec playwright test
 
     - uses: actions/upload-artifact@v4
