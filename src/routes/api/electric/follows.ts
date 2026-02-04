@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { prepareElectricUrl, proxyElectricRequest } from "@/lib/electric-proxy";
 
-export const Route = createFileRoute("/api/follows")({
+export const Route = createFileRoute("/api/electric/follows")({
   server: {
     handlers: {
       GET: async ({ request }) => {

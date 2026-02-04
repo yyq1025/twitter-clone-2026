@@ -3,7 +3,7 @@ import { getRequestHeaders } from "@tanstack/react-start/server";
 import { auth } from "@/lib/auth";
 import { prepareElectricUrl, proxyElectricRequest } from "@/lib/electric-proxy";
 
-export const Route = createFileRoute("/api/reposts")({
+export const Route = createFileRoute("/api/electric/likes")({
   server: {
     handlers: {
       GET: async ({ request }) => {
@@ -16,7 +16,7 @@ export const Route = createFileRoute("/api/reposts")({
 
         const originUrl = prepareElectricUrl(request.url);
 
-        originUrl.searchParams.set("table", "reposts");
+        originUrl.searchParams.set("table", "likes");
         originUrl.searchParams.set(
           "where",
           `"creator_id" = '${session.user.id}'`,

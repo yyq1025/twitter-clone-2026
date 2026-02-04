@@ -29,7 +29,7 @@ export const electricPostCollection = createCollection<
     id: "posts",
     syncMode: "progressive",
     shapeOptions: {
-      url: `${baseUrl}/api/posts`,
+      url: `${baseUrl}/api/electric/posts`,
       parser: {
         timestamptz: (date: string) => new Date(date),
       },
@@ -49,7 +49,7 @@ export const electricFeedItemCollection = createCollection<
     id: "feed_items",
     syncMode: "progressive",
     shapeOptions: {
-      url: `${baseUrl}/api/feed-items`,
+      url: `${baseUrl}/api/electric/feed-items`,
       parser: {
         timestamptz: (date: string) => new Date(date),
       },
@@ -69,10 +69,10 @@ export const electricUserCollection = createCollection<
     id: "users",
     syncMode: "progressive",
     shapeOptions: {
-      url: `${baseUrl}/api/users`,
+      url: `${baseUrl}/api/electric/users`,
       columnMapper: snakeCamelMapper(),
       parser: {
-        timestamp: (date: string) => new Date(date),
+        timestamptz: (date: string) => new Date(date),
       },
       liveSse: true,
     },
@@ -89,7 +89,7 @@ export const electricLikeCollection = createCollection<
   electricCollectionOptions({
     id: "likes",
     shapeOptions: {
-      url: `${baseUrl}/api/likes`,
+      url: `${baseUrl}/api/electric/likes`,
       parser: {
         timestamptz: (date: string) => new Date(date),
       },
@@ -114,7 +114,7 @@ export const electricRepostCollection = createCollection<
   electricCollectionOptions({
     id: "reposts",
     shapeOptions: {
-      url: `${baseUrl}/api/reposts`,
+      url: `${baseUrl}/api/electric/reposts`,
       parser: {
         timestamptz: (date: string) => new Date(date),
       },
@@ -139,7 +139,7 @@ export const electricBookmarkCollection = createCollection<
   electricCollectionOptions({
     id: "bookmarks",
     shapeOptions: {
-      url: `${baseUrl}/api/bookmarks`,
+      url: `${baseUrl}/api/electric/bookmarks`,
       parser: {
         timestamptz: (date: string) => new Date(date),
       },
@@ -159,7 +159,7 @@ export const electricFollowCollection = createCollection<
     id: "follows",
     syncMode: "progressive",
     shapeOptions: {
-      url: `${baseUrl}/api/follows`,
+      url: `${baseUrl}/api/electric/follows`,
       parser: {
         timestamptz: (date: string) => new Date(date),
       },
@@ -179,7 +179,7 @@ export const electricNotificationCollection = createCollection<
     id: "notifications",
     syncMode: "progressive",
     shapeOptions: {
-      url: `${baseUrl}/api/notifications`,
+      url: `${baseUrl}/api/electric/notifications`,
       parser: {
         timestamptz: (date: string) => new Date(date),
       },

@@ -1,11 +1,25 @@
 import { useUploadFiles } from "@better-upload/client";
+import { autoUpdate, useFloating } from "@floating-ui/react-dom";
 import { IconPhoto, IconX } from "@tabler/icons-react";
+import Mention from "@tiptap/extension-mention";
 import { Placeholder } from "@tiptap/extensions";
-import { EditorContent, useEditor, useEditorState } from "@tiptap/react";
+import {
+  EditorContent,
+  ReactRenderer,
+  useEditor,
+  useEditorState,
+} from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
+import type { SuggestionProps } from "@tiptap/suggestion";
 import dayjs from "dayjs";
-import type { ReactElement } from "react";
-import { useEffect, useState } from "react";
+import type { ReactElement, Ref } from "react";
+import {
+  useEffect,
+  useImperativeHandle,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { v7 as uuidv7 } from "uuid";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -27,6 +41,142 @@ import { usePostMedia } from "@/hooks/use-post-media";
 import { createPost } from "@/lib/actions";
 import { authClient } from "@/lib/auth-client";
 import type { SelectPost, SelectUser } from "@/lib/validators";
+import { detectFacets } from "@/utils/post";
+
+type MentionListHandle = {
+  onKeyDown: (props: { event: KeyboardEvent }) => boolean;
+};
+
+type MentionUser = {
+  id: string;
+  label: string;
+  name: string;
+  avatar: string;
+};
+
+const mockMentionUsers: MentionUser[] = [
+  {
+    id: "alice",
+    label: "alice",
+    name: "Alice Chen",
+    avatar: "https://i.pravatar.cc/80?u=alice",
+  },
+  {
+    id: "bob",
+    label: "bob",
+    name: "Bob Nguyen",
+    avatar: "https://i.pravatar.cc/80?u=bob",
+  },
+  {
+    id: "charlie",
+    label: "charlie",
+    name: "Charlie Patel",
+    avatar: "https://i.pravatar.cc/80?u=charlie",
+  },
+];
+
+const MentionList = (
+  props: SuggestionProps & { ref: Ref<MentionListHandle> },
+) => {
+  // const [open, setOpen] = useState(true);
+  const [highLightedIndex, setHighlightedIndex] = useState(0);
+  const items = (props.items as MentionUser[]) ?? [];
+  const anchor = useMemo(() => {
+    const rect = props.clientRect?.();
+    if (!rect) return null;
+
+    return {
+      getBoundingClientRect: () => rect,
+    };
+  }, [props.clientRect]);
+
+  useEffect(() => {
+    if (highLightedIndex < 0) {
+      setHighlightedIndex(0);
+      return;
+    }
+
+    if (highLightedIndex >= items.length) {
+      setHighlightedIndex(Math.max(items.length - 1, 0));
+    }
+  }, [highLightedIndex, items.length]);
+
+  const { refs, floatingStyles } = useFloating({
+    strategy: "fixed",
+    placement: "bottom-start",
+    elements: {
+      reference: anchor,
+    },
+    whileElementsMounted: autoUpdate,
+  });
+
+  useImperativeHandle(props.ref, () => ({
+    onKeyDown: ({ event }: { event: KeyboardEvent }) => {
+      if (event.key === "ArrowUp") {
+        setHighlightedIndex((index) => Math.max(index - 1, 0));
+        return true;
+      }
+
+      if (event.key === "ArrowDown") {
+        setHighlightedIndex((index) => Math.min(index + 1, items.length - 1));
+        return true;
+      }
+
+      if (event.key === "Enter") {
+        const item = items[highLightedIndex];
+        if (item) {
+          props.command(item);
+        }
+        return true;
+      }
+
+      return false;
+    },
+  }));
+
+  if (!anchor) return null;
+
+  return (
+    <div
+      ref={refs.setFloating}
+      style={floatingStyles}
+      className="z-50 min-w-60 rounded border bg-popover p-2 text-popover-foreground shadow-lg"
+    >
+      <div className="flex flex-col gap-1">
+        {items.length === 0 ? (
+          <div className="px-2 py-1 text-muted-foreground text-sm">
+            No results
+          </div>
+        ) : (
+          items.map((item, index) => (
+            <button
+              key={item.id}
+              type="button"
+              className={`flex items-center gap-2 rounded px-2 py-1 text-left text-sm transition ${
+                index === highLightedIndex
+                  ? "bg-accent text-accent-foreground"
+                  : "hover:bg-accent/60"
+              }`}
+              onMouseEnter={() => setHighlightedIndex(index)}
+              onClick={() => props.command(item)}
+            >
+              <Avatar size="sm">
+                <AvatarImage src={item.avatar} alt={item.name} />
+                <AvatarFallback>{item.name[0]?.toUpperCase()}</AvatarFallback>
+              </Avatar>
+              <div className="min-w-0">
+                <div className="truncate font-medium">{item.name}</div>
+                <div className="truncate text-muted-foreground text-xs">
+                  @{item.label}
+                </div>
+              </div>
+            </button>
+          ))
+        )}
+      </div>
+    </div>
+  );
+};
 
 type CreatePostDialogProps = {
   open?: boolean;
@@ -45,16 +195,69 @@ export function CreatePostDialog({
 }: CreatePostDialogProps) {
   const { data: session } = authClient.useSession();
   const { uploadAsync } = useUploadFiles({ route: "images" });
+  const mentionListRef = useRef<MentionListHandle | null>(null);
   const editor = useEditor({
     extensions: [
       StarterKit.configure(),
       Placeholder.configure({
         placeholder: parentPost ? "Post your reply" : "What's happening?",
       }),
+      Mention.configure({
+        HTMLAttributes: {
+          class: "mention",
+        },
+        suggestion: {
+          char: "@",
+          items: ({ query }) => {
+            const normalizedQuery = query.trim().toLowerCase();
+            if (!normalizedQuery) return mockMentionUsers;
+
+            return mockMentionUsers.filter((user) => {
+              return (
+                user.label.toLowerCase().includes(normalizedQuery) ||
+                user.name.toLowerCase().includes(normalizedQuery)
+              );
+            });
+          },
+          render: () => {
+            let reactRenderer: ReactRenderer | null = null;
+
+            return {
+              onStart: (props) => {
+                reactRenderer = new ReactRenderer(MentionList, {
+                  props: { ...props, ref: mentionListRef },
+                  editor: props.editor,
+                });
+                if (reactRenderer.element) {
+                  document.body.append(reactRenderer.element);
+                }
+              },
+              onUpdate: (props) => {
+                reactRenderer?.updateProps(props);
+              },
+              onKeyDown: (props) => {
+                if (props.event.key === "Escape") {
+                  props?.event.preventDefault();
+                  props?.event.stopPropagation();
+                  reactRenderer?.destroy();
+                  return true;
+                }
+
+                return mentionListRef.current?.onKeyDown(props) || false;
+              },
+              onExit: () => {
+                reactRenderer?.element?.remove();
+                reactRenderer?.destroy();
+                reactRenderer = null;
+              },
+            };
+          },
+        },
+      }),
     ],
     editorProps: {
       attributes: {
-        class: "text-base leading-tight min-h-24 focus:outline-none",
+        class: "text-base leading-tight min-h-24 focus:outline-none pre-wrap",
       },
     },
   });

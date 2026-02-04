@@ -3,7 +3,7 @@ import { getRequestHeaders } from "@tanstack/react-start/server";
 import { auth } from "@/lib/auth";
 import { prepareElectricUrl, proxyElectricRequest } from "@/lib/electric-proxy";
 
-export const Route = createFileRoute("/api/bookmarks")({
+export const Route = createFileRoute("/api/electric/notifications")({
   server: {
     handlers: {
       GET: async ({ request }) => {
@@ -16,10 +16,10 @@ export const Route = createFileRoute("/api/bookmarks")({
 
         const originUrl = prepareElectricUrl(request.url);
 
-        originUrl.searchParams.set("table", "bookmarks");
+        originUrl.searchParams.set("table", "notifications");
         originUrl.searchParams.set(
           "where",
-          `"creator_id" = '${session.user.id}'`,
+          `"recipient_id" = '${session.user.id}'`,
         );
 
         return proxyElectricRequest(originUrl);

@@ -1,7 +1,7 @@
 import type { Txid } from "@tanstack/electric-db-collection";
 import { createFileRoute } from "@tanstack/react-router";
 import { getRequestHeaders } from "@tanstack/react-start/server";
-import { and, eq, sql } from "drizzle-orm";
+import { and, eq, inArray, sql } from "drizzle-orm";
 import type { PgTransaction } from "drizzle-orm/pg-core";
 import { db } from "@/db";
 import { users } from "@/db/schema/better-auth";
@@ -13,7 +13,8 @@ import { notifications } from "@/db/schema/notification";
 import { posts } from "@/db/schema/post";
 import { reposts } from "@/db/schema/repost";
 import { auth } from "@/lib/auth";
-import { eventSchema } from "@/lib/validators";
+import { eventSchema, type InsertNotification } from "@/lib/validators";
+import { detectFacets } from "@/utils/post";
 
 async function generateTxId(tx: PgTransaction<any, any, any>): Promise<Txid> {
   const result = await tx.execute(
@@ -73,6 +74,38 @@ export const Route = createFileRoute("/api/events")({
                     postsCount: sql`${users.postsCount} + 1`,
                   })
                   .where(eq(users.id, session.user.id));
+                const notificationsToInsert: InsertNotification[] = [];
+                const mentionUsernames = Array.from(
+                  new Set(
+                    detectFacets(post.content)
+                      .filter(
+                        (facet) =>
+                          facet.type === "mention" && facet.username.length > 0,
+                      )
+                      .map((facet) => facet.username),
+                  ),
+                );
+                if (mentionUsernames.length > 0) {
+                  const mentionedUsers = await tx
+                    .select({ id: users.id, username: users.username })
+                    .from(users)
+                    .where(inArray(users.username, mentionUsernames));
+                  for (const user of mentionedUsers) {
+                    if (
+                      user.id !== session.user.id &&
+                      !notificationsToInsert.find(
+                        (n) => n.recipient_id === user.id,
+                      )
+                    ) {
+                      notificationsToInsert.push({
+                        creator_id: session.user.id,
+                        recipient_id: user.id,
+                        reason: "mention",
+                        reason_post_id: post.id,
+                      });
+                    }
+                  }
+                }
                 if (post.reply_parent_id) {
                   const [replyParent] = await tx
                     .update(posts)
@@ -83,18 +116,24 @@ export const Route = createFileRoute("/api/events")({
                     .returning();
                   if (
                     replyParent &&
-                    session.user.id !== replyParent.creator_id
+                    session.user.id !== replyParent.creator_id &&
+                    !notificationsToInsert.find(
+                      (n) => n.recipient_id === replyParent.creator_id,
+                    )
                   ) {
-                    await tx
-                      .insert(notifications)
-                      .values({
-                        creator_id: session.user.id,
-                        recipient_id: replyParent.creator_id,
-                        reason: "reply",
-                        reason_post_id: post.id,
-                      })
-                      .onConflictDoNothing();
+                    notificationsToInsert.push({
+                      creator_id: session.user.id,
+                      recipient_id: replyParent.creator_id,
+                      reason: "reply",
+                      reason_post_id: replyParent.id,
+                    });
                   }
+                }
+                if (notificationsToInsert.length > 0) {
+                  await tx
+                    .insert(notifications)
+                    .values(notificationsToInsert)
+                    .onConflictDoNothing();
                 }
               });
               break;

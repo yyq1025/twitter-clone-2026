@@ -11,19 +11,19 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as ApiUsersRouteImport } from './routes/api/users'
 import { Route as ApiUploadRouteImport } from './routes/api/upload'
-import { Route as ApiRepostsRouteImport } from './routes/api/reposts'
-import { Route as ApiPostsRouteImport } from './routes/api/posts'
-import { Route as ApiNotificationsRouteImport } from './routes/api/notifications'
-import { Route as ApiLikesRouteImport } from './routes/api/likes'
-import { Route as ApiFollowsRouteImport } from './routes/api/follows'
-import { Route as ApiFeedItemsRouteImport } from './routes/api/feed-items'
 import { Route as ApiEventsRouteImport } from './routes/api/events'
-import { Route as ApiBookmarksRouteImport } from './routes/api/bookmarks'
 import { Route as AuthenticatedNotificationsRouteImport } from './routes/_authenticated/notifications'
 import { Route as AuthenticatedBookmarksRouteImport } from './routes/_authenticated/bookmarks'
 import { Route as ProfileUsernameIndexRouteImport } from './routes/profile/$username/index'
+import { Route as ApiElectricUsersRouteImport } from './routes/api/electric/users'
+import { Route as ApiElectricRepostsRouteImport } from './routes/api/electric/reposts'
+import { Route as ApiElectricPostsRouteImport } from './routes/api/electric/posts'
+import { Route as ApiElectricNotificationsRouteImport } from './routes/api/electric/notifications'
+import { Route as ApiElectricLikesRouteImport } from './routes/api/electric/likes'
+import { Route as ApiElectricFollowsRouteImport } from './routes/api/electric/follows'
+import { Route as ApiElectricFeedItemsRouteImport } from './routes/api/electric/feed-items'
+import { Route as ApiElectricBookmarksRouteImport } from './routes/api/electric/bookmarks'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as ProfileUsernamePostPostIdRouteImport } from './routes/profile/$username/post/$postId'
 
@@ -36,54 +36,14 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiUsersRoute = ApiUsersRouteImport.update({
-  id: '/api/users',
-  path: '/api/users',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ApiUploadRoute = ApiUploadRouteImport.update({
   id: '/api/upload',
   path: '/api/upload',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiRepostsRoute = ApiRepostsRouteImport.update({
-  id: '/api/reposts',
-  path: '/api/reposts',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiPostsRoute = ApiPostsRouteImport.update({
-  id: '/api/posts',
-  path: '/api/posts',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiNotificationsRoute = ApiNotificationsRouteImport.update({
-  id: '/api/notifications',
-  path: '/api/notifications',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiLikesRoute = ApiLikesRouteImport.update({
-  id: '/api/likes',
-  path: '/api/likes',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiFollowsRoute = ApiFollowsRouteImport.update({
-  id: '/api/follows',
-  path: '/api/follows',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiFeedItemsRoute = ApiFeedItemsRouteImport.update({
-  id: '/api/feed-items',
-  path: '/api/feed-items',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ApiEventsRoute = ApiEventsRouteImport.update({
   id: '/api/events',
   path: '/api/events',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiBookmarksRoute = ApiBookmarksRouteImport.update({
-  id: '/api/bookmarks',
-  path: '/api/bookmarks',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedNotificationsRoute =
@@ -102,6 +62,47 @@ const ProfileUsernameIndexRoute = ProfileUsernameIndexRouteImport.update({
   path: '/profile/$username/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiElectricUsersRoute = ApiElectricUsersRouteImport.update({
+  id: '/api/electric/users',
+  path: '/api/electric/users',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiElectricRepostsRoute = ApiElectricRepostsRouteImport.update({
+  id: '/api/electric/reposts',
+  path: '/api/electric/reposts',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiElectricPostsRoute = ApiElectricPostsRouteImport.update({
+  id: '/api/electric/posts',
+  path: '/api/electric/posts',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiElectricNotificationsRoute =
+  ApiElectricNotificationsRouteImport.update({
+    id: '/api/electric/notifications',
+    path: '/api/electric/notifications',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiElectricLikesRoute = ApiElectricLikesRouteImport.update({
+  id: '/api/electric/likes',
+  path: '/api/electric/likes',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiElectricFollowsRoute = ApiElectricFollowsRouteImport.update({
+  id: '/api/electric/follows',
+  path: '/api/electric/follows',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiElectricFeedItemsRoute = ApiElectricFeedItemsRouteImport.update({
+  id: '/api/electric/feed-items',
+  path: '/api/electric/feed-items',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiElectricBookmarksRoute = ApiElectricBookmarksRouteImport.update({
+  id: '/api/electric/bookmarks',
+  path: '/api/electric/bookmarks',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   id: '/api/auth/$',
   path: '/api/auth/$',
@@ -118,17 +119,17 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/bookmarks': typeof AuthenticatedBookmarksRoute
   '/notifications': typeof AuthenticatedNotificationsRoute
-  '/api/bookmarks': typeof ApiBookmarksRoute
   '/api/events': typeof ApiEventsRoute
-  '/api/feed-items': typeof ApiFeedItemsRoute
-  '/api/follows': typeof ApiFollowsRoute
-  '/api/likes': typeof ApiLikesRoute
-  '/api/notifications': typeof ApiNotificationsRoute
-  '/api/posts': typeof ApiPostsRoute
-  '/api/reposts': typeof ApiRepostsRoute
   '/api/upload': typeof ApiUploadRoute
-  '/api/users': typeof ApiUsersRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/electric/bookmarks': typeof ApiElectricBookmarksRoute
+  '/api/electric/feed-items': typeof ApiElectricFeedItemsRoute
+  '/api/electric/follows': typeof ApiElectricFollowsRoute
+  '/api/electric/likes': typeof ApiElectricLikesRoute
+  '/api/electric/notifications': typeof ApiElectricNotificationsRoute
+  '/api/electric/posts': typeof ApiElectricPostsRoute
+  '/api/electric/reposts': typeof ApiElectricRepostsRoute
+  '/api/electric/users': typeof ApiElectricUsersRoute
   '/profile/$username/': typeof ProfileUsernameIndexRoute
   '/profile/$username/post/$postId': typeof ProfileUsernamePostPostIdRoute
 }
@@ -136,17 +137,17 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/bookmarks': typeof AuthenticatedBookmarksRoute
   '/notifications': typeof AuthenticatedNotificationsRoute
-  '/api/bookmarks': typeof ApiBookmarksRoute
   '/api/events': typeof ApiEventsRoute
-  '/api/feed-items': typeof ApiFeedItemsRoute
-  '/api/follows': typeof ApiFollowsRoute
-  '/api/likes': typeof ApiLikesRoute
-  '/api/notifications': typeof ApiNotificationsRoute
-  '/api/posts': typeof ApiPostsRoute
-  '/api/reposts': typeof ApiRepostsRoute
   '/api/upload': typeof ApiUploadRoute
-  '/api/users': typeof ApiUsersRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/electric/bookmarks': typeof ApiElectricBookmarksRoute
+  '/api/electric/feed-items': typeof ApiElectricFeedItemsRoute
+  '/api/electric/follows': typeof ApiElectricFollowsRoute
+  '/api/electric/likes': typeof ApiElectricLikesRoute
+  '/api/electric/notifications': typeof ApiElectricNotificationsRoute
+  '/api/electric/posts': typeof ApiElectricPostsRoute
+  '/api/electric/reposts': typeof ApiElectricRepostsRoute
+  '/api/electric/users': typeof ApiElectricUsersRoute
   '/profile/$username': typeof ProfileUsernameIndexRoute
   '/profile/$username/post/$postId': typeof ProfileUsernamePostPostIdRoute
 }
@@ -156,17 +157,17 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/_authenticated/bookmarks': typeof AuthenticatedBookmarksRoute
   '/_authenticated/notifications': typeof AuthenticatedNotificationsRoute
-  '/api/bookmarks': typeof ApiBookmarksRoute
   '/api/events': typeof ApiEventsRoute
-  '/api/feed-items': typeof ApiFeedItemsRoute
-  '/api/follows': typeof ApiFollowsRoute
-  '/api/likes': typeof ApiLikesRoute
-  '/api/notifications': typeof ApiNotificationsRoute
-  '/api/posts': typeof ApiPostsRoute
-  '/api/reposts': typeof ApiRepostsRoute
   '/api/upload': typeof ApiUploadRoute
-  '/api/users': typeof ApiUsersRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/electric/bookmarks': typeof ApiElectricBookmarksRoute
+  '/api/electric/feed-items': typeof ApiElectricFeedItemsRoute
+  '/api/electric/follows': typeof ApiElectricFollowsRoute
+  '/api/electric/likes': typeof ApiElectricLikesRoute
+  '/api/electric/notifications': typeof ApiElectricNotificationsRoute
+  '/api/electric/posts': typeof ApiElectricPostsRoute
+  '/api/electric/reposts': typeof ApiElectricRepostsRoute
+  '/api/electric/users': typeof ApiElectricUsersRoute
   '/profile/$username/': typeof ProfileUsernameIndexRoute
   '/profile/$username/post/$postId': typeof ProfileUsernamePostPostIdRoute
 }
@@ -176,17 +177,17 @@ export interface FileRouteTypes {
     | '/'
     | '/bookmarks'
     | '/notifications'
-    | '/api/bookmarks'
     | '/api/events'
-    | '/api/feed-items'
-    | '/api/follows'
-    | '/api/likes'
-    | '/api/notifications'
-    | '/api/posts'
-    | '/api/reposts'
     | '/api/upload'
-    | '/api/users'
     | '/api/auth/$'
+    | '/api/electric/bookmarks'
+    | '/api/electric/feed-items'
+    | '/api/electric/follows'
+    | '/api/electric/likes'
+    | '/api/electric/notifications'
+    | '/api/electric/posts'
+    | '/api/electric/reposts'
+    | '/api/electric/users'
     | '/profile/$username/'
     | '/profile/$username/post/$postId'
   fileRoutesByTo: FileRoutesByTo
@@ -194,17 +195,17 @@ export interface FileRouteTypes {
     | '/'
     | '/bookmarks'
     | '/notifications'
-    | '/api/bookmarks'
     | '/api/events'
-    | '/api/feed-items'
-    | '/api/follows'
-    | '/api/likes'
-    | '/api/notifications'
-    | '/api/posts'
-    | '/api/reposts'
     | '/api/upload'
-    | '/api/users'
     | '/api/auth/$'
+    | '/api/electric/bookmarks'
+    | '/api/electric/feed-items'
+    | '/api/electric/follows'
+    | '/api/electric/likes'
+    | '/api/electric/notifications'
+    | '/api/electric/posts'
+    | '/api/electric/reposts'
+    | '/api/electric/users'
     | '/profile/$username'
     | '/profile/$username/post/$postId'
   id:
@@ -213,17 +214,17 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/_authenticated/bookmarks'
     | '/_authenticated/notifications'
-    | '/api/bookmarks'
     | '/api/events'
-    | '/api/feed-items'
-    | '/api/follows'
-    | '/api/likes'
-    | '/api/notifications'
-    | '/api/posts'
-    | '/api/reposts'
     | '/api/upload'
-    | '/api/users'
     | '/api/auth/$'
+    | '/api/electric/bookmarks'
+    | '/api/electric/feed-items'
+    | '/api/electric/follows'
+    | '/api/electric/likes'
+    | '/api/electric/notifications'
+    | '/api/electric/posts'
+    | '/api/electric/reposts'
+    | '/api/electric/users'
     | '/profile/$username/'
     | '/profile/$username/post/$postId'
   fileRoutesById: FileRoutesById
@@ -231,17 +232,17 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
-  ApiBookmarksRoute: typeof ApiBookmarksRoute
   ApiEventsRoute: typeof ApiEventsRoute
-  ApiFeedItemsRoute: typeof ApiFeedItemsRoute
-  ApiFollowsRoute: typeof ApiFollowsRoute
-  ApiLikesRoute: typeof ApiLikesRoute
-  ApiNotificationsRoute: typeof ApiNotificationsRoute
-  ApiPostsRoute: typeof ApiPostsRoute
-  ApiRepostsRoute: typeof ApiRepostsRoute
   ApiUploadRoute: typeof ApiUploadRoute
-  ApiUsersRoute: typeof ApiUsersRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
+  ApiElectricBookmarksRoute: typeof ApiElectricBookmarksRoute
+  ApiElectricFeedItemsRoute: typeof ApiElectricFeedItemsRoute
+  ApiElectricFollowsRoute: typeof ApiElectricFollowsRoute
+  ApiElectricLikesRoute: typeof ApiElectricLikesRoute
+  ApiElectricNotificationsRoute: typeof ApiElectricNotificationsRoute
+  ApiElectricPostsRoute: typeof ApiElectricPostsRoute
+  ApiElectricRepostsRoute: typeof ApiElectricRepostsRoute
+  ApiElectricUsersRoute: typeof ApiElectricUsersRoute
   ProfileUsernameIndexRoute: typeof ProfileUsernameIndexRoute
   ProfileUsernamePostPostIdRoute: typeof ProfileUsernamePostPostIdRoute
 }
@@ -262,13 +263,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/users': {
-      id: '/api/users'
-      path: '/api/users'
-      fullPath: '/api/users'
-      preLoaderRoute: typeof ApiUsersRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/api/upload': {
       id: '/api/upload'
       path: '/api/upload'
@@ -276,60 +270,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiUploadRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/reposts': {
-      id: '/api/reposts'
-      path: '/api/reposts'
-      fullPath: '/api/reposts'
-      preLoaderRoute: typeof ApiRepostsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/posts': {
-      id: '/api/posts'
-      path: '/api/posts'
-      fullPath: '/api/posts'
-      preLoaderRoute: typeof ApiPostsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/notifications': {
-      id: '/api/notifications'
-      path: '/api/notifications'
-      fullPath: '/api/notifications'
-      preLoaderRoute: typeof ApiNotificationsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/likes': {
-      id: '/api/likes'
-      path: '/api/likes'
-      fullPath: '/api/likes'
-      preLoaderRoute: typeof ApiLikesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/follows': {
-      id: '/api/follows'
-      path: '/api/follows'
-      fullPath: '/api/follows'
-      preLoaderRoute: typeof ApiFollowsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/feed-items': {
-      id: '/api/feed-items'
-      path: '/api/feed-items'
-      fullPath: '/api/feed-items'
-      preLoaderRoute: typeof ApiFeedItemsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/api/events': {
       id: '/api/events'
       path: '/api/events'
       fullPath: '/api/events'
       preLoaderRoute: typeof ApiEventsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/bookmarks': {
-      id: '/api/bookmarks'
-      path: '/api/bookmarks'
-      fullPath: '/api/bookmarks'
-      preLoaderRoute: typeof ApiBookmarksRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/notifications': {
@@ -351,6 +296,62 @@ declare module '@tanstack/react-router' {
       path: '/profile/$username'
       fullPath: '/profile/$username/'
       preLoaderRoute: typeof ProfileUsernameIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/electric/users': {
+      id: '/api/electric/users'
+      path: '/api/electric/users'
+      fullPath: '/api/electric/users'
+      preLoaderRoute: typeof ApiElectricUsersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/electric/reposts': {
+      id: '/api/electric/reposts'
+      path: '/api/electric/reposts'
+      fullPath: '/api/electric/reposts'
+      preLoaderRoute: typeof ApiElectricRepostsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/electric/posts': {
+      id: '/api/electric/posts'
+      path: '/api/electric/posts'
+      fullPath: '/api/electric/posts'
+      preLoaderRoute: typeof ApiElectricPostsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/electric/notifications': {
+      id: '/api/electric/notifications'
+      path: '/api/electric/notifications'
+      fullPath: '/api/electric/notifications'
+      preLoaderRoute: typeof ApiElectricNotificationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/electric/likes': {
+      id: '/api/electric/likes'
+      path: '/api/electric/likes'
+      fullPath: '/api/electric/likes'
+      preLoaderRoute: typeof ApiElectricLikesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/electric/follows': {
+      id: '/api/electric/follows'
+      path: '/api/electric/follows'
+      fullPath: '/api/electric/follows'
+      preLoaderRoute: typeof ApiElectricFollowsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/electric/feed-items': {
+      id: '/api/electric/feed-items'
+      path: '/api/electric/feed-items'
+      fullPath: '/api/electric/feed-items'
+      preLoaderRoute: typeof ApiElectricFeedItemsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/electric/bookmarks': {
+      id: '/api/electric/bookmarks'
+      path: '/api/electric/bookmarks'
+      fullPath: '/api/electric/bookmarks'
+      preLoaderRoute: typeof ApiElectricBookmarksRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/auth/$': {
@@ -386,17 +387,17 @@ const AuthenticatedRouteRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
-  ApiBookmarksRoute: ApiBookmarksRoute,
   ApiEventsRoute: ApiEventsRoute,
-  ApiFeedItemsRoute: ApiFeedItemsRoute,
-  ApiFollowsRoute: ApiFollowsRoute,
-  ApiLikesRoute: ApiLikesRoute,
-  ApiNotificationsRoute: ApiNotificationsRoute,
-  ApiPostsRoute: ApiPostsRoute,
-  ApiRepostsRoute: ApiRepostsRoute,
   ApiUploadRoute: ApiUploadRoute,
-  ApiUsersRoute: ApiUsersRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
+  ApiElectricBookmarksRoute: ApiElectricBookmarksRoute,
+  ApiElectricFeedItemsRoute: ApiElectricFeedItemsRoute,
+  ApiElectricFollowsRoute: ApiElectricFollowsRoute,
+  ApiElectricLikesRoute: ApiElectricLikesRoute,
+  ApiElectricNotificationsRoute: ApiElectricNotificationsRoute,
+  ApiElectricPostsRoute: ApiElectricPostsRoute,
+  ApiElectricRepostsRoute: ApiElectricRepostsRoute,
+  ApiElectricUsersRoute: ApiElectricUsersRoute,
   ProfileUsernameIndexRoute: ProfileUsernameIndexRoute,
   ProfileUsernamePostPostIdRoute: ProfileUsernamePostPostIdRoute,
 }
