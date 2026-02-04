@@ -23,9 +23,6 @@ const config = defineConfig({
   ],
   ssr: {
     noExternal: ["@tabler/icons-react"],
-  },
-  server: {
-    allowedHosts: ['localhost', '.ts.net'],
   }
 })
 

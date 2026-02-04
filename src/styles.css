@@ -126,11 +126,28 @@
   [role="button"]:not(:disabled) {
     cursor: pointer;
   }
-  .tiptap p.is-editor-empty:first-child::before {
-    color: #adb5bd;
-    content: attr(data-placeholder);
-    float: left;
-    height: 0;
-    pointer-events: none;
+  .tiptap {
+    p.is-editor-empty:first-child::before {
+      color: #adb5bd;
+      content: attr(data-placeholder);
+      float: left;
+      height: 0;
+      pointer-events: none;
+    }
+
+    :first-child {
+      margin-top: 0;
+    }
+
+    .mention {
+      background-color: var(--primary-foreground);
+      border-radius: 0.4rem;
+      box-decoration-break: clone;
+      color: var(--primary);
+      padding: 0.1rem 0.3rem;
+      &::after {
+        content: '\200B';
+      }
+    }
   }
 }

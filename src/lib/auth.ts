@@ -1,10 +1,12 @@
-import { fakerEN_US as faker } from "@faker-js/faker";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { anonymous, username } from "better-auth/plugins";
 import { tanstackStartCookies } from "better-auth/tanstack-start";
+import Chance from "chance";
 import { db } from "@/db";
 import * as authSchema from "@/db/schema/better-auth";
+
+const chance = new Chance();
 
 export const auth = betterAuth({
   baseURL: process.env.BETTER_AUTH_URL,
@@ -51,9 +53,7 @@ export const auth = betterAuth({
       create: {
         before: async (user) => {
           if (!user.username) {
-            const firstName = user.name.split(" ")[0];
-            const lastName = user.name.split(" ")[1];
-            user.username = faker.internet.username({ firstName, lastName });
+            user.username = chance.word();
           }
           return { data: user };
         },
@@ -62,10 +62,13 @@ export const auth = betterAuth({
   },
   plugins: [
     anonymous({
-      generateName: () =>
-        `${faker.person.firstName()} ${faker.person.lastName()}`,
+      generateName: () => chance.name(),
     }),
-    username(),
+    username({
+      usernameValidator: (username) => {
+        return /^[\w]+$/.test(username);
+      },
+    }),
     tanstackStartCookies(),
   ],
 });
