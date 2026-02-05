@@ -403,7 +403,7 @@ export const Route = createFileRoute("/api/events")({
         } catch (error) {
           console.error("[EVENTS_POST]", error);
           return Response.json(
-            { message: "Failed to create post" },
+            { message: "Internal Server Error" },
             { status: 500 },
           );
         }

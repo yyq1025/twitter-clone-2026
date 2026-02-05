@@ -5,6 +5,7 @@ import viteReact from '@vitejs/plugin-react'
 import viteTsConfigPaths from 'vite-tsconfig-paths'
 import tailwindcss from '@tailwindcss/vite'
 import { nitro } from 'nitro/vite'
+import { workflow } from "workflow/vite";
 
 const config = defineConfig({
   plugins: [
@@ -20,6 +21,7 @@ const config = defineConfig({
         plugins: ['babel-plugin-react-compiler'],
       },
     }),
+    workflow(),
   ],
   ssr: {
     noExternal: ["@tabler/icons-react"],
