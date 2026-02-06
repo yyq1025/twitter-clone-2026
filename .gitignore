@@ -11,6 +11,8 @@ count.txt
 .output
 .vinxi
 todos.json
+.workflow-data
+.well-known
 
 # Playwright
 /test-results/

@@ -1,8 +1,8 @@
 import type { Txid } from "@tanstack/electric-db-collection";
 import { createFileRoute } from "@tanstack/react-router";
 import { getRequestHeaders } from "@tanstack/react-start/server";
-import { and, eq, inArray, sql } from "drizzle-orm";
-import type { PgTransaction } from "drizzle-orm/pg-core";
+import { and, eq, sql } from "drizzle-orm";
+import { start } from "workflow/api";
 import { db } from "@/db";
 import { users } from "@/db/schema/better-auth";
 import { bookmarks } from "@/db/schema/bookmark";
@@ -13,10 +13,23 @@ import { notifications } from "@/db/schema/notification";
 import { posts } from "@/db/schema/post";
 import { reposts } from "@/db/schema/repost";
 import { auth } from "@/lib/auth";
-import { eventSchema, type InsertNotification } from "@/lib/validators";
+import { eventSchema } from "@/lib/validators";
+import { createPostWithSideEffects } from "@/server/create-post-service";
 import { detectFacets } from "@/utils/post";
+import { handleBotCreatePost } from "@/workflows/bot-create-post";
 
-async function generateTxId(tx: PgTransaction<any, any, any>): Promise<Txid> {
+type DbTransaction = Parameters<Parameters<typeof db.transaction>[0]>[0];
+const AI_USERNAME = "ai";
+
+function hasAiMention(content: string) {
+  return detectFacets(content).some((facet) => {
+    return (
+      facet.type === "mention" && facet.username.toLowerCase() === AI_USERNAME
+    );
+  });
+}
+
+async function generateTxId(tx: DbTransaction): Promise<Txid> {
   const result = await tx.execute(
     sql`SELECT pg_current_xact_id()::xid::text as txid`,
   );
@@ -57,85 +70,55 @@ export const Route = createFileRoute("/api/events")({
 
           switch (event.type) {
             case "post.create": {
-              await db.transaction(async (tx) => {
-                txid = await generateTxId(tx);
-                const [post] = await tx
-                  .insert(posts)
-                  .values({ ...event.payload, creator_id: session.user.id })
-                  .returning();
-                await tx.insert(feed_items).values({
-                  type: "post",
-                  creator_id: session.user.id,
-                  post_id: post.id,
-                });
-                await tx
-                  .update(users)
-                  .set({
-                    postsCount: sql`${users.postsCount} + 1`,
-                  })
-                  .where(eq(users.id, session.user.id));
-                const notificationsToInsert: InsertNotification[] = [];
-                const mentionUsernames = Array.from(
-                  new Set(
-                    detectFacets(post.content)
-                      .filter(
-                        (facet) =>
-                          facet.type === "mention" && facet.username.length > 0,
-                      )
-                      .map((facet) => facet.username),
-                  ),
-                );
-                if (mentionUsernames.length > 0) {
-                  const mentionedUsers = await tx
+              txid = await createPostWithSideEffects({
+                actorUserId: session.user.id,
+                payload: event.payload,
+              });
+
+              if (hasAiMention(event.payload.content)) {
+                try {
+                  const [aiBotUser] = await db
                     .select({ id: users.id, username: users.username })
                     .from(users)
-                    .where(inArray(users.username, mentionUsernames));
-                  for (const user of mentionedUsers) {
-                    if (
-                      user.id !== session.user.id &&
-                      !notificationsToInsert.find(
-                        (n) => n.recipient_id === user.id,
-                      )
-                    ) {
-                      notificationsToInsert.push({
-                        creator_id: session.user.id,
-                        recipient_id: user.id,
-                        reason: "mention",
-                        reason_post_id: post.id,
-                      });
-                    }
-                  }
-                }
-                if (post.reply_parent_id) {
-                  const [replyParent] = await tx
-                    .update(posts)
-                    .set({
-                      reply_count: sql`${posts.reply_count} + 1`,
-                    })
-                    .where(eq(posts.id, post.reply_parent_id))
-                    .returning();
-                  if (
-                    replyParent &&
-                    session.user.id !== replyParent.creator_id &&
-                    !notificationsToInsert.find(
-                      (n) => n.recipient_id === replyParent.creator_id,
+                    .where(
+                      and(
+                        eq(users.username, AI_USERNAME),
+                        eq(users.isBot, true),
+                      ),
                     )
-                  ) {
-                    notificationsToInsert.push({
-                      creator_id: session.user.id,
-                      recipient_id: replyParent.creator_id,
-                      reason: "reply",
-                      reason_post_id: replyParent.id,
+                    .limit(1);
+
+                  if (!aiBotUser) {
+                    console.error("[EVENTS_POST] AI bot user not found", {
+                      actorUserId: session.user.id,
+                      postId: event.payload.id,
+                      username: AI_USERNAME,
                     });
+                    break;
                   }
+
+                  if (aiBotUser.id !== session.user.id) {
+                    await start(handleBotCreatePost, [
+                      {
+                        botUserId: aiBotUser.id,
+                        replyParentId: event.payload.id,
+                        replyRootId:
+                          event.payload.reply_root_id ?? event.payload.id,
+                        triggerPostId: event.payload.id,
+                      },
+                    ]);
+                  }
+                } catch (error) {
+                  console.error(
+                    "[EVENTS_POST] Failed to start AI reply workflow",
+                    {
+                      actorUserId: session.user.id,
+                      postId: event.payload.id,
+                      error,
+                    },
+                  );
                 }
-                if (notificationsToInsert.length > 0) {
-                  await tx
-                    .insert(notifications)
-                    .values(notificationsToInsert)
-                    .onConflictDoNothing();
-                }
-              });
+              }
               break;
             }
             case "post.like": {

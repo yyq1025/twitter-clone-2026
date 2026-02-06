@@ -1,6 +1,6 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { anonymous, username } from "better-auth/plugins";
+import { admin, anonymous, username } from "better-auth/plugins";
 import { tanstackStartCookies } from "better-auth/tanstack-start";
 import Chance from "chance";
 import { db } from "@/db";
@@ -40,6 +40,10 @@ export const auth = betterAuth({
         type: "string",
         defaultValue: "",
       },
+      isBot: {
+        type: "boolean",
+        defaultValue: false,
+      },
     },
   },
   socialProviders: {
@@ -69,6 +73,7 @@ export const auth = betterAuth({
         return /^[\w]+$/.test(username);
       },
     }),
+    admin(),
     tanstackStartCookies(),
   ],
 });

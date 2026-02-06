@@ -1,7 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { getRequestHeaders } from "@tanstack/react-start/server";
 import { auth } from "@/lib/auth";
-import { prepareElectricUrl, proxyElectricRequest } from "@/lib/electric-proxy";
+import {
+  prepareElectricUrl,
+  proxyElectricRequest,
+} from "@/server/electric-proxy";
 
 export const Route = createFileRoute("/api/electric/reposts")({
   server: {
