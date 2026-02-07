@@ -11,6 +11,7 @@ const config = defineConfig({
   plugins: [
     devtools(),
     nitro(),
+    workflow(),
     viteTsConfigPaths({
       projects: ['./tsconfig.json'],
     }),
@@ -21,7 +22,6 @@ const config = defineConfig({
         plugins: ['babel-plugin-react-compiler'],
       },
     }),
-    workflow(),
   ],
   ssr: {
     noExternal: ["@tabler/icons-react"],

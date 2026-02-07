@@ -12,6 +12,8 @@ services:
       - postgres_data:/var/lib/postgresql/data
     ports:
       - '54321:5432'
+    tmpfs:
+      - /tmp
     command:
       - -c
       - listen_addresses=*

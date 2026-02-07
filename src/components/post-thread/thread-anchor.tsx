@@ -145,7 +145,7 @@ export function ThreadAnchor({ post, user }: ThreadAnchorProps) {
             </div>
           </div>
         </div>
-        <p className="wrap-break-word whitespace-pre-wrap text-lg leading-tight">
+        <p className="wrap-break-word whitespace-pre-wrap text-lg leading-snug">
           {post.content}
         </p>
         {post.media && post.media.length > 0 && (

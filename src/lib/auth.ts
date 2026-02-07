@@ -57,7 +57,9 @@ export const auth = betterAuth({
       create: {
         before: async (user) => {
           if (!user.username) {
-            user.username = chance.word();
+            user.username = chance.word({
+              syllables: chance.integer({ min: 2, max: 5 }),
+            });
           }
           return { data: user };
         },

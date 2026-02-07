@@ -12,7 +12,6 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiUploadRouteImport } from './routes/api/upload'
-import { Route as ApiTestRouteImport } from './routes/api/test'
 import { Route as ApiEventsRouteImport } from './routes/api/events'
 import { Route as AuthenticatedNotificationsRouteImport } from './routes/_authenticated/notifications'
 import { Route as AuthenticatedBookmarksRouteImport } from './routes/_authenticated/bookmarks'
@@ -40,11 +39,6 @@ const IndexRoute = IndexRouteImport.update({
 const ApiUploadRoute = ApiUploadRouteImport.update({
   id: '/api/upload',
   path: '/api/upload',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiTestRoute = ApiTestRouteImport.update({
-  id: '/api/test',
-  path: '/api/test',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiEventsRoute = ApiEventsRouteImport.update({
@@ -126,7 +120,6 @@ export interface FileRoutesByFullPath {
   '/bookmarks': typeof AuthenticatedBookmarksRoute
   '/notifications': typeof AuthenticatedNotificationsRoute
   '/api/events': typeof ApiEventsRoute
-  '/api/test': typeof ApiTestRoute
   '/api/upload': typeof ApiUploadRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/electric/bookmarks': typeof ApiElectricBookmarksRoute
@@ -145,7 +138,6 @@ export interface FileRoutesByTo {
   '/bookmarks': typeof AuthenticatedBookmarksRoute
   '/notifications': typeof AuthenticatedNotificationsRoute
   '/api/events': typeof ApiEventsRoute
-  '/api/test': typeof ApiTestRoute
   '/api/upload': typeof ApiUploadRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/electric/bookmarks': typeof ApiElectricBookmarksRoute
@@ -166,7 +158,6 @@ export interface FileRoutesById {
   '/_authenticated/bookmarks': typeof AuthenticatedBookmarksRoute
   '/_authenticated/notifications': typeof AuthenticatedNotificationsRoute
   '/api/events': typeof ApiEventsRoute
-  '/api/test': typeof ApiTestRoute
   '/api/upload': typeof ApiUploadRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/electric/bookmarks': typeof ApiElectricBookmarksRoute
@@ -187,7 +178,6 @@ export interface FileRouteTypes {
     | '/bookmarks'
     | '/notifications'
     | '/api/events'
-    | '/api/test'
     | '/api/upload'
     | '/api/auth/$'
     | '/api/electric/bookmarks'
@@ -206,7 +196,6 @@ export interface FileRouteTypes {
     | '/bookmarks'
     | '/notifications'
     | '/api/events'
-    | '/api/test'
     | '/api/upload'
     | '/api/auth/$'
     | '/api/electric/bookmarks'
@@ -226,7 +215,6 @@ export interface FileRouteTypes {
     | '/_authenticated/bookmarks'
     | '/_authenticated/notifications'
     | '/api/events'
-    | '/api/test'
     | '/api/upload'
     | '/api/auth/$'
     | '/api/electric/bookmarks'
@@ -245,7 +233,6 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   ApiEventsRoute: typeof ApiEventsRoute
-  ApiTestRoute: typeof ApiTestRoute
   ApiUploadRoute: typeof ApiUploadRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiElectricBookmarksRoute: typeof ApiElectricBookmarksRoute
@@ -281,13 +268,6 @@ declare module '@tanstack/react-router' {
       path: '/api/upload'
       fullPath: '/api/upload'
       preLoaderRoute: typeof ApiUploadRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/test': {
-      id: '/api/test'
-      path: '/api/test'
-      fullPath: '/api/test'
-      preLoaderRoute: typeof ApiTestRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/events': {
@@ -408,7 +388,6 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   ApiEventsRoute: ApiEventsRoute,
-  ApiTestRoute: ApiTestRoute,
   ApiUploadRoute: ApiUploadRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiElectricBookmarksRoute: ApiElectricBookmarksRoute,

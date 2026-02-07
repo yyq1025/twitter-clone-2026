@@ -1,4 +1,5 @@
-import { generateText } from "ai";
+import { google } from "@ai-sdk/google";
+import { generateText, stepCountIs } from "ai";
 import { eq, sql } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 import { v7 as uuidv7 } from "uuid";
@@ -7,8 +8,8 @@ import { users } from "@/db/schema/better-auth";
 import { posts } from "@/db/schema/post";
 import { createPostWithSideEffects } from "@/server/create-post-service";
 
-const AI_MODEL = "google/gemini-3-flash";
 const MAX_POST_CONTENT_LENGTH = 280;
+const NEWS_DEFAULT_WINDOW_DAYS = 7;
 
 export type BotCreatePostWorkflowInput = {
   botUserId: string;
@@ -102,10 +103,11 @@ function buildContextPrompt(context: PromptContextSnapshot) {
     context.parent ? buildPromptSection("parent_post", context.parent) : null,
     context.root ? buildPromptSection("root_post", context.root) : null,
   ].filter(Boolean);
+  const todayUtc = new Date().toISOString().slice(0, 10);
 
   return `
 <task>
-Write one direct English reply to the trigger post.
+Write one direct reply to the trigger post.
 </task>
 
 <rules>
@@ -114,11 +116,23 @@ Write one direct English reply to the trigger post.
 - Reply to the trigger post directly.
 - Use parent/root posts only as background context.
 - Do not invent facts beyond the provided context.
+- Follow the language used in the trigger post.
+- Call tool "google_search" only when the user explicitly asks for latest news/current events/real-time updates.
+- If "latest" is requested without a time range, interpret it as the last ${NEWS_DEFAULT_WINDOW_DAYS} days.
+- If no country/region is specified, use global scope.
+- If no reliable latest information is found, clearly say you could not find reliable latest information and ask the user to narrow the topic or provide keywords.
+- Do not include source links.
 - No hashtags.
 - No emojis.
 - Plain text only.
 - Keep within 280 characters.
 </rules>
+
+<runtime_context>
+- today_utc: ${todayUtc}
+- latest_default_window_days: ${NEWS_DEFAULT_WINDOW_DAYS}
+- default_news_region: global
+</runtime_context>
 
 <post_context>
 ${sections.join("\n\n")}
@@ -222,35 +236,42 @@ async function createBotPostContent({
 
   try {
     const prompt = buildContextPrompt(contextSnapshot);
-    const result = await generateText({
-      model: AI_MODEL,
+    const { text, finishReason, totalUsage, response } = await generateText({
+      model: "google/gemini-3-flash",
       prompt,
+      stopWhen: stepCountIs(5),
+      tools: {
+        google_search: google.tools.googleSearch({}),
+      },
     });
-    const llmContent = truncatePostContent(result.text.trim());
+
+    const llmContent = truncatePostContent(text.trim());
 
     if (llmContent.length === 0) {
-      throw new Error("LLM returned empty content");
+      console.log("[BOT_CREATE_POST] LLM result", {
+        text,
+      });
+      throw new Error(
+        `LLM returned empty content (finishReason=${finishReason})`,
+      );
     }
 
     console.info("[BOT_CREATE_POST] LLM content generated", {
-      model: AI_MODEL,
-      runId: result.response.id,
+      runId: response.id,
       botUserId,
       contextPostIds: {
         trigger: contextSnapshot.trigger.postId,
         parent: contextSnapshot.parent?.postId ?? null,
         root: contextSnapshot.root?.postId ?? null,
       },
-      promptLength: prompt.length,
       latencyMs: Date.now() - startedAt,
-      finishReason: result.finishReason,
-      usage: result.usage,
+      finalFinishReason: finishReason,
+      totalUsage,
     });
 
     return llmContent;
   } catch (error) {
     console.error("[BOT_CREATE_POST] LLM generation failed", {
-      model: AI_MODEL,
       runId: null,
       botUserId,
       contextPostIds: {

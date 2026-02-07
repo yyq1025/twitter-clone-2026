@@ -41,10 +41,14 @@ export function prepareElectricUrl(requestUrl: string): URL {
 /**
  * Proxies a request to Electric SQL and returns the response
  * @param originUrl - The prepared Electric SQL URL
+ * @param init - Optional fetch init parameters
  * @returns The proxied response
  */
-export async function proxyElectricRequest(originUrl: URL): Promise<Response> {
-  const response = await fetch(originUrl);
+export async function proxyElectricRequest(
+  originUrl: URL,
+  init?: RequestInit & { duplex?: "half" },
+): Promise<Response> {
+  const response = await fetch(originUrl, init);
   const headers = new Headers(response.headers);
   headers.delete(`content-encoding`);
   headers.delete(`content-length`);

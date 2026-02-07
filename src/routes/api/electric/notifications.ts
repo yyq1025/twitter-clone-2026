@@ -27,6 +27,29 @@ export const Route = createFileRoute("/api/electric/notifications")({
 
         return proxyElectricRequest(originUrl);
       },
+
+      POST: async ({ request }) => {
+        const session = await auth.api.getSession({
+          headers: getRequestHeaders(),
+        });
+        if (!session?.user) {
+          return Response.json({ message: "Unauthorized" }, { status: 401 });
+        }
+
+        const originUrl = prepareElectricUrl(request.url);
+        originUrl.searchParams.set("table", "notifications");
+        originUrl.searchParams.set(
+          "where",
+          `"recipient_id" = '${session.user.id}'`,
+        );
+
+        return proxyElectricRequest(originUrl, {
+          method: "POST",
+          headers: request.headers,
+          body: request.body,
+          duplex: "half",
+        });
+      },
     },
   },
 });
