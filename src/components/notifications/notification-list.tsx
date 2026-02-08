@@ -34,6 +34,10 @@ function NotificationItem({
     return <PostItem post={reason_post} user={user} />;
   }
 
+  if (notification.reason === "mention" && reason_post) {
+    return <PostItem post={reason_post} user={user} />;
+  }
+
   const icon =
     notification.reason === "like" ? (
       <IconHeartFilled className="size-7 text-pink-600" />
@@ -57,9 +61,7 @@ function NotificationItem({
           {additionalUsers.slice(0, 4).map((u) => (
             <Avatar key={u.id} className="size-9">
               <AvatarImage src={u.image || undefined} alt={u.name} />
-              <AvatarFallback>
-                {u.name[0].toUpperCase()}
-              </AvatarFallback>
+              <AvatarFallback>{u.name[0].toUpperCase()}</AvatarFallback>
             </Avatar>
           ))}
           {additionalUsers.length > 4 && (

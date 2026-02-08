@@ -9,10 +9,10 @@ services:
       POSTGRES_PASSWORD: password
     volumes:
       - ./drizzle:/docker-entrypoint-initdb.d:ro
+      - postgres_data:/var/lib/postgresql/data
     ports:
       - '54321:5432'
     tmpfs:
-      - /var/lib/postgresql/data
       - /tmp
     command:
       - -c
@@ -45,3 +45,6 @@ services:
     ports:
       - "9090:9090"
       - "9191:9191"
+
+volumes:
+  postgres_data:

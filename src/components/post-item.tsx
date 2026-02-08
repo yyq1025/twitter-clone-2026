@@ -181,7 +181,7 @@ export function PostItem({
               <span>{dayjs(post.created_at).format("MMM D")}</span>
             </p>
 
-            <p className="wrap-break-word whitespace-pre-wrap leading-tight">
+            <p className="wrap-break-word whitespace-pre-wrap leading-snug">
               {post.content}
             </p>
             {post.media && post.media.length > 0 && (

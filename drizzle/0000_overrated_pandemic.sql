@@ -23,6 +23,7 @@ CREATE TABLE "sessions" (
 	"ip_address" text,
 	"user_agent" text,
 	"user_id" text NOT NULL,
+	"impersonated_by" text,
 	CONSTRAINT "sessions_token_unique" UNIQUE("token")
 );
 --> statement-breakpoint
@@ -42,6 +43,11 @@ CREATE TABLE "users" (
 	"follows_count" integer DEFAULT 0,
 	"last_seen_notification_id" integer DEFAULT 0,
 	"bio" text DEFAULT '',
+	"role" text DEFAULT 'user',
+	"banned" boolean DEFAULT false,
+	"ban_reason" text,
+	"ban_expires" timestamp with time zone,
+	"is_bot" boolean DEFAULT false,
 	CONSTRAINT "users_email_unique" UNIQUE("email"),
 	CONSTRAINT "users_username_unique" UNIQUE("username")
 );

@@ -1,4 +1,5 @@
 import {
+  adminClient,
   anonymousClient,
   inferAdditionalFields,
   usernameClient,
@@ -10,6 +11,7 @@ export const authClient = createAuthClient({
   plugins: [
     anonymousClient(),
     usernameClient(),
+    adminClient(),
     inferAdditionalFields<typeof auth>(),
   ],
 });

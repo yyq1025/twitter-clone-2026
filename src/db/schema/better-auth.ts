@@ -29,6 +29,11 @@ export const users = pgTable("users", {
   followsCount: integer("follows_count").default(0),
   lastSeenNotificationId: integer("last_seen_notification_id").default(0),
   bio: text("bio").default(""),
+  role: text("role").default("user"),
+  banned: boolean("banned").default(false),
+  banReason: text("ban_reason"),
+  banExpires: timestamp("ban_expires", { withTimezone: true }),
+  isBot: boolean("is_bot").default(false),
 });
 
 export const sessions = pgTable(
@@ -48,6 +53,7 @@ export const sessions = pgTable(
     userId: text("user_id")
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
+    impersonatedBy: text("impersonated_by"),
   },
   (table) => [index("sessions_userId_idx").on(table.userId)],
 );

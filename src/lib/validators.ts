@@ -65,7 +65,13 @@ export const eventSchema = z.union([
 ]);
 
 export const selectNotificationSchema = createSelectSchema(notifications, {
-  reason: z.enum(["like", "reply", "repost", "follow"]),
+  reason: z.enum(["like", "reply", "repost", "follow", "mention"]),
 });
 
 export type SelectNotification = z.infer<typeof selectNotificationSchema>;
+
+export const insertNotificationSchema = createInsertSchema(notifications, {
+  reason: z.enum(["like", "reply", "repost", "follow", "mention"]),
+});
+
+export type InsertNotification = z.infer<typeof insertNotificationSchema>;
