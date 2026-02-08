@@ -32,15 +32,13 @@ type PromptContextSnapshot = {
   root?: PromptPostContext;
 };
 
-export async function handleBotCreatePost(input: BotCreatePostWorkflowInput) {
+export async function handleBotCreatePost({
+  botUserId,
+  replyRootId = null,
+  replyParentId = null,
+  triggerPostId,
+}: BotCreatePostWorkflowInput) {
   "use workflow";
-
-  const {
-    botUserId,
-    replyRootId = null,
-    replyParentId = null,
-    triggerPostId,
-  } = input;
 
   if (!triggerPostId) {
     throw new Error("triggerPostId is required for context-aware generation");
@@ -70,18 +68,6 @@ export async function handleBotCreatePost(input: BotCreatePostWorkflowInput) {
     content,
     txid,
   };
-}
-
-function truncatePostContent(content: string) {
-  return Array.from(content).slice(0, MAX_POST_CONTENT_LENGTH).join("");
-}
-
-function toIsoString(value: Date | string) {
-  if (value instanceof Date) {
-    return value.toISOString();
-  }
-
-  return new Date(value).toISOString();
 }
 
 function buildPromptSection(tag: string, context: PromptPostContext) {
@@ -191,7 +177,7 @@ async function loadBotPromptContext({
     content: record.triggerPost.content,
     creatorName: record.triggerUser.name,
     creatorUsername: record.triggerUser.username ?? "unknown",
-    createdAtIso: toIsoString(record.triggerPost.created_at),
+    createdAtIso: record.triggerPost.created_at.toISOString(),
   };
 
   const parent: PromptPostContext | undefined =
@@ -201,7 +187,7 @@ async function loadBotPromptContext({
           content: record.parentPost.content,
           creatorName: record.parentUser.name,
           creatorUsername: record.parentUser.username ?? "unknown",
-          createdAtIso: toIsoString(record.parentPost.created_at),
+          createdAtIso: record.parentPost.created_at.toISOString(),
         }
       : undefined;
 
@@ -212,7 +198,7 @@ async function loadBotPromptContext({
           content: record.rootPost.content,
           creatorName: record.rootUser.name,
           creatorUsername: record.rootUser.username ?? "unknown",
-          createdAtIso: toIsoString(record.rootPost.created_at),
+          createdAtIso: record.rootPost.created_at.toISOString(),
         }
       : undefined;
 
@@ -245,7 +231,7 @@ async function createBotPostContent({
       },
     });
 
-    const llmContent = truncatePostContent(text.trim());
+    const llmContent = text.trim().slice(0, MAX_POST_CONTENT_LENGTH);
 
     if (llmContent.length === 0) {
       console.log("[BOT_CREATE_POST] LLM result", {
