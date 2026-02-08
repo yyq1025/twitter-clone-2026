@@ -9,19 +9,19 @@ import { workflow } from "workflow/vite";
 
 const config = defineConfig({
   plugins: [
-    devtools(),
-    nitro(),
-    workflow(),
     viteTsConfigPaths({
       projects: ['./tsconfig.json'],
     }),
     tailwindcss(),
     tanstackStart(),
+    nitro(),
+    workflow(),
     viteReact({
       babel: {
         plugins: ['babel-plugin-react-compiler'],
       },
     }),
+    devtools(),
   ],
   ssr: {
     noExternal: ["@tabler/icons-react"],
