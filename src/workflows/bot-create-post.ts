@@ -13,8 +13,8 @@ const NEWS_DEFAULT_WINDOW_DAYS = 7;
 
 export type BotCreatePostWorkflowInput = {
   botUserId: string;
-  replyRootId?: string | null;
-  replyParentId?: string | null;
+  triggerRootId?: string | null;
+  triggerParentId?: string | null;
   triggerPostId?: string;
 };
 
@@ -34,8 +34,8 @@ type PromptContextSnapshot = {
 
 export async function handleBotCreatePost({
   botUserId,
-  replyRootId = null,
-  replyParentId = null,
+  triggerRootId = null,
+  triggerParentId = null,
   triggerPostId,
 }: BotCreatePostWorkflowInput) {
   "use workflow";
@@ -46,8 +46,8 @@ export async function handleBotCreatePost({
 
   const contextSnapshot = await loadBotPromptContext({
     triggerPostId,
-    replyParentId,
-    replyRootId,
+    triggerParentId,
+    triggerRootId,
   });
 
   const content = await createBotPostContent({
@@ -57,8 +57,8 @@ export async function handleBotCreatePost({
   const txid = await createBotPost({
     botUserId,
     content,
-    replyRootId,
-    replyParentId,
+    replyRootId: triggerRootId ?? triggerParentId,
+    replyParentId: triggerPostId,
   });
 
   return {
@@ -132,12 +132,12 @@ Return only the final reply text.
 
 async function loadBotPromptContext({
   triggerPostId,
-  replyParentId,
-  replyRootId,
+  triggerParentId,
+  triggerRootId,
 }: {
   triggerPostId: string;
-  replyParentId: string | null;
-  replyRootId: string | null;
+  triggerParentId: string | null;
+  triggerRootId: string | null;
 }) {
   "use step";
 
@@ -160,10 +160,13 @@ async function loadBotPromptContext({
     .innerJoin(triggerUser, eq(triggerUser.id, posts.creator_id))
     .leftJoin(
       parentPost,
-      replyParentId ? eq(parentPost.id, replyParentId) : sql`false`,
+      triggerParentId ? eq(parentPost.id, triggerParentId) : sql`false`,
     )
     .leftJoin(parentUser, eq(parentUser.id, parentPost.creator_id))
-    .leftJoin(rootPost, replyRootId ? eq(rootPost.id, replyRootId) : sql`false`)
+    .leftJoin(
+      rootPost,
+      triggerRootId ? eq(rootPost.id, triggerRootId) : sql`false`,
+    )
     .leftJoin(rootUser, eq(rootUser.id, rootPost.creator_id))
     .where(eq(posts.id, triggerPostId))
     .limit(1);

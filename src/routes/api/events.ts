@@ -101,8 +101,8 @@ export const Route = createFileRoute("/api/events")({
                     await start(handleBotCreatePost, [
                       {
                         botUserId: aiBotUser.id,
-                        replyParentId: event.payload.reply_parent_id,
-                        replyRootId: event.payload.reply_root_id,
+                        triggerParentId: event.payload.reply_parent_id,
+                        triggerRootId: event.payload.reply_root_id,
                         triggerPostId: event.payload.id,
                       },
                     ]);

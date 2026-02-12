@@ -40,47 +40,24 @@ import { useControllableState } from "@/hooks/use-controllable-state";
 import { usePostMedia } from "@/hooks/use-post-media";
 import { createPost } from "@/lib/actions";
 import { authClient } from "@/lib/auth-client";
-import type { SelectPost, SelectUser } from "@/lib/validators";
-import { detectFacets } from "@/utils/post";
+import type {
+  MentionSuggestionItem,
+  SelectPost,
+  SelectUser,
+} from "@/lib/validators";
 
 type MentionListHandle = {
   onKeyDown: (props: { event: KeyboardEvent }) => boolean;
 };
 
-type MentionUser = {
-  id: string;
-  label: string;
-  name: string;
-  avatar: string;
-};
-
-const mockMentionUsers: MentionUser[] = [
-  {
-    id: "alice",
-    label: "alice",
-    name: "Alice Chen",
-    avatar: "https://i.pravatar.cc/80?u=alice",
-  },
-  {
-    id: "bob",
-    label: "bob",
-    name: "Bob Nguyen",
-    avatar: "https://i.pravatar.cc/80?u=bob",
-  },
-  {
-    id: "charlie",
-    label: "charlie",
-    name: "Charlie Patel",
-    avatar: "https://i.pravatar.cc/80?u=charlie",
-  },
-];
+const MENTION_LIMIT = 8;
 
 const MentionList = (
   props: SuggestionProps & { ref: Ref<MentionListHandle> },
 ) => {
   // const [open, setOpen] = useState(true);
   const [highLightedIndex, setHighlightedIndex] = useState(0);
-  const items = (props.items as MentionUser[]) ?? [];
+  const items = (props.items as MentionSuggestionItem[]) ?? [];
   const anchor = useMemo(() => {
     const rect = props.clientRect?.();
     if (!rect) return null;
@@ -126,8 +103,10 @@ const MentionList = (
         const item = items[highLightedIndex];
         if (item) {
           props.command(item);
+          return true;
         }
-        return true;
+
+        return false;
       }
 
       return false;
@@ -196,6 +175,7 @@ export function CreatePostDialog({
   const { data: session } = authClient.useSession();
   const { uploadAsync } = useUploadFiles({ route: "images" });
   const mentionListRef = useRef<MentionListHandle | null>(null);
+  const mentionFetchControllerRef = useRef<AbortController | null>(null);
   const editor = useEditor({
     extensions: [
       StarterKit.configure(),
@@ -208,16 +188,45 @@ export function CreatePostDialog({
         },
         suggestion: {
           char: "@",
-          items: ({ query }) => {
+          shouldShow: () => true,
+          items: async ({ query }) => {
+            mentionFetchControllerRef.current?.abort();
             const normalizedQuery = query.trim().toLowerCase();
-            if (!normalizedQuery) return mockMentionUsers;
+            if (!normalizedQuery) return [];
 
-            return mockMentionUsers.filter((user) => {
-              return (
-                user.label.toLowerCase().includes(normalizedQuery) ||
-                user.name.toLowerCase().includes(normalizedQuery)
+            const controller = new AbortController();
+            mentionFetchControllerRef.current = controller;
+
+            try {
+              const searchParams = new URLSearchParams({
+                q: normalizedQuery,
+                limit: String(MENTION_LIMIT),
+              });
+              const response = await fetch(
+                `/api/users/mentions?${searchParams.toString()}`,
+                { signal: controller.signal },
               );
-            });
+              if (!response.ok) {
+                return [];
+              }
+
+              const json = await response.json();
+              return json.items as MentionSuggestionItem[];
+            } catch (error) {
+              if (
+                error instanceof DOMException &&
+                error.name === "AbortError"
+              ) {
+                return [];
+              }
+
+              console.error("Failed to fetch mention users:", error);
+              return [];
+            } finally {
+              if (mentionFetchControllerRef.current === controller) {
+                mentionFetchControllerRef.current = null;
+              }
+            }
           },
           render: () => {
             let reactRenderer: ReactRenderer | null = null;
@@ -335,6 +344,12 @@ export function CreatePostDialog({
       setSubmitting(false);
     }
   };
+
+  useEffect(() => {
+    return () => {
+      mentionFetchControllerRef.current?.abort();
+    };
+  }, []);
 
   useEffect(() => {
     return () => {

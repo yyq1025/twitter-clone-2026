@@ -12,16 +12,16 @@ const config = defineConfig({
     viteTsConfigPaths({
       projects: ['./tsconfig.json'],
     }),
+    devtools(),
     tailwindcss(),
     tanstackStart(),
     nitro(),
-    workflow(),
     viteReact({
       babel: {
         plugins: ['babel-plugin-react-compiler'],
       },
     }),
-    devtools(),
+    workflow(),
   ],
   ssr: {
     noExternal: ["@tabler/icons-react"],

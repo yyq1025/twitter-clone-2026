@@ -31,6 +31,24 @@ export const selectBookmarkSchema = createSelectSchema(bookmarks);
 
 export const selectFollowSchema = createSelectSchema(follows);
 
+export const mentionSuggestionItemSchema = z.object({
+  id: selectUserSchema.shape.id,
+  label: z.string().min(1),
+  name: z.string().min(1),
+  avatar: z.string(),
+});
+
+export type MentionSuggestionItem = z.infer<typeof mentionSuggestionItemSchema>;
+
+export const mentionSearchQuerySchema = z.object({
+  q: z.string(),
+  limit: z.coerce.number().int().min(1).max(8).default(8),
+});
+
+export const mentionSearchResponseSchema = z.object({
+  items: z.array(mentionSuggestionItemSchema),
+});
+
 const postCreateEventSchema = z.object({
   type: z.literal("post.create"),
   payload: insertPostSchema,

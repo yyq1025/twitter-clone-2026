@@ -16,6 +16,7 @@ import { Route as ApiEventsRouteImport } from './routes/api/events'
 import { Route as AuthenticatedNotificationsRouteImport } from './routes/_authenticated/notifications'
 import { Route as AuthenticatedBookmarksRouteImport } from './routes/_authenticated/bookmarks'
 import { Route as ProfileUsernameIndexRouteImport } from './routes/profile/$username/index'
+import { Route as ApiUsersMentionsRouteImport } from './routes/api/users/mentions'
 import { Route as ApiElectricUsersRouteImport } from './routes/api/electric/users'
 import { Route as ApiElectricRepostsRouteImport } from './routes/api/electric/reposts'
 import { Route as ApiElectricPostsRouteImport } from './routes/api/electric/posts'
@@ -60,6 +61,11 @@ const AuthenticatedBookmarksRoute = AuthenticatedBookmarksRouteImport.update({
 const ProfileUsernameIndexRoute = ProfileUsernameIndexRouteImport.update({
   id: '/profile/$username/',
   path: '/profile/$username/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiUsersMentionsRoute = ApiUsersMentionsRouteImport.update({
+  id: '/api/users/mentions',
+  path: '/api/users/mentions',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiElectricUsersRoute = ApiElectricUsersRouteImport.update({
@@ -130,6 +136,7 @@ export interface FileRoutesByFullPath {
   '/api/electric/posts': typeof ApiElectricPostsRoute
   '/api/electric/reposts': typeof ApiElectricRepostsRoute
   '/api/electric/users': typeof ApiElectricUsersRoute
+  '/api/users/mentions': typeof ApiUsersMentionsRoute
   '/profile/$username/': typeof ProfileUsernameIndexRoute
   '/profile/$username/post/$postId': typeof ProfileUsernamePostPostIdRoute
 }
@@ -148,6 +155,7 @@ export interface FileRoutesByTo {
   '/api/electric/posts': typeof ApiElectricPostsRoute
   '/api/electric/reposts': typeof ApiElectricRepostsRoute
   '/api/electric/users': typeof ApiElectricUsersRoute
+  '/api/users/mentions': typeof ApiUsersMentionsRoute
   '/profile/$username': typeof ProfileUsernameIndexRoute
   '/profile/$username/post/$postId': typeof ProfileUsernamePostPostIdRoute
 }
@@ -168,6 +176,7 @@ export interface FileRoutesById {
   '/api/electric/posts': typeof ApiElectricPostsRoute
   '/api/electric/reposts': typeof ApiElectricRepostsRoute
   '/api/electric/users': typeof ApiElectricUsersRoute
+  '/api/users/mentions': typeof ApiUsersMentionsRoute
   '/profile/$username/': typeof ProfileUsernameIndexRoute
   '/profile/$username/post/$postId': typeof ProfileUsernamePostPostIdRoute
 }
@@ -188,6 +197,7 @@ export interface FileRouteTypes {
     | '/api/electric/posts'
     | '/api/electric/reposts'
     | '/api/electric/users'
+    | '/api/users/mentions'
     | '/profile/$username/'
     | '/profile/$username/post/$postId'
   fileRoutesByTo: FileRoutesByTo
@@ -206,6 +216,7 @@ export interface FileRouteTypes {
     | '/api/electric/posts'
     | '/api/electric/reposts'
     | '/api/electric/users'
+    | '/api/users/mentions'
     | '/profile/$username'
     | '/profile/$username/post/$postId'
   id:
@@ -225,6 +236,7 @@ export interface FileRouteTypes {
     | '/api/electric/posts'
     | '/api/electric/reposts'
     | '/api/electric/users'
+    | '/api/users/mentions'
     | '/profile/$username/'
     | '/profile/$username/post/$postId'
   fileRoutesById: FileRoutesById
@@ -243,6 +255,7 @@ export interface RootRouteChildren {
   ApiElectricPostsRoute: typeof ApiElectricPostsRoute
   ApiElectricRepostsRoute: typeof ApiElectricRepostsRoute
   ApiElectricUsersRoute: typeof ApiElectricUsersRoute
+  ApiUsersMentionsRoute: typeof ApiUsersMentionsRoute
   ProfileUsernameIndexRoute: typeof ProfileUsernameIndexRoute
   ProfileUsernamePostPostIdRoute: typeof ProfileUsernamePostPostIdRoute
 }
@@ -296,6 +309,13 @@ declare module '@tanstack/react-router' {
       path: '/profile/$username'
       fullPath: '/profile/$username/'
       preLoaderRoute: typeof ProfileUsernameIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/users/mentions': {
+      id: '/api/users/mentions'
+      path: '/api/users/mentions'
+      fullPath: '/api/users/mentions'
+      preLoaderRoute: typeof ApiUsersMentionsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/electric/users': {
@@ -398,6 +418,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiElectricPostsRoute: ApiElectricPostsRoute,
   ApiElectricRepostsRoute: ApiElectricRepostsRoute,
   ApiElectricUsersRoute: ApiElectricUsersRoute,
+  ApiUsersMentionsRoute: ApiUsersMentionsRoute,
   ProfileUsernameIndexRoute: ProfileUsernameIndexRoute,
   ProfileUsernamePostPostIdRoute: ProfileUsernamePostPostIdRoute,
 }
