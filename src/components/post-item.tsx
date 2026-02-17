@@ -1,7 +1,6 @@
 import { Button } from "@base-ui/react/button";
 import {
   IconBookmark,
-  IconDotsVertical,
   IconHeart,
   IconMessage,
   IconRepeat,
@@ -13,6 +12,7 @@ import dayjs from "dayjs";
 import { Activity, type ReactNode, useState } from "react";
 import { CreatePostDialog } from "@/components/create-post-dialog";
 import ProfileHoverCard from "@/components/profile/profile-hover-card";
+import { RichText } from "@/components/rich-text";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Toggle } from "@/components/ui/toggle";
 import { mutateBookmark, mutateLike, mutateRepost } from "@/lib/actions";
@@ -154,7 +154,7 @@ export function PostItem({
                   </AvatarFallback>
                 </Avatar>
               }
-              user={user}
+              username={user.username ?? ""}
             />
             <div className="mt-1 flex-1">
               {(isParent || isRoot) && (
@@ -171,19 +171,20 @@ export function PostItem({
                     {user.name}
                   </span>
                 }
-                user={user}
+                username={user.username ?? ""}
               />
               <ProfileHoverCard
                 trigger={<span>@{user.username}</span>}
-                user={user}
+                username={user.username ?? ""}
               />
               <span>·</span>
               <span>{dayjs(post.created_at).format("MMM D")}</span>
             </p>
 
-            <p className="wrap-break-word whitespace-pre-wrap leading-snug">
-              {post.content}
-            </p>
+            <RichText
+              text={post.content}
+              className="wrap-break-word leading-snug"
+            />
             {post.media && post.media.length > 0 && (
               <div
                 className={cn(

@@ -11,6 +11,7 @@ import dayjs from "dayjs";
 import { Activity, useState } from "react";
 import { CreatePostDialog } from "@/components/create-post-dialog";
 import ProfileHoverCard from "@/components/profile/profile-hover-card";
+import { RichText } from "@/components/rich-text";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Toggle } from "@/components/ui/toggle";
 import { mutateBookmark, mutateLike, mutateRepost } from "@/lib/actions";
@@ -122,7 +123,7 @@ export function ThreadAnchor({ post, user }: ThreadAnchorProps) {
                 <AvatarFallback>{user.name[0].toUpperCase()}</AvatarFallback>
               </Avatar>
             }
-            user={user}
+            username={user.username ?? ""}
           />
           <div className="flex flex-1 items-center">
             <div>
@@ -132,7 +133,7 @@ export function ThreadAnchor({ post, user }: ThreadAnchorProps) {
                     {user.name}
                   </p>
                 }
-                user={user}
+                username={user.username ?? ""}
               />
               <ProfileHoverCard
                 trigger={
@@ -140,14 +141,15 @@ export function ThreadAnchor({ post, user }: ThreadAnchorProps) {
                     @{user.username}
                   </p>
                 }
-                user={user}
+                username={user.username ?? ""}
               />
             </div>
           </div>
         </div>
-        <p className="wrap-break-word whitespace-pre-wrap text-lg leading-snug">
-          {post.content}
-        </p>
+        <RichText
+          text={post.content}
+          className="wrap-break-word text-lg leading-snug"
+        />
         {post.media && post.media.length > 0 && (
           <div
             className={cn(
