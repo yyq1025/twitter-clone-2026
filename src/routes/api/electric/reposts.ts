@@ -46,8 +46,7 @@ export const Route = createFileRoute("/api/electric/reposts")({
         return proxyElectricRequest(originUrl, {
           method: "POST",
           headers: request.headers,
-          body: request.body,
-          duplex: "half",
+          body: await request.text(),
         });
       },
     },
