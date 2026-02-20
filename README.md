@@ -2,9 +2,10 @@
 
 ## Preview
 
-https://github.com/user-attachments/assets/d59e2b64-c332-4845-88f5-d55b30dc2d95
+https://github.com/user-attachments/assets/80e6ab18-22ff-495a-801d-cb588d5e42d1
 
-*Optimistic updates (TanStack DB) + Virtual list (TanStack Virtual) + Live sync (ElectricSQL)*
+
+*Rich Text Editor (TipTap) + Optimistic updates (TanStack DB) + Live sync (ElectricSQL) + Background LLM (Workflow Devkit)*
 
 ## Blog
 
